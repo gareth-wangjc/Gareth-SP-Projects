@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SP Portal — Batch Image Upload Mockup v6</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:13px;color:#1f2937;background:#f0f2f5}
+/* ── PORTAL SHELL ── */
+.portal{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:188px;min-width:188px;background:#fff;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.body{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topnav{height:50px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.page-content{flex:1;overflow-y:auto}
+/* SIDEBAR */
+.sb-logo{padding:12px 14px 10px;border-bottom:1px solid #f3f4f6}
+.sb-logo-spx{font-size:20px;font-weight:800;color:#e8412b;letter-spacing:-1px;line-height:1}
+.sb-logo-sub{font-size:9px;color:#e8412b;letter-spacing:.05em;font-weight:600;line-height:1}
+.sb-role{padding:6px 14px;margin:6px 8px;background:#f3f4f6;border-radius:6px;font-size:11px;color:#374151;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.sb-section{padding:8px 0 2px}
+.sb-sec-label{padding:4px 14px 2px;font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em}
+.sb-item{padding:6px 14px;font-size:12px;color:#4b5563;cursor:pointer}
+.sb-item:hover{background:#f9fafb;color:#111827}
+.sb-item.active{color:#e8412b;font-weight:500;background:#fef2f2}
+/* TOP NAV */
+.tn-bc{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:5px}
+.tn-bc .sep{color:#d1d5db}
+.tn-bc .cur{color:#111827;font-weight:500}
+.tn-spacer{flex:1}
+.tn-icon{width:32px;height:32px;border-radius:6px;border:none;background:transparent;cursor:pointer;font-size:16px;color:#6b7280}
+.tn-icon:hover{background:#f3f4f6}
+.tn-lang{font-size:12px;color:#374151;cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid #e5e7eb;background:#fff}
+.tn-user{font-size:12px;color:#374151;cursor:pointer;display:flex;align-items:center;gap:6px}
+.tn-avatar{width:28px;height:28px;border-radius:50%;background:#e8412b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600}
+.notify{background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 20px;font-size:12px;color:#92400e;display:flex;align-items:center;gap:8px}
+.notify-dot{width:7px;height:7px;border-radius:50%;background:#f59e0b;flex-shrink:0}
+.inner{padding:16px 20px}
+/* SEARCH */
+.search-panel{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;margin-bottom:12px}
+.search-row{display:flex;align-items:center;flex-wrap:wrap}
+.search-row+.search-row{margin-top:8px}
+.sf{display:flex;align-items:center;border-right:1px solid #f3f4f6;padding:0 14px}
+.sf:first-child{padding-left:0}
+.sf-lbl{font-size:12px;color:#374151;font-weight:500;white-space:nowrap;margin-right:8px}
+.sf-sel{border:1px solid #e5e7eb;border-radius:5px;padding:5px 28px 5px 9px;font-size:12px;color:#9ca3af;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239ca3af'/%3E%3C/svg%3E") no-repeat right 8px center;appearance:none;cursor:pointer;outline:none;width:148px}
+.sf-inp{border:1px solid #e5e7eb;border-radius:5px;padding:5px 9px;font-size:12px;color:#374151;background:#fff;outline:none;width:148px}
+.sa{margin-left:auto;display:flex;gap:8px;align-items:center;padding-left:14px}
+.btn-search{background:#e8412b;color:#fff;border:none;border-radius:6px;padding:6px 20px;font-size:12px;font-weight:500;cursor:pointer}
+.btn-reset{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:6px 14px;font-size:12px;color:#374151;cursor:pointer}
+/* ACTION ROW + TABLE */
+.action-row{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.btn-create{background:#e8412b;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:500;cursor:pointer}
+.btn-outline{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:6px 14px;font-size:12px;color:#374151;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-outline:hover{background:#f9fafb}
+.btn-outline.open{border-color:#e8412b;color:#e8412b}
+.caret{font-size:10px;color:#9ca3af}
+.dd-wrap{position:relative}
+.dropdown{position:absolute;top:calc(100% + 4px);left:0;background:#fff;border:1px solid #e5e7eb;border-radius:8px;min-width:220px;z-index:200;box-shadow:0 6px 20px rgba(0,0,0,.12);display:none}
+.dropdown.open{display:block}
+.dd-section{padding:4px 0}
+.dd-sec-label{font-size:10px;font-weight:600;color:#9ca3af;padding:6px 14px 3px;text-transform:uppercase;letter-spacing:.06em}
+.dd-item{padding:7px 14px;font-size:12px;color:#374151;cursor:pointer;display:flex;align-items:center;gap:6px}
+.dd-item:hover{background:#f9fafb}
+.dd-item.hl{color:#e8412b;font-weight:500}
+.dd-item.hl:hover{background:#fef2f2}
+.dd-sep{border-top:1px solid #f3f4f6;margin:2px 0}
+.new-badge{font-size:9px;background:#fef2f2;color:#e8412b;border:1px solid #fecaca;border-radius:4px;padding:1px 5px;font-weight:600}
+.tbl-wrap{background:#fff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{background:#f9fafb;padding:9px 12px;text-align:left;font-size:11px;font-weight:600;color:#6b7280;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+.tbl td{padding:9px 12px;font-size:12px;border-bottom:1px solid #f3f4f6;color:#374151;white-space:nowrap}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#fafafa}
+.b-avail{display:inline-block;background:#f0fdf4;color:#15803d;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:500}
+.b-unavail{font-size:12px;color:#6b7280}
+.b-cout{display:inline-block;background:#f0fdf4;color:#15803d;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:500}
+.edit-link{color:#2563eb;font-size:12px;cursor:pointer}
+.edit-link:hover{text-decoration:underline}
+.tbl-foot{padding:9px 14px;font-size:12px;color:#6b7280;background:#f9fafb;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between}
+.pager{display:flex;align-items:center;gap:4px}
+.pg{width:26px;height:26px;border-radius:4px;border:1px solid #e5e7eb;background:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#374151}
+.pg:hover{background:#f3f4f6}
+.pg.on{background:#e8412b;color:#fff;border-color:#e8412b}
+.pg-dots{color:#9ca3af;font-size:12px;padding:0 2px}
+.goto{display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280}
+.goto-inp{width:44px;border:1px solid #e5e7eb;border-radius:4px;padding:3px 6px;font-size:12px;text-align:center;outline:none}
+.goto-btn{padding:3px 10px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;font-size:12px;cursor:pointer}
+/* SCENE NAV */
+.scene-nav{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;margin-top:16px}
+.scene-nav-label{font-size:10px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.scene-btns{display:flex;gap:6px;flex-wrap:wrap}
+.scene-btn{font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid #e5e7eb;cursor:pointer;background:#fff;color:#6b7280;transition:all .15s}
+.scene-btn:hover{border-color:#e8412b;color:#e8412b}
+.scene-btn.active{background:#e8412b;color:#fff;border-color:#e8412b}
+.scene-display{margin-top:12px;background:#f3f4f6;border-radius:8px;min-height:440px;display:flex;align-items:flex-start;justify-content:center;padding:24px}
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+/* ── MODAL BASE ── */
+.modal{background:#fff;border-radius:10px;border:1px solid #e5e7eb;box-shadow:0 12px 40px rgba(0,0,0,.15);width:560px;max-width:96vw;max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-wide{width:1020px;max-width:98vw}
+/* MODAL HEADER — step flow */
+.modal-header{padding:16px 22px 12px;border-bottom:1px solid #f3f4f6;flex-shrink:0}
+.step-flow{display:flex;align-items:center;gap:0;margin-bottom:5px}
+.step-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#9ca3af}
+.step-item.done{color:#15803d}
+.step-item.active{color:#111827;font-weight:600}
+.step-dot{width:20px;height:20px;border-radius:50%;border:1.5px solid #d1d5db;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#9ca3af;flex-shrink:0}
+.step-dot.done{background:#f0fdf4;border-color:#86efac;color:#15803d}
+.step-dot.active{background:#e8412b;border-color:#e8412b;color:#fff}
+.step-connector{width:28px;height:1.5px;background:#e5e7eb;margin:0 4px;flex-shrink:0}
+.step-connector.done{background:#86efac}
+.step-sub{font-size:11px;color:#9ca3af}
+/* MODAL FOOTER */
+.modal-footer{padding:11px 22px;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:#fff}
+.foot-note{font-size:11px;color:#6b7280}
+.foot-note strong{color:#111827;font-weight:600}
+.btn-group{display:flex;gap:8px}
+.btn-cancel{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:7px 18px;font-size:12px;cursor:pointer;color:#374151}
+.btn-cancel:hover{background:#f9fafb}
+.btn-primary{background:#e8412b;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:500;cursor:pointer}
+.btn-primary:hover{background:#d13620}
+.btn-blue{background:#2563eb;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:500;cursor:pointer}
+.btn-blue:hover{background:#1d4ed8}
+/* UPLOAD ZONE */
+.uz{border:1.5px dashed #d1d5db;border-radius:8px;padding:22px 16px;background:#fafafa;text-align:center;transition:border-color .15s}
+.uz:hover{border-color:#93c5fd;background:#f0f9ff}
+.uz-icon{font-size:34px;margin-bottom:8px}
+.uz-title{font-size:13px;font-weight:600;color:#374151;margin-bottom:4px}
+.uz-hint{font-size:11px;color:#9ca3af;line-height:1.5;margin-bottom:12px}
+.btn-choose{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:6px 16px;font-size:12px;cursor:pointer;color:#374151}
+.file-pill{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:20px;padding:4px 12px;font-size:11px;color:#1d4ed8}
+/* CONVENTION — document style */
+.conv{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:14px 16px;margin-top:14px}
+.conv-h1{font-size:12px;font-weight:700;color:#0369a1;margin-bottom:10px}
+.conv-h2{font-size:11px;font-weight:700;color:#0369a1;margin-top:12px;margin-bottom:5px}
+.conv-body{font-size:11px;color:#0369a1;line-height:1.6;margin-bottom:4px}
+.conv-list{list-style:none;padding:0;margin:4px 0 6px;display:flex;flex-direction:column;gap:3px}
+.conv-list li{font-size:11px;color:#0369a1;line-height:1.5;padding-left:14px;position:relative}
+.conv-list li::before{content:"•";position:absolute;left:0;color:#7dd3fc}
+.conv-sub-list{list-style:none;padding:0;margin:3px 0 0 12px}
+.conv-sub-list li{font-size:11px;color:#0369a1;line-height:1.5;padding-left:12px;position:relative}
+.conv-sub-list li::before{content:"◦";position:absolute;left:0;color:#7dd3fc}
+.conv-code{font-family:'SF Mono',Consolas,monospace;background:#e0f2fe;padding:1px 5px;border-radius:3px;font-size:10.5px;color:#0c4a6e}
+.conv-bold{font-weight:600;color:#0369a1}
+.conv-tip{font-size:10.5px;color:#0369a1;font-style:italic;line-height:1.5;margin-top:5px}
+.conv-note{font-size:10.5px;color:#0369a1;line-height:1.5;margin-top:8px;padding-top:8px;border-top:1px solid #bae6fd}
+/* ALERT */
+.alert-warn{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:11px 14px;margin-bottom:12px}
+.aw-title{font-size:12px;font-weight:600;color:#92400e;margin-bottom:2px}
+.aw-body{font-size:11px;color:#92400e;line-height:1.5}
+/* MINI TABLE */
+.mt-wrap{border:1px solid #f3f4f6;border-radius:6px;overflow:hidden;margin-top:8px}
+.mt{width:100%;border-collapse:collapse;font-size:11px}
+.mt th{background:#f9fafb;padding:6px 10px;text-align:left;font-weight:600;color:#6b7280;border-bottom:1px solid #f3f4f6}
+.mt td{padding:7px 10px;border-bottom:1px solid #f9f9f8;color:#374151;vertical-align:top}
+.mt tr:last-child td{border-bottom:none}
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.sc{border-radius:8px;padding:12px;text-align:center}
+.sc-num{font-size:22px;font-weight:600;margin-bottom:2px}
+.sc-lbl{font-size:11px}
+.sc-g{background:#f0fdf4}.sc-g .sc-num,.sc-g .sc-lbl{color:#15803d}
+.sc-a{background:#fffbeb}.sc-a .sc-num,.sc-a .sc-lbl{color:#92400e}
+.sc-r{background:#fef2f2}.sc-r .sc-num,.sc-r .sc-lbl{color:#991b1b}
+/* ORPHAN STEP */
+.orphan-intro{background:#fff8e1;border:1px solid #fde68a;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#78350f;line-height:1.5}
+.orphan-intro strong{font-weight:600}
+.orphan-table-wrap{border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}
+.orphan-tbl{width:100%;border-collapse:collapse}
+.orphan-tbl th{background:#f9fafb;padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#6b7280;border-bottom:1px solid #e5e7eb}
+.orphan-tbl td{padding:9px 12px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#374151;vertical-align:middle}
+.orphan-tbl tr:last-child td{border-bottom:none}
+.orphan-file{font-weight:500;color:#111827;display:block}
+.orphan-reason{font-size:10px;color:#9ca3af;margin-top:2px}
+.orphan-sel{border:1px solid #e5e7eb;border-radius:6px;padding:5px 24px 5px 8px;font-size:11px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239ca3af'/%3E%3C/svg%3E") no-repeat right 7px center;appearance:none;cursor:pointer;outline:none;color:#374151;width:100%}
+.orphan-slot-sel{border:1px solid #e5e7eb;border-radius:6px;padding:5px 24px 5px 8px;font-size:11px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239ca3af'/%3E%3C/svg%3E") no-repeat right 7px center;appearance:none;cursor:pointer;outline:none;color:#374151;width:100%;margin-top:5px}
+.orphan-skip-btn{font-size:10px;color:#9ca3af;cursor:pointer;background:none;border:none;padding:4px 0 0;text-decoration:underline;text-underline-offset:2px;display:block}
+.orphan-skip-btn:hover{color:#374151}
+.orphan-skipped td{opacity:.4}
+.orphan-skipped .orphan-file{text-decoration:line-through}
+.assigned-tag{display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #86efac;border-radius:20px;padding:2px 8px;font-size:10px;color:#15803d;font-weight:500;margin-top:4px}
+/* ── REVIEW MODAL ── */
+.review-layout{display:grid;grid-template-columns:220px 1fr;border-top:1px solid #f3f4f6;overflow:hidden}
+/* LEFT PANEL */
+.lp{border-right:1px solid #e5e7eb;display:flex;flex-direction:column;max-height:560px}
+.lp-search{padding:7px 9px;border-bottom:1px solid #f3f4f6;background:#fafafa;flex-shrink:0}
+.lp-search input{width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:4px 8px 4px 26px;font-size:11px;outline:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 7px center;color:#374151}
+.lp-search input::placeholder{color:#c9cacc}
+.lp-list{overflow-y:auto;flex:1}
+/* SECTION DIVIDERS */
+.sec-divider{display:flex;align-items:center;gap:5px;padding:7px 10px 5px;position:sticky;top:0;z-index:2;border-bottom:1px solid transparent}
+.sec-divider.ready{background:#f9fafb;border-bottom-color:#f3f4f6;border-top:1px solid #f3f4f6}
+.sec-divider.attn{background:#fff5f5;border-bottom-color:#fecaca;border-top:2px solid #fca5a5;margin-top:4px}
+.sec-divider.excl{background:#f5f5f4;border-bottom-color:#e5e7eb;border-top:1px solid #e5e7eb;margin-top:4px}
+.sec-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.ready .sec-label{color:#6b7280}
+.attn  .sec-label{color:#991b1b}
+.excl  .sec-label{color:#9ca3af}
+.sec-count{border-radius:8px;padding:1px 6px;font-size:9px;font-weight:700;line-height:1.4}
+.ready .sec-count{background:#e5e7eb;color:#6b7280}
+.attn  .sec-count{background:#fecaca;color:#991b1b}
+.excl  .sec-count{background:#e5e7eb;color:#9ca3af}
+.sec-info{margin-left:auto;position:relative;cursor:default}
+.sec-info-icon{font-size:11px;color:#d1d5db;line-height:1}
+.sec-info:hover .sec-info-icon{color:#9ca3af}
+.sec-tooltip{display:none;position:absolute;right:0;top:16px;width:190px;background:#1f2937;color:#f9fafb;font-size:10px;line-height:1.5;border-radius:6px;padding:7px 9px;z-index:10;font-weight:400;text-transform:none;letter-spacing:0;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.sec-info:hover .sec-tooltip{display:block}
+/* SP ROWS */
+.sp-row{padding:6px 10px;cursor:pointer;border-bottom:1px solid #f5f5f4;display:flex;flex-direction:column;gap:1px;position:relative;transition:background .1s}
+.sp-row:hover{background:#fafafa}
+.sp-row.on{background:#fff;border-left:3px solid #e8412b;padding-left:7px}
+.sp-row.on-excl{background:#fff;border-left:3px solid #d1d5db;padding-left:7px}
+.sp-row.dim{opacity:.45}
+.sp-row.dim:hover{opacity:.7}
+.sp-row-top{display:flex;align-items:baseline;gap:5px}
+.sp-row-name{font-size:11px;font-weight:500;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;padding-right:60px}
+.sp-row-name.struck{text-decoration:line-through;color:#c9cacc}
+.sp-row-id{font-size:10px;color:#c9cacc;flex-shrink:0}
+.sp-row-pills{display:flex;gap:2px;flex-wrap:wrap;margin-top:2px}
+.rp{font-size:8.5px;border-radius:8px;padding:1px 5px;font-weight:600}
+.rp-ok{background:#f0fdf4;color:#15803d}
+.rp-bad{background:#fef2f2;color:#991b1b}
+.rp-warn{background:#fffbeb;color:#b45309}
+.rp-empty{background:#f3f4f6;color:#c9cacc}
+.btn-excl{position:absolute;top:7px;right:8px;font-size:9px;padding:2px 7px;border-radius:4px;cursor:pointer;font-weight:500;white-space:nowrap;border:1px solid #e5e7eb;background:#fff;color:#9ca3af;transition:all .15s}
+.btn-excl:hover{border-color:#e8412b;color:#e8412b;background:#fef2f2}
+.btn-excl.undo{background:#f3f4f6;border-color:#e5e7eb;color:#9ca3af}
+.btn-excl.undo:hover{border-color:#374151;color:#374151;background:#fff}
+/* RIGHT PANEL */
+.rp-main{padding:16px 20px;overflow-y:auto;max-height:560px;flex:1}
+.sp-view-title{font-size:14px;font-weight:600;color:#111827;margin-bottom:2px}
+.sp-view-id{font-size:11px;color:#9ca3af;margin-bottom:12px}
+.drag-hint{font-size:10px;color:#c9cacc;margin-bottom:12px;display:flex;align-items:center;gap:5px}
+/* EXCLUDED BANNER */
+.excl-banner{background:#f5f5f4;border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start}
+.excl-icon{font-size:20px;flex-shrink:0}
+.excl-title{font-size:12px;font-weight:600;color:#374151;margin-bottom:3px}
+.excl-sub{font-size:11px;color:#9ca3af;line-height:1.5;margin-bottom:8px}
+.btn-include{font-size:11px;padding:4px 12px;border-radius:5px;cursor:pointer;border:1px solid #e5e7eb;background:#fff;color:#374151;font-weight:500}
+.btn-include:hover{background:#f0fdf4;border-color:#86efac;color:#15803d}
+/* AMBER WARNING BANNER */
+.warn-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 13px;margin-bottom:14px}
+.warn-title{font-size:11px;font-weight:600;color:#92400e;margin-bottom:4px}
+.warn-list{font-size:11px;color:#78350f;line-height:1.8}
+.warn-hint{font-size:10px;color:#b45309;margin-top:5px}
+/* COVER SLOT */
+.cover-slot{border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;margin-bottom:12px;background:#fff;display:flex;align-items:center;gap:10px;position:relative}
+.cover-slot.conflict{border-color:#fca5a5;background:#fef9f9}
+.cover-slot.empty{border-style:dashed;border-color:#e5e7eb;background:#fafafa}
+.cover-thumb{width:72px;height:48px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.ct-ok{background:#dcfce7;cursor:grab}
+.ct-empty{background:#f3f4f6}
+.cover-info{flex:1;min-width:0}
+.cover-lbl{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.cover-fname{font-size:11px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cover-auto{font-size:8px;background:#f0fdf4;color:#15803d;border-radius:3px;padding:1px 4px;font-weight:700;display:inline-block;margin-top:2px}
+.cover-empty-txt{font-size:11px;color:#d1d5db}
+.cover-conflict-intro{font-size:11px;color:#991b1b;margin-bottom:6px}
+.conflict-pair{display:flex;gap:7px;flex-wrap:wrap}
+.cfile{border:1px solid #fecaca;border-radius:6px;padding:5px 8px;background:#fff;display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.cfile-thumb{width:28px;height:20px;background:#fee2e2;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.cfile-name{font-size:10px;color:#374151;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn-keep{font-size:10px;padding:2px 8px;border-radius:4px;cursor:pointer;border:1px solid #e5e7eb;background:#fff;color:#374151;flex-shrink:0}
+.btn-keep:hover{background:#f0fdf4;border-color:#86efac;color:#15803d}
+.btn-del{background:none;border:none;cursor:pointer;font-size:12px;color:#d1d5db;padding:3px;border-radius:4px;line-height:1;transition:color .15s}
+.btn-del:hover{color:#ef4444;background:#fef2f2}
+/* DIR GRID */
+.dir-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.dir-card{border:1.5px solid #e5e7eb;border-radius:9px;background:#fff;display:flex;flex-direction:column;overflow:hidden}
+.dir-card.bad{border-color:#fca5a5;background:#fef9f9}
+.dir-card.empty-plain{border-style:dashed;border-color:#e5e7eb;background:#fafafa}
+.dir-card.is-over{border-color:#93c5fd !important;background:#eff6ff !important}
+.dc-hdr{display:flex;align-items:center;gap:5px;padding:6px 9px 5px;border-bottom:1px solid #f3f4f6}
+.dc-hdr.problem{border-bottom-color:#fecaca}
+.drag-handle{color:#d1d5db;font-size:13px;user-select:none;cursor:grab;line-height:1;flex-shrink:0}
+.dc-label{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;flex:1}
+.dc-img{width:100%;height:76px;display:flex;align-items:center;justify-content:center;font-size:26px}
+.dc-img-ok{background:#dcfce7;cursor:grab}
+.dc-img-empty{background:#f5f5f4}
+.dc-img-conflict{background:#fee2e2}
+.dc-fname{font-size:9px;color:#9ca3af;padding:3px 9px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dc-auto{font-size:8px;background:#f0fdf4;color:#15803d;border-radius:3px;padding:1px 4px;font-weight:700;margin:2px 9px 0;display:inline-block}
+.dc-gap-tag{font-size:9px;background:#fef2f2;color:#991b1b;border-radius:3px;padding:2px 6px;font-weight:600;margin:5px 9px 0;display:inline-block}
+.dc-conflict-lbl{padding:4px 7px 0;font-size:10px;color:#991b1b;font-weight:500}
+.dc-conflict-list{padding:3px 7px 5px;display:flex;flex-direction:column;gap:3px}
+.dc-text-wrap{position:relative;margin-top:5px}
+.dc-textarea{width:100%;border:none;border-top:1px solid #f3f4f6;padding:6px 9px;font-size:11px;color:#374151;outline:none;resize:none;font-family:inherit;line-height:1.4;background:transparent}
+.dc-textarea::placeholder{color:#d1d5db}
+.dc-textarea:focus{background:#fafffe}
+.dc-charcount{font-size:9px;color:#e5e7eb;text-align:right;padding:1px 9px 5px}
+/* POOL */
+.pool-sec{margin-top:12px;padding-top:12px;border-top:1px solid #f3f4f6}
+.pool-title{font-size:11px;font-weight:600;color:#374151;margin-bottom:2px}
+.pool-sub{font-size:11px;color:#9ca3af;line-height:1.4;margin-bottom:7px}
+.pool-warn{color:#991b1b;font-weight:500}
+.pool-cards{display:flex;gap:6px;flex-wrap:wrap}
+.pool-card{border:1px solid #e5e7eb;border-radius:7px;padding:6px 7px;background:#fff;cursor:grab;display:flex;flex-direction:column;gap:2px;width:100px;user-select:none}
+.pool-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);border-color:#93c5fd}
+.pool-thumb{width:86px;height:40px;background:#f3f4f6;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.pool-name{font-size:9px;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:86px}
+/* UNDO TOAST */
+.undo-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;border-radius:8px;padding:10px 16px;font-size:12px;display:flex;align-items:center;gap:10px;z-index:600;box-shadow:0 4px 16px rgba(0,0,0,.2);opacity:0;transition:opacity .2s;pointer-events:none}
+.undo-toast.show{opacity:1;pointer-events:auto}
+.undo-btn{background:none;border:1px solid rgba(255,255,255,.4);border-radius:4px;color:#fff;font-size:11px;padding:3px 10px;cursor:pointer}
+.undo-btn:hover{background:rgba(255,255,255,.1)}
+</style>
+</head>
+<body>
+<div class="portal">
+  <div class="sidebar">
+    <div class="sb-logo"><div class="sb-logo-spx">SPX</div><div class="sb-logo-sub">Service Point</div></div>
+    <div style="padding:8px 8px 4px"><div class="sb-role"><span>Admin</span><span style="color:#9ca3af;font-size:10px">▾</span></div></div>
+    <div class="sb-section"><div class="sb-sec-label">Order Management</div><div class="sb-item">Drop-off</div><div class="sb-item">Self-Collection</div><div class="sb-item">Self Collection Extension</div><div class="sb-item">AWB Printing</div><div class="sb-item">Order to 3PL Locker</div></div>
+    <div class="sb-section"><div class="sb-sec-label">Report Center</div><div class="sb-item">Point Overview</div><div class="sb-item">Reports</div><div class="sb-item">SP Map</div><div class="sb-item">Checkout Limit Monitoring</div></div>
+    <div class="sb-section"><div class="sb-sec-label">User Management</div><div class="sb-item">Role List</div><div class="sb-item">User List</div><div class="sb-item">Access History Log</div></div>
+    <div class="sb-section"><div class="sb-sec-label">SP Management</div><div class="sb-item active">Point List</div><div class="sb-item">Zone List</div><div class="sb-item">Announcement Center</div></div>
+    <div class="sb-section"><div class="sb-sec-label">Company Management</div><div class="sb-item">Company List</div></div>
+    <div class="sb-section"><div class="sb-sec-label">Financial Management</div><div class="sb-item">SP Commission Report</div></div>
+    <div class="sb-section"><div class="sb-sec-label">Inhouse Locker Management</div></div>
+  </div>
+  <div class="body">
+    <div class="topnav">
+      <div class="tn-bc"><span>SP Management</span><span class="sep">/</span><span class="cur">Point List</span></div>
+      <div class="tn-spacer"></div>
+      <button class="tn-icon">🔔</button><button class="tn-icon">📋</button>
+      <div class="tn-lang">English ▾</div>
+      <div class="tn-user"><div class="tn-avatar">GW</div><span>gareth.wangjc</span><span style="color:#9ca3af;font-size:10px">▾</span></div>
+    </div>
+    <div class="page-content">
+      <div class="notify"><div class="notify-dot"></div>Point 1834, 6462 are set as default point in SLS. Keep status Available and maintain Higher Capacity.</div>
+      <div class="inner">
+        <div class="search-panel">
+          <div class="search-row">
+            <div class="sf"><span class="sf-lbl">Point Name</span><select class="sf-sel"><option>Please Select</option></select></div>
+            <div class="sf"><span class="sf-lbl">Point ID</span><input class="sf-inp" placeholder="Please Input"></div>
+            <div class="sf"><span class="sf-lbl">Post Code</span><select class="sf-sel"><option>Please Select</option></select></div>
+            <div class="sa"><button class="btn-search">Search</button><button class="btn-reset">Reset</button></div>
+          </div>
+          <div class="search-row">
+            <div class="sf"><span class="sf-lbl">Point Service Type</span><select class="sf-sel"><option>Please Select</option></select></div>
+            <div class="sf"><span class="sf-lbl">Company</span><select class="sf-sel"><option>Please Select</option></select></div>
+            <div class="sf"><span class="sf-lbl">Point Status</span><select class="sf-sel"><option>Please Select</option></select></div>
+            <div class="sf"><span class="sf-lbl">Zone</span><select class="sf-sel"><option>Please Select</option></select></div>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create">Create</button>
+          <div class="dd-wrap">
+            <button class="btn-outline" id="exportBtn" onclick="toggleDd('exportDd','exportBtn')">Export <span class="caret">▾</span></button>
+            <div class="dropdown" id="exportDd" style="min-width:150px"><div class="dd-section"><div class="dd-item">Export all</div><div class="dd-item">Export selected</div></div></div>
+          </div>
+          <div class="dd-wrap">
+            <button class="btn-outline" id="batchBtn" onclick="toggleDd('batchDd','batchBtn')">Batch Action <span class="caret">▾</span></button>
+            <div class="dropdown" id="batchDd">
+              <div class="dd-section"><div class="dd-sec-label">Checkout Limit</div><div class="dd-item">Download Template</div><div class="dd-item">Import to Update</div></div>
+              <div class="dd-sep"></div>
+              <div class="dd-section"><div class="dd-sec-label">Create Service Point</div><div class="dd-item">Download Template</div><div class="dd-item">Import to Create</div></div>
+              <div class="dd-sep"></div>
+              <div class="dd-section"><div class="dd-sec-label">Edit Service Point</div><div class="dd-item">Download Template</div><div class="dd-item">Import to Edit</div><div class="dd-item hl" onclick="openModal('upload')">Upload Images <span class="new-badge">NEW</span></div></div>
+              <div class="dd-sep"></div>
+              <div class="dd-section"><div class="dd-sec-label">Edit Collection Window</div><div class="dd-item">Download Template</div><div class="dd-item">Import to Update</div></div>
+            </div>
+          </div>
+          <button class="btn-outline">Log</button>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>Point ID</th><th>Point Name</th><th>Company</th><th>Zone</th><th>Post Code</th><th>Address ID</th><th>Point Address</th><th>Point Status</th><th>Checkout Status</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>9065</td><td>Residential Point @ Blk 512...</td><td>Angeswari - 444J</td><td>-</td><td>512590</td><td>256913</td><td>590B Pasir Ris Dr 3, #07-665,...</td><td><span class="b-unavail">Unavailable</span></td><td>-</td><td><span class="edit-link">Edit</span></td></tr>
+              <tr><td>9064</td><td>NUS Stephen Riady Centre</td><td>NUS Enterprise</td><td>-</td><td>119077</td><td>7149</td><td>21 Lower Kent Ridge Rd,...</td><td><span class="b-avail">Available</span></td><td><span class="b-cout">Available</span></td><td><span class="edit-link">Edit</span></td></tr>
+              <tr><td>9063</td><td>Clementi Mall B1</td><td>Clementi Mall Pte Ltd</td><td>-</td><td>120460</td><td>9478</td><td>3155 Commonwealth Ave W,...</td><td><span class="b-avail">Available</span></td><td><span class="b-cout">Available</span></td><td><span class="edit-link">Edit</span></td></tr>
+              <tr><td>9062</td><td>Tampines Hub L3</td><td>Our Tampines Hub</td><td>-</td><td>529684</td><td>2562</td><td>1 Tampines Walk,...</td><td><span class="b-avail">Available</span></td><td><span class="b-cout">Available</span></td><td><span class="edit-link">Edit</span></td></tr>
+              <tr><td>9061</td><td>Jurong East MRT B2</td><td>SMRT Trains Ltd</td><td>-</td><td>609731</td><td>1949</td><td>10 Jurong East St 12,...</td><td><span class="b-unavail">Unavailable</span></td><td>-</td><td><span class="edit-link">Edit</span></td></tr>
+            </tbody>
+          </table>
+          <div class="tbl-foot">
+            <span>Total 9,064</span>
+            <div class="pager"><button class="pg">‹</button><button class="pg on">1</button><button class="pg">2</button><button class="pg">3</button><button class="pg">4</button><button class="pg">5</button><span class="pg-dots">…</span><button class="pg">378</button><button class="pg">›</button></div>
+            <div class="goto"><span>24 / Page</span><span style="margin-left:10px">Go to page</span><input class="goto-inp" value="1"><button class="goto-btn">Go</button></div>
+          </div>
+        </div>
+        <div class="scene-nav">
+          <div class="scene-nav-label">Modal states — click to preview</div>
+          <div class="scene-btns">
+            <button class="scene-btn active" onclick="setScene('upload')">1. Upload images</button>
+            <button class="scene-btn" onclick="setScene('orphan')">2. Review issues</button>
+            <button class="scene-btn" onclick="setScene('review')">3. Review mapping</button>
+            <button class="scene-btn" onclick="setScene('success')">4. Upload complete</button>
+          </div>
+          <div class="scene-display" id="sceneDisplay"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="overlay" onclick="overlayBg(event)"><div id="overlayContent"></div></div>
+<div class="undo-toast" id="undoToast"><span class="undo-msg"></span><button class="undo-btn" onclick="doUndo()">Undo</button></div>
+
+<script>
+/* ══ STEP FLOW HTML ══ */
+function stepFlowHTML(active){
+  var steps=[{n:1,l:'Upload'},{n:2,l:'Review issues'},{n:3,l:'Review mapping'},{n:4,l:'Confirm'}];
+  var h='<div class="step-flow">';
+  steps.forEach(function(s,i){
+    var isDone=s.n<active,isActive=s.n===active;
+    h+='<div class="step-item'+(isDone?' done':(isActive?' active':''))+'">'
+      +'<div class="step-dot'+(isDone?' done':(isActive?' active':''))+'">'+(isDone?'✓':s.n)+'</div>'
+      +s.l+'</div>';
+    if(i<3)h+='<div class="step-connector'+(isDone?' done':'')+'"></div>';
+  });
+  return h+'</div>';
+}
+
+/* ══ NAMING CONVENTION ══ */
+var CONV='<div class="conv">'
+  +'<div class="conv-h1">How to Prepare and Name Your Image Files</div>'
+  +'<div class="conv-h2">1. File Requirements</div>'
+  +'<div class="conv-body">Before uploading, please ensure your image files meet the following requirements:</div>'
+  +'<ul class="conv-list">'
+  +'<li><span class="conv-bold">Supported Formats:</span> <span class="conv-code">.jpg</span>, <span class="conv-code">.jpeg</span>, or <span class="conv-code">.png</span></li>'
+  +'<li><span class="conv-bold">Maximum File Size:</span> 15MB per image (and up to 150MB total per ZIP file batch upload).</li>'
+  +'<li><span class="conv-bold">Maximum Resolution:</span> Images must not exceed 8,000 × 8,000 pixels (standard smartphone photos are fully supported, but ultra-wide panoramas or ultra-high-resolution scanner files may be blocked).</li>'
+  +'</ul>'
+  +'<div class="conv-tip">Tip: If your photo fails to upload due to high resolution, simply resize or compress the image before trying again.</div>'
+  +'<div class="conv-h2">2. How to Name Your Image Files</div>'
+  +'<div class="conv-body">Start each filename with either the Point ID or the Point Name, then add an underscore and the image type.</div>'
+  +'<ul class="conv-list">'
+  +'<li><span class="conv-bold">Format:</span> <span class="conv-code">{Point ID or Point Name}_{image type}.jpg</span> or <span class="conv-code">.png</span></li>'
+  +'<li><span class="conv-bold">Image types:</span> <span class="conv-code">_cover</span>, <span class="conv-code">_dir1</span>, <span class="conv-code">_dir2</span>, <span class="conv-code">_dir3</span>, <span class="conv-code">_dir4</span>, <span class="conv-code">_dir5</span></li>'
+  +'<li><span class="conv-bold">Examples:</span>'
+  +'<ul class="conv-sub-list">'
+  +'<li><span class="conv-code">9064_cover.jpg</span></li>'
+  +'<li><span class="conv-code">NUS Stephen Riady Centre_dir1.jpg</span></li>'
+  +'</ul></li>'
+  +'</ul>'
+  +'<div class="conv-note">If the image type is missing or unclear, the file will still be grouped under the right Point in the next step — you can sort it into the correct slot there.</div>'
+  +'</div>';
+
+/* ══ SP DATA ══ */
+var spData=[
+  {id:'9064',name:'NUS Stephen Riady Centre',excluded:false,
+   cover:{f:'9064_cover.jpg',ok:true,conflict:false,cf:[]},
+   dirs:[
+     {f:'NUS Stephen Riady Centre_dir1.jpg',ok:true,conflict:false,cf:[],text:'Take the lift to Level 1. Turn right after exiting.'},
+     {f:'9064_dir2.jpg',ok:true,conflict:false,cf:[],text:'Walk past the security counter.'},
+     {f:'',ok:false,conflict:false,cf:[],text:''},
+     {f:'9064_dir4.jpg',ok:true,conflict:false,cf:[],text:'Look for the SPX locker on your left.'},
+     {f:'',ok:false,conflict:false,cf:[],text:''}
+   ],pool:['entrance_photo.jpg','9064_exterior.jpg']},
+  {id:'9063',name:'Clementi Mall B1',excluded:false,
+   cover:{f:'',ok:false,conflict:true,cf:['Current image','9063_cover_new.jpg']},
+   dirs:[
+     {f:'9063_dir1.jpg',ok:true,conflict:false,cf:[],text:'Enter via the main entrance on level 1.'},
+     {f:'',ok:false,conflict:true,cf:['9063_dir2.jpg','9063_dir2 (1).jpg'],text:''},
+     {f:'',ok:false,conflict:false,cf:[],text:''},
+     {f:'',ok:false,conflict:false,cf:[],text:''},
+     {f:'',ok:false,conflict:false,cf:[],text:''}
+   ],pool:[]},
+  {id:'9062',name:'Tampines Hub L3',excluded:false,
+   cover:{f:'9062_cover.jpg',ok:true,conflict:false,cf:[]},
+   dirs:[
+     {f:'9062_dir1.jpg',ok:true,conflict:false,cf:[],text:'Head to level 3 via the escalator.'},
+     {f:'',ok:false,conflict:false,cf:[],text:''},
+     {f:'',ok:false,conflict:false,cf:[],text:''},
+     {f:'',ok:false,conflict:false,cf:[],text:''},
+     {f:'',ok:false,conflict:false,cf:[],text:''}
+   ],pool:[]},
+  {id:'9061',name:'Jurong East MRT B2',excluded:false,
+   cover:{f:'9061_cover.jpg',ok:true,conflict:false,cf:[]},
+   dirs:[
+     {f:'9061_dir1.jpg',ok:true,conflict:false,cf:[],text:''},
+     {f:'',ok:false,conflict:false,cf:[],text:''},
+     {f:'9061_dir3.jpg',ok:true,conflict:false,cf:[],text:''},
+     {f:'',ok:false,conflict:false,cf:[],text:''},
+     {f:'',ok:false,conflict:false,cf:[],text:''}
+   ],pool:['jurong_lobby.jpg']},
+  {id:'9060',name:'Bedok North MRT',excluded:true,
+   cover:{f:'',ok:false,conflict:false,cf:[]},
+   dirs:[{f:'',ok:false,conflict:false,cf:[],text:''},{f:'',ok:false,conflict:false,cf:[],text:''},{f:'',ok:false,conflict:false,cf:[],text:''},{f:'',ok:false,conflict:false,cf:[],text:''},{f:'',ok:false,conflict:false,cf:[],text:''}],
+   pool:['bedok_entrance.jpg','bedok_lobby.jpg']}
+];
+var orphans=[
+  {file:'NUS Stephan Riady Centre_cover.jpg',reason:'Point name not found — possible typo',pointId:'',slotId:'',skipped:false},
+  {file:'photo_exterior.jpg',reason:'Filename doesn\'t match any Point ID or Point Name',pointId:'',slotId:'',skipped:false}
+];
+var activeSp=0,spQuery='';
+
+/* ══ LOGIC ══ */
+function dirFilled(d){return d.ok||d.conflict||(d.text&&d.text.trim().length>0);}
+function hasGap(dirs,idx){
+  if(dirFilled(dirs[idx]))return false;
+  return dirs.slice(0,idx).some(dirFilled)&&dirs.slice(idx+1).some(dirFilled);
+}
+function needsAttn(sp){
+  return sp.pool.length>0||sp.cover.conflict
+    ||sp.dirs.some(function(d){return d.conflict;})
+    ||sp.dirs.some(function(d,i){return hasGap(sp.dirs,i);});
+}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function filledSlotsFor(spId,excludeOrphanIdx){
+  var sp=spData.find(function(s){return s.id===spId;});
+  if(!sp)return [];
+  var filled=[];
+  if(sp.cover.ok||sp.cover.conflict)filled.push('cover');
+  sp.dirs.forEach(function(d,i){if(d.ok||d.conflict||d.text.trim())filled.push('dir'+(i+1));});
+  orphans.forEach(function(o,i){if(i!==excludeOrphanIdx&&o.pointId===spId&&o.slotId)filled.push(o.slotId);});
+  return filled;
+}
+
+/* ══ LEFT PANEL ══ */
+function leftPanelHTML(){
+  var q=spQuery.toLowerCase();
+  var list=spData.filter(function(sp){return !q||sp.name.toLowerCase().includes(q)||sp.id.includes(q);});
+  var ready=list.filter(function(sp){return !needsAttn(sp)&&!sp.excluded;});
+  var attn=list.filter(function(sp){return needsAttn(sp)&&!sp.excluded;});
+  var excl=list.filter(function(sp){return sp.excluded;});
+  var h='';
+  if(ready.length){
+    h+='<div class="sec-divider ready"><span class="sec-label">Ready to upload</span><span class="sec-count">'+ready.length+'</span>'
+      +'<div class="sec-info"><span class="sec-info-icon">ⓘ</span><div class="sec-tooltip">Images are correctly mapped. Direction text is optional — these Points are ready to go.</div></div></div>';
+    ready.forEach(function(sp){h+=spRowHTML(sp);});
+  }
+  if(attn.length){
+    h+='<div class="sec-divider attn"><span class="sec-label">Needs attention</span><span class="sec-count">'+attn.length+'</span>'
+      +'<div class="sec-info"><span class="sec-info-icon">ⓘ</span><div class="sec-tooltip">These Points have image issues — e.g. conflicting files or a gap in direction steps. Sort them out, or exclude them to handle in a separate upload later.</div></div></div>';
+    attn.forEach(function(sp){h+=spRowHTML(sp);});
+  }
+  if(excl.length){
+    h+='<div class="sec-divider excl"><span class="sec-label">Excluded — won\'t upload</span><span class="sec-count">'+excl.length+'</span>'
+      +'<div class="sec-info"><span class="sec-info-icon">ⓘ</span><div class="sec-tooltip">These Points won\'t be included in this upload. Come back and run a new upload when ready.</div></div></div>';
+    excl.forEach(function(sp){h+=spRowHTML(sp);});
+  }
+  if(!list.length)h='<div style="padding:14px 10px;font-size:11px;color:#9ca3af;text-align:center">No Points found</div>';
+  return h;
+}
+
+function spRowHTML(sp){
+  var ri=spData.indexOf(sp);
+  var isExcl=sp.excluded,isOn=ri===activeSp;
+  var cvCls=sp.cover.ok?'rp-ok':(sp.cover.conflict?'rp-bad':'rp-empty');
+  var pills='<span class="rp '+cvCls+'">cover</span>';
+  sp.dirs.forEach(function(d,i){
+    var c=d.conflict?'rp-bad':(dirFilled(d)?'rp-ok':(hasGap(sp.dirs,i)?'rp-bad':'rp-empty'));
+    pills+='<span class="rp '+c+'">dir'+(i+1)+'</span>';
+  });
+  if(sp.pool.length)pills+='<span class="rp rp-warn">some images not sorted</span>';
+  var rowCls='sp-row'+(isExcl?' dim':'')+(isOn?(isExcl?' on-excl':' on'):'');
+  return '<div class="'+rowCls+'" onclick="switchSp('+ri+')">'
+    +'<div class="sp-row-top"><span class="sp-row-name'+(isExcl?' struck':'')+'">'+sp.name+'</span><span class="sp-row-id">'+sp.id+'</span></div>'
+    +'<div class="sp-row-pills">'+pills+'</div>'
+    +'<button class="btn-excl'+(isExcl?' undo':'')+'" onclick="toggleExclude(event,'+ri+')">'+(isExcl?'Include':'Exclude')+'</button>'
+    +'</div>';
+}
+
+/* ══ RIGHT PANEL ══ */
+function rightPanelHTML(){
+  var sp=spData[activeSp];
+  if(sp.excluded){
+    return '<div class="sp-view-title">'+sp.name+'</div>'
+      +'<div class="sp-view-id">Point ID '+sp.id+'</div>'
+      +'<div class="excl-banner"><div class="excl-icon">📋</div><div>'
+      +'<div class="excl-title">This Point is excluded — it won\'t be uploaded in this run</div>'
+      +'<div class="excl-sub">Come back and run a new upload once the images are ready. Or click below to include it now and sort the issues first.</div>'
+      +'<button class="btn-include" onclick="toggleExclude(null,'+activeSp+')">Include this Point</button>'
+      +'</div></div>';
+  }
+  var h='<div class="sp-view-title">'+sp.name+'</div><div class="sp-view-id">Point ID '+sp.id+'</div>';
+  if(needsAttn(sp)){
+    var issues=[];
+    if(sp.cover.conflict)issues.push('Cover photo has two conflicting images');
+    if(sp.dirs.some(function(d){return d.conflict;}))issues.push('One or more direction slots have conflicting images');
+    if(sp.dirs.some(function(d,i){return hasGap(sp.dirs,i);}))issues.push('Gap in direction sequence — a step is empty between two filled ones');
+    if(sp.pool.length)issues.push(sp.pool.length+' image'+(sp.pool.length>1?'s':'')+' matched to this Point but not yet assigned to a slot');
+    h+='<div class="warn-banner"><div class="warn-title">This Point has image issues that need sorting:</div>'
+      +'<div class="warn-list">'+issues.map(function(s){return '• '+s;}).join('<br>')+'</div>'
+      +'<div class="warn-hint">Fix the issues below, or use "Exclude" to come back to this Point in a separate upload.</div></div>';
+  } else {
+    h+='<div class="drag-hint"><span>⠿</span> Use the grip handle to drag images between slots within this Point.</div>';
+  }
+  h+=coverHTML(sp,activeSp)+dirGridHTML(sp,activeSp)+poolHTML(sp,activeSp);
+  return h;
+}
+
+/* ══ COVER ══ */
+function coverHTML(sp,si){
+  var c=sp.cover;
+  if(c.conflict){
+    return '<div class="cover-slot conflict"><div class="cover-info" style="width:100%">'
+      +'<div class="cover-lbl">Cover photo</div>'
+      +'<div class="cover-conflict-intro">Two images found — choose which one to keep:</div>'
+      +'<div class="conflict-pair">'+c.cf.map(function(f,ci){
+        return '<div class="cfile"><div class="cfile-thumb">🖼</div><div class="cfile-name">'+f+'</div>'
+          +'<button class="btn-keep" onclick="keepConflict('+si+',\'cover\','+ci+')">Keep this</button></div>';
+      }).join('')+'</div></div></div>';
+  }
+  if(c.ok){
+    return '<div class="cover-slot"><div class="cover-thumb ct-ok">🖼</div>'
+      +'<div class="cover-info"><div class="cover-lbl">Cover photo</div>'
+      +'<div class="cover-fname">'+c.f+'</div><span class="cover-auto">auto-matched</span></div>'
+      +'<button class="btn-del" onclick="delCover('+si+')" title="Remove">🗑</button></div>';
+  }
+  return '<div class="cover-slot empty"><div class="cover-thumb ct-empty">📷</div>'
+    +'<div class="cover-info"><div class="cover-lbl">Cover photo</div><div class="cover-empty-txt">No image</div></div></div>';
+}
+
+/* ══ DIR GRID ══ */
+function dirGridHTML(sp,si){
+  var h='<div class="dir-grid">';
+  sp.dirs.forEach(function(d,i){
+    var isGap=hasGap(sp.dirs,i),isProblem=d.conflict||isGap;
+    var cardCls='dir-card'+(isProblem?' bad':(!dirFilled(d)?' empty-plain':''));
+    var canDrag=d.ok&&!d.conflict;
+    h+='<div class="'+cardCls+'" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropDir(event,this,'+si+','+i+')">'
+      +'<div class="dc-hdr'+(isProblem?' problem':'')+'">'
+      +'<span class="drag-handle" style="'+(canDrag?'':'opacity:.2')+'">⠿</span>'
+      +'<span class="dc-label">Direction '+(i+1)+'</span>';
+    if(canDrag)h+='<button class="btn-del" onclick="delDir('+si+','+i+')" title="Remove">🗑</button>';
+    h+='</div>';
+    if(isGap)h+='<span class="dc-gap-tag">⚠ Gap</span>';
+    if(d.conflict){
+      h+='<div class="dc-img dc-img-conflict">⚠️</div>'
+        +'<div class="dc-conflict-lbl">Two images — choose one:</div>'
+        +'<div class="dc-conflict-list">'+d.cf.map(function(f,ci){
+          return '<div class="cfile"><div class="cfile-thumb">🖼</div><div class="cfile-name">'+f+'</div>'
+            +'<button class="btn-keep" onclick="keepConflict('+si+','+i+','+ci+')">Keep</button></div>';
+        }).join('')+'</div>';
+    } else if(d.ok){
+      h+='<div class="dc-img dc-img-ok" draggable="true" ondragstart="dirDragStart(event,'+si+','+i+')">🖼</div>'
+        +'<div class="dc-fname">'+d.f+'</div><span class="dc-auto">auto-matched</span>';
+    } else {
+      h+='<div class="dc-img dc-img-empty"><span style="font-size:10px;color:#d1d5db;text-align:center;line-height:1.4">Drop image<br>here</span></div>';
+    }
+    var len=(d.text||'').length;
+    h+='<div class="dc-text-wrap"><textarea class="dc-textarea" rows="2" maxlength="500" placeholder="Direction '+(i+1)+' text (optional)…" oninput="updateText('+si+','+i+',this.value);updateCount(this)">'+esc(d.text)+'</textarea>'
+      +'<div class="dc-charcount">'+len+' / 500</div></div></div>';
+  });
+  return h+'</div>';
+}
+
+/* ══ POOL ══ */
+function poolHTML(sp,si){
+  if(!sp.pool.length)return '';
+  return '<div class="pool-sec"><div class="pool-title">Not yet assigned to a slot</div>'
+    +'<div class="pool-sub">These images were matched to this Point but we couldn\'t tell which direction step they belong to. Drag them into a slot above. <span class="pool-warn">If left here, they won\'t be uploaded.</span></div>'
+    +'<div class="pool-cards">'+sp.pool.map(function(p,pi){
+      return '<div class="pool-card" draggable="true" ondragstart="poolDragStart(event,'+si+','+pi+')">'
+        +'<div style="font-size:9px;color:#e5e7eb;margin-bottom:2px">⠿⠿</div>'
+        +'<div class="pool-thumb">🖼</div><div class="pool-name">'+p+'</div></div>';
+    }).join('')+'</div></div>';
+}
+
+/* ══ FULL REVIEW MODAL ══ */
+function reviewHTML(){
+  var total=spData.filter(function(sp){return !sp.excluded;}).length;
+  var excl=spData.filter(function(sp){return sp.excluded;}).length;
+  var attn=spData.filter(function(sp){return needsAttn(sp)&&!sp.excluded;}).length;
+  var parts=['<strong>'+total+' Point'+(total!==1?'s':'')+' will upload</strong>'];
+  if(attn)parts.push('<span style="color:#b45309">'+attn+' still need'+(attn===1?'s':'')+' attention</span>');
+  if(excl)parts.push(excl+' excluded — won\'t upload');
+
+  return '<div class="modal modal-wide">'
+    +'<div class="modal-header">'+stepFlowHTML(3)
+    +'<div class="step-sub">Check that each image is in the right slot. Fix any issues or exclude Points to handle later.</div></div>'
+    +'<div class="review-layout">'
+    +'<div class="lp"><div class="lp-search"><input placeholder="Search by Point name or ID…" oninput="filterSps(this.value)" value="'+esc(spQuery)+'"></div>'
+    +'<div class="lp-list" id="lpList">'+leftPanelHTML()+'</div></div>'
+    +'<div class="rp-main" id="rpMain">'+rightPanelHTML()+'</div>'
+    +'</div>'
+    +'<div class="modal-footer"><span class="foot-note" id="reviewFn">'+parts.join(' &nbsp;·&nbsp; ')+'</span>'
+    +'<div class="btn-group"><button class="btn-cancel" onclick="goTo(\'orphan\')">← Back</button>'
+    +'<button class="btn-blue" onclick="closeModal()">Confirm &amp; upload</button></div></div></div>';
+}
+
+function refreshReview(){
+  var lp=document.getElementById('lpList');
+  var rp=document.getElementById('rpMain');
+  if(lp)lp.innerHTML=leftPanelHTML();
+  if(rp)rp.innerHTML=rightPanelHTML();
+  var fn=document.getElementById('reviewFn');
+  if(fn){
+    var total=spData.filter(function(sp){return !sp.excluded;}).length;
+    var excl=spData.filter(function(sp){return sp.excluded;}).length;
+    var attn=spData.filter(function(sp){return needsAttn(sp)&&!sp.excluded;}).length;
+    var parts=['<strong>'+total+' Point'+(total!==1?'s':'')+' will upload</strong>'];
+    if(attn)parts.push('<span style="color:#b45309">'+attn+' still need'+(attn===1?'s':'')+' attention</span>');
+    if(excl)parts.push(excl+' excluded — won\'t upload');
+    fn.innerHTML=parts.join(' &nbsp;·&nbsp; ');
+  }
+}
+
+/* ══ ORPHAN MODAL ══ */
+/* ══ STEP 2: REVIEW ISSUES — merged unsupported format + unmatched ══ */
+var badFiles=[
+  {file:'9064_cover.webp',type:'.webp'},
+  {file:'9063_dir1.bmp',type:'.bmp'},
+  {file:'Tampines Hub L3_dir2.gif',type:'.gif'}
+];
+
+function orphanHTML(){
+  var hasBad=badFiles.length>0;
+  var skippedCount=orphans.filter(function(o){return o.skipped;}).length;
+  var assignedCount=orphans.filter(function(o){return !o.skipped&&o.pointId&&o.slotId;}).length;
+  var remaining=orphans.length-assignedCount-skippedCount;
+  var hasOrphans=orphans.some(function(o){return !o.skipped;});
+
+  var h='<div class="modal"><div class="modal-header">'+stepFlowHTML(2)
+    +'<div class="step-sub">Review any files that couldn\'t be processed automatically before continuing.</div></div>'
+    +'<div style="padding:16px 22px;overflow-y:auto;flex:1">';
+
+  // Section A: unsupported formats
+  if(hasBad){
+    h+='<div style="font-size:11px;font-weight:600;color:#374151;margin-bottom:6px">Unsupported file formats — will be skipped</div>'
+      +'<div class="alert-warn" style="margin-bottom:10px"><div class="aw-body">Only JPG, PNG and HEIC files can be uploaded.</div></div>'
+      +'<div class="mt-wrap" style="margin-bottom:16px"><table class="mt"><tr><th>Filename</th><th>File type</th></tr>'
+      +badFiles.map(function(f){return '<tr><td>'+f.file+'</td><td>'+f.type+' — not supported</td></tr>';}).join('')
+      +'</table></div>';
+  }
+  if(hasBad&&hasOrphans){
+    h+='<div style="border-top:1px solid #f3f4f6;margin-bottom:16px"></div>';
+  }
+  // Section B: unmatched images
+  if(hasOrphans){
+    h+='<div style="font-size:11px;font-weight:600;color:#374151;margin-bottom:6px">Images that couldn\'t be matched to a Point</div>'
+      +'<div class="orphan-intro" style="margin-bottom:10px">These images don\'t match any Point ID or Point Name — usually a typo in the filename or an incorrect naming format. Assign each one to the correct Point and slot, or skip it.</div>'
+      +'<div class="orphan-table-wrap"><table class="orphan-tbl">'
+      +'<thead><tr><th style="width:34%">Image file</th><th>Assign to Point</th><th style="width:26%">Image slot</th></tr></thead><tbody>';
+    orphans.forEach(function(o,i){
+      if(o.skipped){
+        h+='<tr class="orphan-skipped"><td><span class="orphan-file">'+o.file+'</span><span class="orphan-reason">Skipped</span></td>'
+          +'<td colspan="2"><button style="font-size:10px;border:none;background:none;color:#9ca3af;cursor:pointer;text-decoration:underline" onclick="unskipOrphan('+i+')">Undo skip</button></td></tr>';
+        return;
+      }
+      var ptOpts='<option value="">— Choose a Point —</option>';
+      spData.forEach(function(sp){ptOpts+='<option value="'+sp.id+'"'+(o.pointId===sp.id?' selected':'')+'>'+sp.name+' ('+sp.id+')</option>';});
+      var filledSlots=o.pointId?filledSlotsFor(o.pointId,i):[];
+      var allSlots=['cover','dir1','dir2','dir3','dir4','dir5'];
+      var slotOpts='<option value="">— Choose slot —</option>';
+      allSlots.forEach(function(s){
+        var isFilled=filledSlots.indexOf(s)>-1;
+        slotOpts+='<option value="'+s+'"'+(o.slotId===s?' selected':'')+(isFilled?' disabled':'')+'>'+s+(isFilled?' (already filled)':'')+'</option>';
+      });
+      var assigned=o.pointId&&o.slotId;
+      h+='<tr><td><span class="orphan-file">'+o.file+'</span><span class="orphan-reason">'+o.reason+'</span>'
+        +(assigned?'<span class="assigned-tag">✓ Assigned</span>':'')+'</td>'
+        +'<td><select class="orphan-sel" onchange="orphanSetPoint('+i+',this.value)">'+ptOpts+'</select></td>'
+        +'<td><select class="orphan-slot-sel" onchange="orphanSetSlot('+i+',this.value)"'+(o.pointId?'':' disabled')+'>'+slotOpts+'</select>'
+        +'<button class="orphan-skip-btn" onclick="skipOrphan('+i+')">Skip this image</button></td></tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+  if(!hasBad&&!hasOrphans){
+    h+='<div style="text-align:center;padding:32px 0;color:#9ca3af;font-size:12px">✓ No issues to review — all images matched and formats are supported.</div>';
+  }
+  h+='</div>';
+  var footParts=[];
+  if(hasBad) footParts.push(badFiles.length+' file'+(badFiles.length>1?'s':'')+' will be skipped (unsupported format)');
+  if(orphans.length>0) footParts.push(assignedCount+' assigned &nbsp;·&nbsp; '+skippedCount+' skipped &nbsp;·&nbsp; '+remaining+' remaining');
+  h+='<div class="modal-footer"><span class="foot-note">'+footParts.join(' &nbsp;&nbsp; ')+'</span>'
+    +'<div class="btn-group"><button class="btn-cancel" onclick="goTo(\'upload\')">← Back</button>'
+    +'<button class="btn-blue" onclick="goTo(\'review\')">Next: review mapping →</button>'
+    +'</div></div></div>';
+  return h;
+}
+
+/* ══ ORPHAN ACTIONS ══ */
+function orphanSetPoint(i,v){orphans[i].pointId=v;orphans[i].slotId='';refreshOrphan();}
+function orphanSetSlot(i,v){orphans[i].slotId=v;refreshOrphan();}
+function skipOrphan(i){orphans[i].skipped=true;refreshOrphan();}
+function unskipOrphan(i){orphans[i].skipped=false;refreshOrphan();}
+function refreshOrphan(){
+  var oc=document.getElementById('overlayContent');
+  if(oc&&(oc.querySelector('.orphan-tbl')||oc.querySelector('.step-sub')))oc.innerHTML=orphanHTML();
+  var sd=document.getElementById('sceneDisplay');
+  if(sd&&(sd.querySelector('.orphan-tbl')||sd.querySelector('.alert-warn')))sd.innerHTML=orphanHTML();
+}
+
+/* ══ DRAG + DROP ══ */
+var drag=null;
+function dirDragStart(e,si,di){drag={type:'dir',si:si,di:di};e.dataTransfer.effectAllowed='move';}
+function poolDragStart(e,si,pi){drag={type:'pool',si:si,pi:pi};e.dataTransfer.effectAllowed='move';}
+function dragOver(e,el){e.preventDefault();el.classList.add('is-over');}
+function dragLeave(el){el.classList.remove('is-over');}
+function dropDir(e,el,tsi,tdi){
+  e.preventDefault();el.classList.remove('is-over');
+  if(!drag||drag.si!==tsi){drag=null;return;}
+  var sp=spData[tsi];var td=sp.dirs[tdi];
+  if(drag.type==='pool'){var f=sp.pool.splice(drag.pi,1)[0];if(!td.ok&&!td.conflict){td.f=f;td.ok=true;}}
+  else if(drag.type==='dir'&&drag.di!==tdi){
+    var sd=sp.dirs[drag.di];
+    var tmp={f:sd.f,ok:sd.ok,text:sd.text};
+    sd.f=td.f;sd.ok=td.ok;sd.text=td.text;
+    td.f=tmp.f;td.ok=tmp.ok;td.text=tmp.text;
+  }
+  drag=null;refreshReview();
+}
+
+/* ══ SLOT ACTIONS ══ */
+function delCover(si){spData[si].cover.f='';spData[si].cover.ok=false;refreshReview();}
+function delDir(si,di){spData[si].dirs[di].f='';spData[si].dirs[di].ok=false;refreshReview();}
+function updateText(si,di,v){spData[si].dirs[di].text=v;}
+function updateCount(ta){var c=ta.parentNode.querySelector('.dc-charcount');if(c)c.textContent=ta.value.length+' / 500';}
+function keepConflict(si,slot,ki){
+  var sp=spData[si];
+  var prev;
+  if(slot==='cover'){
+    prev={f:sp.cover.f,ok:sp.cover.ok,conflict:sp.cover.conflict,cf:sp.cover.cf.slice()};
+    sp.cover.f=sp.cover.cf[ki];sp.cover.ok=true;sp.cover.conflict=false;sp.cover.cf=[];
+    showUndoToast('Kept "'+sp.cover.f+'" for cover photo.',function(){sp.cover.f=prev.f;sp.cover.ok=prev.ok;sp.cover.conflict=prev.conflict;sp.cover.cf=prev.cf;refreshReview();});
+  } else {
+    var d=sp.dirs[slot];
+    prev={f:d.f,ok:d.ok,conflict:d.conflict,cf:d.cf.slice()};
+    var kept=d.cf[ki];
+    d.f=kept;d.ok=true;d.conflict=false;d.cf=[];
+    showUndoToast('Kept "'+kept+'" for Direction '+(slot+1)+'.',function(){d.f=prev.f;d.ok=prev.ok;d.conflict=prev.conflict;d.cf=prev.cf;refreshReview();});
+  }
+  refreshReview();
+}
+function toggleExclude(e,ri){
+  if(e)e.stopPropagation();
+  spData[ri].excluded=!spData[ri].excluded;
+  activeSp=ri;refreshReview();
+}
+function switchSp(i){activeSp=i;refreshReview();}
+function filterSps(v){spQuery=v.trim();var lp=document.getElementById('lpList');if(lp)lp.innerHTML=leftPanelHTML();}
+
+/* ══ UNDO TOAST ══ */
+var undoStack=[],undoTimer=null;
+function showUndoToast(msg,fn){
+  var t=document.getElementById('undoToast');
+  if(!t)return;
+  t.querySelector('.undo-msg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(undoTimer);
+  undoStack=[fn];
+  undoTimer=setTimeout(function(){t.classList.remove('show');undoStack=[];},5000);
+}
+function doUndo(){
+  if(undoStack.length){undoStack[0]();undoStack=[];}
+  clearTimeout(undoTimer);
+  document.getElementById('undoToast').classList.remove('show');
+}
+
+/* ══ OTHER MODALS ══ */
+function uploadHTML(){
+  return '<div class="modal"><div class="modal-header">'+stepFlowHTML(1)
+    +'<div class="step-sub">Upload a folder of images. The system will automatically match each image to the right Point and slot based on the filename.</div></div>'
+    +'<div style="padding:16px 22px;overflow-y:auto;flex:1">'
+    +'<div class="uz"><div class="uz-icon">📦</div><div class="uz-title">Images folder (.zip)</div>'
+    +'<div class="uz-hint">Zip up all the images you want to upload into one folder, then select it here. JPG and PNG files only.</div>'
+    +'<button class="btn-choose">Choose file</button>'
+    +'<div class="file-pill">📦 images_batch_apr25.zip</div></div>'+CONV+'</div>'
+    +'<div class="modal-footer"><span class="foot-note">25 images detected across 4 Points</span>'
+    +'<div class="btn-group"><button class="btn-cancel" onclick="closeModal()">Cancel</button>'
+    +'<button class="btn-blue" onclick="goTo(\'orphan\')">Next →</button></div></div></div>';
+}
+function warnFmtHTML(){ return orphanHTML(); } /* merged into step 2 */
+function successHTML(){
+  return '<div class="modal"><div class="modal-header">'+stepFlowHTML(4)
+    +'<div class="step-sub">Upload complete.</div></div>'
+    +'<div style="padding:16px 22px;overflow-y:auto;flex:1"><div class="stat-grid">'
+    +'<div class="sc sc-g"><div class="sc-num">47</div><div class="sc-lbl">Points updated</div></div>'
+    +'<div class="sc sc-a"><div class="sc-num">3</div><div class="sc-lbl">Images skipped</div></div>'
+    +'<div class="sc sc-r"><div class="sc-num">0</div><div class="sc-lbl">Errors</div></div></div>'
+    +'<div style="font-size:11px;color:#6b7280;margin-bottom:6px">Images that were skipped — you may want to follow up:</div>'
+    +'<div class="mt-wrap"><table class="mt"><tr><th>Image file</th><th>Point</th><th>What happened</th></tr>'
+    +'<tr><td>9063_dir2.jpg &amp; 9063_dir2 (1).jpg</td><td>Clementi Mall B1</td><td>Two images for the same slot — both skipped. Upload just one to fix.</td></tr>'
+    +'<tr><td>photo_exterior.jpg</td><td>—</td><td>Skipped during the "Review issues" step.</td></tr>'
+    +'<tr><td>9064_cover.webp</td><td>—</td><td>File type not supported (.webp). Save as JPG or PNG and re-upload.</td></tr>'
+    +'</table></div></div>'
+    +'<div class="modal-footer"><span class="foot-note"></span>'
+    +'<div class="btn-group"><button class="btn-cancel" onclick="downloadSkipReport()">↓ Download skip report</button>'
+    +'<button class="btn-blue" onclick="closeModal()">Done</button></div></div></div>';
+}
+
+/* ══ DOWNLOAD SKIP REPORT ══ */
+function downloadSkipReport(){
+  var csv='Image file,Point,What happened\n'
+    +'"9063_dir2.jpg & 9063_dir2 (1).jpg","Clementi Mall B1","Two images for the same slot — both skipped."\n'
+    +'"photo_exterior.jpg","—","Skipped during Review issues step."\n'
+    +'"9064_cover.webp","—","File type not supported (.webp)."\n';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='skip_report_apr25.csv';a.click();
+}
+
+/* ══ SCENE + MODAL PLUMBING ══ */
+var scenes={upload:uploadHTML,orphan:orphanHTML,review:reviewHTML,success:successHTML};
+function setScene(key){
+  document.querySelectorAll('.scene-btn').forEach(function(b,i){b.classList.toggle('active',Object.keys(scenes)[i]===key);});
+  document.getElementById('sceneDisplay').innerHTML=scenes[key]();
+}
+function openModal(key){
+  closeDds();
+  document.getElementById('overlayContent').innerHTML=scenes[key]();
+  document.getElementById('overlay').classList.add('show');
+}
+function closeModal(){document.getElementById('overlay').classList.remove('show');}
+function goTo(key){
+  var oc=document.getElementById('overlayContent');
+  var sd=document.getElementById('sceneDisplay');
+  if(oc&&document.getElementById('overlay').classList.contains('show'))oc.innerHTML=scenes[key]();
+  else if(sd)sd.innerHTML=scenes[key]();
+}
+function overlayBg(e){if(e.target===document.getElementById('overlay'))closeModal();}
+function toggleDd(ddId,btnId){
+  var was=document.getElementById(ddId).classList.contains('open');
+  closeDds();
+  if(!was){document.getElementById(ddId).classList.add('open');document.getElementById(btnId).classList.add('open');}
+}
+function closeDds(){
+  ['batchDd','exportDd'].forEach(function(id){document.getElementById(id).classList.remove('open');});
+  ['batchBtn','exportBtn'].forEach(function(id){document.getElementById(id).classList.remove('open');});
+}
+document.addEventListener('click',function(e){if(!e.target.closest('.dd-wrap'))closeDds();});
+
+setScene('upload');
+</script>
+</body>
+</html>
