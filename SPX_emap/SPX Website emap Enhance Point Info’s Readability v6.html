@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -113,6 +113,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Ro
 .step-connector.done{background:#86efac}
 .step-sub{font-size:11px;color:#9ca3af}
 /* MODAL FOOTER */
+.modal-body{padding:16px 22px;overflow-y:auto;flex:1}
 .modal-footer{padding:11px 22px;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:#fff}
 .foot-note{font-size:11px;color:#6b7280}
 .foot-note strong{color:#111827;font-weight:600}
@@ -179,6 +180,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Ro
 .orphan-skip-btn{font-size:10px;color:#9ca3af;cursor:pointer;background:none;border:none;padding:4px 0 0;text-decoration:underline;text-underline-offset:2px;display:block}
 .orphan-skip-btn:hover{color:#374151}
 .orphan-skipped td{opacity:.4}
+.orphan-skipped td:last-child{opacity:1}
 .orphan-skipped .orphan-file{text-decoration:line-through}
 .assigned-tag{display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #86efac;border-radius:20px;padding:2px 8px;font-size:10px;color:#15803d;font-weight:500;margin-top:4px}
 /* ── REVIEW MODAL ── */
@@ -300,11 +302,22 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Ro
 .pool-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);border-color:#93c5fd}
 .pool-thumb{width:86px;height:40px;background:#f3f4f6;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .pool-name{font-size:9px;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:86px}
+
+/* SOFT DELETE — greyed out slot states */
+.cover-slot.soft-del .cover-thumb{opacity:.45;filter:grayscale(1)}
+.cover-slot.soft-del .cover-fname{text-decoration:line-through;color:#c9cacc}
+.cover-slot.soft-del .cover-auto{display:none}
+/* dir-card soft-del: only image area is greyed, not full card */
+.dc-img-deleted{opacity:.45;filter:grayscale(1);position:relative}
+.dc-fname-deleted{text-decoration:line-through;color:#c9cacc;font-size:9px;padding:3px 9px 0}
+.del-bar{display:flex;align-items:center;justify-content:space-between;padding:5px 9px 6px;border-bottom:1px solid #f3f4f6;background:#fff8f8}
+.btn-undo-inline{font-size:10px;padding:2px 9px;border-radius:4px;cursor:pointer;border:1px solid #93c5fd;background:#eff6ff;color:#1d4ed8;font-weight:500;flex-shrink:0}
+.btn-undo-inline:hover{background:#dbeafe;border-color:#60a5fa}
 /* UNDO TOAST */
 .undo-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;border-radius:8px;padding:10px 16px;font-size:12px;display:flex;align-items:center;gap:10px;z-index:600;box-shadow:0 4px 16px rgba(0,0,0,.2);opacity:0;transition:opacity .2s;pointer-events:none}
 .undo-toast.show{opacity:1;pointer-events:auto}
-.undo-btn{background:none;border:1px solid rgba(255,255,255,.4);border-radius:4px;color:#fff;font-size:11px;padding:3px 10px;cursor:pointer}
-.undo-btn:hover{background:rgba(255,255,255,.1)}
+.undo-btn{background:#bfdbfe;border:1px solid #93c5fd;border-radius:4px;color:#1e40af;font-size:11px;padding:3px 10px;cursor:pointer;font-weight:500}
+.undo-btn:hover{background:#93c5fd}
 </style>
 </head>
 <body>
@@ -420,9 +433,9 @@ var CONV='<div class="conv">'
   +'<div class="conv-h2">1. File Requirements</div>'
   +'<div class="conv-body">Before uploading, please ensure your image files meet the following requirements:</div>'
   +'<ul class="conv-list">'
-  +'<li><span class="conv-bold">Supported Formats:</span> <span class="conv-code">.jpg</span>, <span class="conv-code">.jpeg</span>, or <span class="conv-code">.png</span></li>'
+  +'<li><span class="conv-bold">Supported Formats:</span> <span class="conv-code">.jpg</span>, <span class="conv-code">.jpeg</span>, <span class="conv-code">.heic</span>,or <span class="conv-code">.png</span></li>'
   +'<li><span class="conv-bold">Maximum File Size:</span> 15MB per image (and up to 150MB total per ZIP file batch upload).</li>'
-  +'<li><span class="conv-bold">Maximum Resolution:</span> Images must not exceed 8,000 × 8,000 pixels (standard smartphone photos are fully supported, but ultra-wide panoramas or ultra-high-resolution scanner files may be blocked).</li>'
+  +'<li><span class="conv-bold">Maximum Resolution:</span> Images must not exceed 10,000 × 10,000 pixels (standard smartphone photos are fully supported, but ultra-wide panoramas or ultra-high-resolution scanner files may be blocked).</li>'
   +'</ul>'
   +'<div class="conv-tip">Tip: If your photo fails to upload due to high resolution, simply resize or compress the image before trying again.</div>'
   +'<div class="conv-h2">2. How to Name Your Image Files</div>'
@@ -442,60 +455,72 @@ var CONV='<div class="conv">'
 /* ══ SP DATA ══ */
 var spData=[
   {id:'9064',name:'NUS Stephen Riady Centre',excluded:false,
-   cover:{f:'9064_cover.jpg',ok:true,conflict:false,cf:[]},
+   cover:{f:'9064_cover.jpg',ok:true,conflict:false,cf:[],deleted:false},
    dirs:[
-     {f:'NUS Stephen Riady Centre_dir1.jpg',ok:true,conflict:false,cf:[],text:'Take the lift to Level 1. Turn right after exiting.'},
-     {f:'9064_dir2.jpg',ok:true,conflict:false,cf:[],text:'Walk past the security counter.'},
-     {f:'',ok:false,conflict:false,cf:[],text:''},
-     {f:'9064_dir4.jpg',ok:true,conflict:false,cf:[],text:'Look for the SPX locker on your left.'},
-     {f:'',ok:false,conflict:false,cf:[],text:''}
+     {f:'NUS Stephen Riady Centre_dir1.jpg',ok:true,conflict:false,cf:[],text:'Take the lift to Level 1. Turn right after exiting.',deleted:false},
+     {f:'9064_dir2.jpg',ok:true,conflict:false,cf:[],text:'Walk past the security counter.',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},
+     {f:'9064_dir4.jpg',ok:true,conflict:false,cf:[],text:'Look for the SPX locker on your left.',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false}
    ],pool:['entrance_photo.jpg','9064_exterior.jpg']},
   {id:'9063',name:'Clementi Mall B1',excluded:false,
-   cover:{f:'',ok:false,conflict:true,cf:['Current image','9063_cover_new.jpg']},
+   cover:{f:'',ok:false,conflict:true,cf:['Current image','9063_cover_new.jpg'],deleted:false},
    dirs:[
-     {f:'9063_dir1.jpg',ok:true,conflict:false,cf:[],text:'Enter via the main entrance on level 1.'},
-     {f:'',ok:false,conflict:true,cf:['9063_dir2.jpg','9063_dir2 (1).jpg'],text:''},
-     {f:'',ok:false,conflict:false,cf:[],text:''},
-     {f:'',ok:false,conflict:false,cf:[],text:''},
-     {f:'',ok:false,conflict:false,cf:[],text:''}
+     {f:'9063_dir1.jpg',ok:true,conflict:false,cf:[],text:'Enter via the main entrance on level 1.',deleted:false},
+     {f:'',ok:false,conflict:true,cf:['9063_dir2.jpg','9063_dir2 (1).jpg'],text:'',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false}
    ],pool:[]},
   {id:'9062',name:'Tampines Hub L3',excluded:false,
-   cover:{f:'9062_cover.jpg',ok:true,conflict:false,cf:[]},
+   cover:{f:'9062_cover.jpg',ok:true,conflict:false,cf:[],deleted:false},
    dirs:[
-     {f:'9062_dir1.jpg',ok:true,conflict:false,cf:[],text:'Head to level 3 via the escalator.'},
-     {f:'',ok:false,conflict:false,cf:[],text:''},
-     {f:'',ok:false,conflict:false,cf:[],text:''},
-     {f:'',ok:false,conflict:false,cf:[],text:''},
-     {f:'',ok:false,conflict:false,cf:[],text:''}
+     {f:'9062_dir1.jpg',ok:true,conflict:false,cf:[],text:'Head to level 3 via the escalator.',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false}
    ],pool:[]},
   {id:'9061',name:'Jurong East MRT B2',excluded:false,
-   cover:{f:'9061_cover.jpg',ok:true,conflict:false,cf:[]},
+   cover:{f:'9061_cover.jpg',ok:true,conflict:false,cf:[],deleted:false},
    dirs:[
-     {f:'9061_dir1.jpg',ok:true,conflict:false,cf:[],text:''},
-     {f:'',ok:false,conflict:false,cf:[],text:''},
-     {f:'9061_dir3.jpg',ok:true,conflict:false,cf:[],text:''},
-     {f:'',ok:false,conflict:false,cf:[],text:''},
-     {f:'',ok:false,conflict:false,cf:[],text:''}
+     {f:'9061_dir1.jpg',ok:true,conflict:false,cf:[],text:'',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},
+     {f:'9061_dir3.jpg',ok:true,conflict:false,cf:[],text:'',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},
+     {f:'',ok:false,conflict:false,cf:[],text:'',deleted:false}
    ],pool:['jurong_lobby.jpg']},
   {id:'9060',name:'Bedok North MRT',excluded:true,
-   cover:{f:'',ok:false,conflict:false,cf:[]},
-   dirs:[{f:'',ok:false,conflict:false,cf:[],text:''},{f:'',ok:false,conflict:false,cf:[],text:''},{f:'',ok:false,conflict:false,cf:[],text:''},{f:'',ok:false,conflict:false,cf:[],text:''},{f:'',ok:false,conflict:false,cf:[],text:''}],
+   cover:{f:'',ok:false,conflict:false,cf:[],deleted:false},
+   dirs:[{f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},{f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},{f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},{f:'',ok:false,conflict:false,cf:[],text:'',deleted:false},{f:'',ok:false,conflict:false,cf:[],text:'',deleted:false}],
    pool:['bedok_entrance.jpg','bedok_lobby.jpg']}
 ];
 var orphans=[
   {file:'NUS Stephan Riady Centre_cover.jpg',reason:'Point name not found — possible typo',pointId:'',slotId:'',skipped:false},
   {file:'photo_exterior.jpg',reason:'Filename doesn\'t match any Point ID or Point Name',pointId:'',slotId:'',skipped:false}
 ];
+// Pool images: matched to a Point but slot unclear — resolved in Step 2
+var step2Pool=[];
+// Build step2Pool from spData.pool entries
+function buildStep2Pool(){
+  step2Pool=[];
+  spData.forEach(function(sp){
+    sp.pool.forEach(function(fname){
+      step2Pool.push({file:fname,spId:sp.id,spName:sp.name,slotId:'',skipped:false});
+    });
+  });
+}
+buildStep2Pool();
 var activeSp=0,spQuery='';
 
 /* ══ LOGIC ══ */
-function dirFilled(d){return d.ok||d.conflict||(d.text&&d.text.trim().length>0);}
+function dirFilled(d){return (d.ok&&!d.deleted)||d.conflict||(d.text&&d.text.trim().length>0);}
 function hasGap(dirs,idx){
   if(dirFilled(dirs[idx]))return false;
   return dirs.slice(0,idx).some(dirFilled)&&dirs.slice(idx+1).some(dirFilled);
 }
 function needsAttn(sp){
-  return sp.pool.length>0||sp.cover.conflict
+  return sp.cover.conflict
     ||sp.dirs.some(function(d){return d.conflict;})
     ||sp.dirs.some(function(d,i){return hasGap(sp.dirs,i);});
 }
@@ -546,7 +571,7 @@ function spRowHTML(sp){
     var c=d.conflict?'rp-bad':(dirFilled(d)?'rp-ok':(hasGap(sp.dirs,i)?'rp-bad':'rp-empty'));
     pills+='<span class="rp '+c+'">dir'+(i+1)+'</span>';
   });
-  if(sp.pool.length)pills+='<span class="rp rp-warn">some images not sorted</span>';
+
   var rowCls='sp-row'+(isExcl?' dim':'')+(isOn?(isExcl?' on-excl':' on'):'');
   return '<div class="'+rowCls+'" onclick="switchSp('+ri+')">'
     +'<div class="sp-row-top"><span class="sp-row-name'+(isExcl?' struck':'')+'">'+sp.name+'</span><span class="sp-row-id">'+sp.id+'</span></div>'
@@ -573,14 +598,14 @@ function rightPanelHTML(){
     if(sp.cover.conflict)issues.push('Cover photo has two conflicting images');
     if(sp.dirs.some(function(d){return d.conflict;}))issues.push('One or more direction slots have conflicting images');
     if(sp.dirs.some(function(d,i){return hasGap(sp.dirs,i);}))issues.push('Gap in direction sequence — a step is empty between two filled ones');
-    if(sp.pool.length)issues.push(sp.pool.length+' image'+(sp.pool.length>1?'s':'')+' matched to this Point but not yet assigned to a slot');
+
     h+='<div class="warn-banner"><div class="warn-title">This Point has image issues that need sorting:</div>'
       +'<div class="warn-list">'+issues.map(function(s){return '• '+s;}).join('<br>')+'</div>'
       +'<div class="warn-hint">Fix the issues below, or use "Exclude" to come back to this Point in a separate upload.</div></div>';
   } else {
     h+='<div class="drag-hint"><span>⠿</span> Use the grip handle to drag images between slots within this Point.</div>';
   }
-  h+=coverHTML(sp,activeSp)+dirGridHTML(sp,activeSp)+poolHTML(sp,activeSp);
+  h+=coverHTML(sp,activeSp)+dirGridHTML(sp,activeSp);
   return h;
 }
 
@@ -595,6 +620,18 @@ function coverHTML(sp,si){
         return '<div class="cfile"><div class="cfile-thumb">🖼</div><div class="cfile-name">'+f+'</div>'
           +'<button class="btn-keep" onclick="keepConflict('+si+',\'cover\','+ci+')">Keep this</button></div>';
       }).join('')+'</div></div></div>';
+  }
+  if(c.ok&&c.deleted){
+    return '<div class="cover-slot soft-del" style="flex-direction:column;align-items:stretch;padding:0;overflow:hidden">'
+      +'<div class="del-bar">'
+      +'<span style="font-size:10px;color:#b45309;font-weight:500">Cover photo will be removed</span>'
+      +'<button class="btn-undo-inline" onclick="undoDelCover('+si+')">↩ Undo</button>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:10px;padding:9px 12px">'
+      +'<div class="cover-thumb ct-ok" style="opacity:.45;filter:grayscale(1)">🖼</div>'
+      +'<div class="cover-info"><div class="cover-lbl">Cover photo</div>'
+      +'<div class="cover-fname" style="text-decoration:line-through;color:#c9cacc">'+c.f+'</div>'
+      +'</div></div></div>';
   }
   if(c.ok){
     return '<div class="cover-slot"><div class="cover-thumb ct-ok">🖼</div>'
@@ -611,8 +648,9 @@ function dirGridHTML(sp,si){
   var h='<div class="dir-grid">';
   sp.dirs.forEach(function(d,i){
     var isGap=hasGap(sp.dirs,i),isProblem=d.conflict||isGap;
-    var cardCls='dir-card'+(isProblem?' bad':(!dirFilled(d)?' empty-plain':''));
-    var canDrag=d.ok&&!d.conflict;
+    var isSoftDel=d.ok&&d.deleted;
+    var cardCls='dir-card'+(isProblem?' bad':(!dirFilled(d)&&!isSoftDel?' empty-plain':''));
+    var canDrag=d.ok&&!d.conflict&&!d.deleted;
     h+='<div class="'+cardCls+'" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropDir(event,this,'+si+','+i+')">'
       +'<div class="dc-hdr'+(isProblem?' problem':'')+'">'
       +'<span class="drag-handle" style="'+(canDrag?'':'opacity:.2')+'">⠿</span>'
@@ -627,6 +665,13 @@ function dirGridHTML(sp,si){
           return '<div class="cfile"><div class="cfile-thumb">🖼</div><div class="cfile-name">'+f+'</div>'
             +'<button class="btn-keep" onclick="keepConflict('+si+','+i+','+ci+')">Keep</button></div>';
         }).join('')+'</div>';
+    } else if(d.ok&&d.deleted){
+      h+='<div class="del-bar">'
+        +'<span style="font-size:10px;color:#b45309;font-weight:500">Image will be removed</span>'
+        +'<button class="btn-undo-inline" onclick="undoDelDir('+si+','+i+')">↩ Undo</button>'
+        +'</div>'
+        +'<div class="dc-img dc-img-ok dc-img-deleted">🖼</div>'
+        +'<div class="dc-fname-deleted">'+d.f+'</div>';
     } else if(d.ok){
       h+='<div class="dc-img dc-img-ok" draggable="true" ondragstart="dirDragStart(event,'+si+','+i+')">🖼</div>'
         +'<div class="dc-fname">'+d.f+'</div><span class="dc-auto">auto-matched</span>';
@@ -644,7 +689,7 @@ function dirGridHTML(sp,si){
 function poolHTML(sp,si){
   if(!sp.pool.length)return '';
   return '<div class="pool-sec"><div class="pool-title">Not yet assigned to a slot</div>'
-    +'<div class="pool-sub">These images were matched to this Point but we couldn\'t tell which direction step they belong to. Drag them into a slot above. <span class="pool-warn">If left here, they won\'t be uploaded.</span></div>'
+    +'<div class="pool-sub">These images were matched to this Point but we could not tell which direction step they belong to. Drag them into a slot above. <span class="pool-warn">If left here, they won\'t be uploaded.</span></div>'
     +'<div class="pool-cards">'+sp.pool.map(function(p,pi){
       return '<div class="pool-card" draggable="true" ondragstart="poolDragStart(event,'+si+','+pi+')">'
         +'<div style="font-size:9px;color:#e5e7eb;margin-bottom:2px">⠿⠿</div>'
@@ -701,16 +746,18 @@ var badFiles=[
 
 function orphanHTML(){
   var hasBad=badFiles.length>0;
-  var skippedCount=orphans.filter(function(o){return o.skipped;}).length;
-  var assignedCount=orphans.filter(function(o){return !o.skipped&&o.pointId&&o.slotId;}).length;
-  var remaining=orphans.length-assignedCount-skippedCount;
-  var hasOrphans=orphans.some(function(o){return !o.skipped;});
+  var allAssign=[];
+  orphans.forEach(function(o,i){allAssign.push({type:'orphan',idx:i,file:o.file,reason:o.reason,spId:o.pointId,spName:'',slotId:o.slotId,skipped:o.skipped});});
+  step2Pool.forEach(function(p,pi){allAssign.push({type:'pool',idx:pi,file:p.file,reason:'',spId:p.spId,spName:p.spName,slotId:p.slotId,skipped:p.skipped});});
+  var hasAssign=allAssign.length>0;
+  var totalAssigned=allAssign.filter(function(a){return !a.skipped&&a.spId&&a.slotId;}).length;
+  var totalSkipped=allAssign.filter(function(a){return a.skipped;}).length;
+  var totalRemaining=allAssign.filter(function(a){return !a.skipped&&(!a.spId||!a.slotId);}).length;
 
   var h='<div class="modal"><div class="modal-header">'+stepFlowHTML(2)
-    +'<div class="step-sub">Review any files that couldn\'t be processed automatically before continuing.</div></div>'
-    +'<div style="padding:16px 22px;overflow-y:auto;flex:1">';
+    +'<div class="step-sub">Review any files that need attention before continuing.</div></div>'
+    +'<div class="modal-body">';
 
-  // Section A: unsupported formats
   if(hasBad){
     h+='<div style="font-size:11px;font-weight:600;color:#374151;margin-bottom:6px">Unsupported file formats — will be skipped</div>'
       +'<div class="alert-warn" style="margin-bottom:10px"><div class="aw-body">Only JPG, PNG and HEIC files can be uploaded.</div></div>'
@@ -718,49 +765,60 @@ function orphanHTML(){
       +badFiles.map(function(f){return '<tr><td>'+f.file+'</td><td>'+f.type+' — not supported</td></tr>';}).join('')
       +'</table></div>';
   }
-  if(hasBad&&hasOrphans){
-    h+='<div style="border-top:1px solid #f3f4f6;margin-bottom:16px"></div>';
-  }
-  // Section B: unmatched images
-  if(hasOrphans){
-    h+='<div style="font-size:11px;font-weight:600;color:#374151;margin-bottom:6px">Images that couldn\'t be matched to a Point</div>'
-      +'<div class="orphan-intro" style="margin-bottom:10px">These images don\'t match any Point ID or Point Name — usually a typo in the filename or an incorrect naming format. Assign each one to the correct Point and slot, or skip it.</div>'
+
+  if(hasAssign){
+    if(hasBad) h+='<div style="border-top:1px solid #f3f4f6;margin-bottom:14px"></div>';
+    h+='<div style="font-size:11px;font-weight:600;color:#374151;margin-bottom:5px">Images that need to be assigned</div>'
+      +'<div class="orphan-intro" style="margin-bottom:10px">These images could not be placed automatically — either the Point name was not recognised, or the slot type was unclear. Assign each one to the correct Point and slot, or skip it.</div>'
       +'<div class="orphan-table-wrap"><table class="orphan-tbl">'
-      +'<thead><tr><th style="width:34%">Image file</th><th>Assign to Point</th><th style="width:26%">Image slot</th></tr></thead><tbody>';
-    orphans.forEach(function(o,i){
-      if(o.skipped){
-        h+='<tr class="orphan-skipped"><td><span class="orphan-file">'+o.file+'</span><span class="orphan-reason">Skipped</span></td>'
-          +'<td colspan="2"><button style="font-size:10px;border:none;background:none;color:#9ca3af;cursor:pointer;text-decoration:underline" onclick="unskipOrphan('+i+')">Undo skip</button></td></tr>';
+      +'<thead><tr><th style="width:32%">Image file</th><th>Point</th><th style="width:28%">Image slot</th></tr></thead><tbody>';
+    allAssign.forEach(function(a){
+      if(a.skipped){
+        var undoFn=a.type==='orphan'?'unskipOrphan('+a.idx+')':'unSkipPool('+a.idx+')';
+        h+='<tr class="orphan-skipped"><td><span class="orphan-file">'+a.file+'</span><span class="orphan-reason">Skipped</span></td>'
+          +'<td colspan="2"><button class="btn-undo-inline" style="font-size:10px" onclick="'+undoFn+'">Undo skip</button></td></tr>';
         return;
       }
+      var ptCell='';
       var ptOpts='<option value="">— Choose a Point —</option>';
-      spData.forEach(function(sp){ptOpts+='<option value="'+sp.id+'"'+(o.pointId===sp.id?' selected':'')+'>'+sp.name+' ('+sp.id+')</option>';});
-      var filledSlots=o.pointId?filledSlotsFor(o.pointId,i):[];
-      var allSlots=['cover','dir1','dir2','dir3','dir4','dir5'];
+      spData.forEach(function(sp){ptOpts+='<option value="'+sp.id+'"'+(a.spId===sp.id?' selected':'')+'>'+sp.name+' ('+sp.id+')</option>';});
+      var ptChangeFn=a.type==='orphan'?'orphanSetPoint('+a.idx+',this.value)':'setPoolPoint('+a.idx+',this.value)';
+      ptCell='<select class="orphan-sel" onchange="'+ptChangeFn+'">'+ptOpts+'</select>';
+      if(a.type==='pool'&&a.spId){
+        ptCell+='<div style="font-size:9px;color:#9ca3af;margin-top:2px">Pre-matched by system</div>';
+      }
+      var filledSlots=a.spId?filledSlotsFor(a.spId,a.type==='orphan'?a.idx:-1):[];
       var slotOpts='<option value="">— Choose slot —</option>';
-      allSlots.forEach(function(s){
+      ['cover','dir1','dir2','dir3','dir4','dir5'].forEach(function(s){
         var isFilled=filledSlots.indexOf(s)>-1;
-        slotOpts+='<option value="'+s+'"'+(o.slotId===s?' selected':'')+(isFilled?' disabled':'')+'>'+s+(isFilled?' (already filled)':'')+'</option>';
+        slotOpts+='<option value="'+s+'"'+(a.slotId===s?' selected':'')+(isFilled?' disabled':'')+'>'+s+(isFilled?' (filled)':'')+'</option>';
       });
-      var assigned=o.pointId&&o.slotId;
-      h+='<tr><td><span class="orphan-file">'+o.file+'</span><span class="orphan-reason">'+o.reason+'</span>'
-        +(assigned?'<span class="assigned-tag">✓ Assigned</span>':'')+'</td>'
-        +'<td><select class="orphan-sel" onchange="orphanSetPoint('+i+',this.value)">'+ptOpts+'</select></td>'
-        +'<td><select class="orphan-slot-sel" onchange="orphanSetSlot('+i+',this.value)"'+(o.pointId?'':' disabled')+'>'+slotOpts+'</select>'
-        +'<button class="orphan-skip-btn" onclick="skipOrphan('+i+')">Skip this image</button></td></tr>';
+      var slotFn=a.type==='orphan'?'orphanSetSlot('+a.idx+',this.value)':'setPoolSlot('+a.idx+',this.value)';
+      var skipFn=a.type==='orphan'?'skipOrphan('+a.idx+')':'skipPool('+a.idx+')';
+      var isAssigned=a.spId&&a.slotId;
+      h+='<tr>'
+        +'<td><span class="orphan-file">'+a.file+'</span>'
+        +(a.reason?'<span class="orphan-reason">'+a.reason+'</span>':'')
+        +(isAssigned?'<span class="assigned-tag">✓ Assigned</span>':'')+'</td>'
+        +'<td>'+ptCell+'</td>'
+        +'<td><select class="orphan-slot-sel" onchange="'+slotFn+'"'+(a.spId?'':' disabled')+'>'+slotOpts+'</select>'
+        +'<button class="orphan-skip-btn" onclick="'+skipFn+'">Skip</button></td>'
+        +'</tr>';
     });
     h+='</tbody></table></div>';
   }
-  if(!hasBad&&!hasOrphans){
+
+  if(!hasBad&&!hasAssign){
     h+='<div style="text-align:center;padding:32px 0;color:#9ca3af;font-size:12px">✓ No issues to review — all images matched and formats are supported.</div>';
   }
+
   h+='</div>';
   var footParts=[];
   if(hasBad) footParts.push(badFiles.length+' file'+(badFiles.length>1?'s':'')+' will be skipped (unsupported format)');
-  if(orphans.length>0) footParts.push(assignedCount+' assigned &nbsp;·&nbsp; '+skippedCount+' skipped &nbsp;·&nbsp; '+remaining+' remaining');
-  h+='<div class="modal-footer"><span class="foot-note">'+footParts.join(' &nbsp;&nbsp; ')+'</span>'
-    +'<div class="btn-group"><button class="btn-cancel" onclick="goTo(\'upload\')">← Back</button>'
-    +'<button class="btn-blue" onclick="goTo(\'review\')">Next: review mapping →</button>'
+  if(hasAssign) footParts.push(totalAssigned+' assigned  ·  '+totalSkipped+' skipped  ·  '+totalRemaining+' remaining');
+  h+='<div class="modal-footer"><span class="foot-note">'+footParts.join('&nbsp;&nbsp;')+'</span>'
+    +'<div class="btn-group"><button class="btn-cancel" onclick="goTo(&quot;upload&quot;)">← Back</button>'
+    +'<button class="btn-blue" onclick="goTo(&quot;review&quot;)">Next: review mapping →</button>'
     +'</div></div></div>';
   return h;
 }
@@ -770,11 +828,48 @@ function orphanSetPoint(i,v){orphans[i].pointId=v;orphans[i].slotId='';refreshOr
 function orphanSetSlot(i,v){orphans[i].slotId=v;refreshOrphan();}
 function skipOrphan(i){orphans[i].skipped=true;refreshOrphan();}
 function unskipOrphan(i){orphans[i].skipped=false;refreshOrphan();}
+function setPoolPoint(pi,spId){
+  var p=step2Pool[pi];
+  // Remove from old SP pool if it was there
+  if(p.spId){
+    var oldSp=spData.find(function(s){return s.id===p.spId;});
+    if(oldSp) oldSp.pool=oldSp.pool.filter(function(f){return f!==p.file;});
+  }
+  p.spId=spId;
+  p.slotId='';
+  // Add back to new SP pool
+  if(spId){
+    var newSp=spData.find(function(s){return s.id===spId;});
+    if(newSp&&newSp.pool.indexOf(p.file)===-1) newSp.pool.push(p.file);
+    var matched=spData.find(function(s){return s.id===spId;});
+    p.spName=matched?matched.name:'';
+  } else {
+    p.spName='';
+  }
+  refreshOrphan();
+}
+function setPoolSlot(pi,slotId){
+  step2Pool[pi].slotId=slotId;
+  // File into the SP's dir slot immediately
+  if(slotId){
+    var p=step2Pool[pi];
+    var sp=spData.find(function(s){return s.id===p.spId;});
+    if(sp){
+      if(slotId==='cover'){sp.cover.f=p.file;sp.cover.ok=true;}
+      else{var di=parseInt(slotId.replace('dir',''))-1;if(di>=0&&di<5){sp.dirs[di].f=p.file;sp.dirs[di].ok=true;}}
+      // Remove from pool
+      sp.pool=sp.pool.filter(function(f){return f!==p.file;});
+    }
+  }
+  refreshOrphan();
+}
+function skipPool(pi){step2Pool[pi].skipped=true;var p=step2Pool[pi];var sp=spData.find(function(s){return s.id===p.spId;});if(sp)sp.pool=sp.pool.filter(function(f){return f!==p.file;});refreshOrphan();}
+function unSkipPool(pi){step2Pool[pi].skipped=false;refreshOrphan();}
 function refreshOrphan(){
   var oc=document.getElementById('overlayContent');
-  if(oc&&(oc.querySelector('.orphan-tbl')||oc.querySelector('.step-sub')))oc.innerHTML=orphanHTML();
+  if(oc&&document.getElementById('overlay').classList.contains('show'))oc.innerHTML=orphanHTML();
   var sd=document.getElementById('sceneDisplay');
-  if(sd&&(sd.querySelector('.orphan-tbl')||sd.querySelector('.alert-warn')))sd.innerHTML=orphanHTML();
+  if(sd&&(sd.querySelector('.orphan-tbl')||sd.querySelector('.alert-warn')||sd.querySelector('.step-sub')))sd.innerHTML=orphanHTML();
 }
 
 /* ══ DRAG + DROP ══ */
@@ -798,8 +893,10 @@ function dropDir(e,el,tsi,tdi){
 }
 
 /* ══ SLOT ACTIONS ══ */
-function delCover(si){spData[si].cover.f='';spData[si].cover.ok=false;refreshReview();}
-function delDir(si,di){spData[si].dirs[di].f='';spData[si].dirs[di].ok=false;refreshReview();}
+function delCover(si){spData[si].cover.deleted=true;refreshReview();}
+function delDir(si,di){spData[si].dirs[di].deleted=true;refreshReview();}
+function undoDelCover(si){spData[si].cover.deleted=false;refreshReview();}
+function undoDelDir(si,di){spData[si].dirs[di].deleted=false;refreshReview();}
 function updateText(si,di,v){spData[si].dirs[di].text=v;}
 function updateCount(ta){var c=ta.parentNode.querySelector('.dc-charcount');if(c)c.textContent=ta.value.length+' / 500';}
 function keepConflict(si,slot,ki){
@@ -849,7 +946,7 @@ function uploadHTML(){
     +'<div class="step-sub">Upload a folder of images. The system will automatically match each image to the right Point and slot based on the filename.</div></div>'
     +'<div style="padding:16px 22px;overflow-y:auto;flex:1">'
     +'<div class="uz"><div class="uz-icon">📦</div><div class="uz-title">Images folder (.zip)</div>'
-    +'<div class="uz-hint">Zip up all the images you want to upload into one folder, then select it here. JPG and PNG files only.</div>'
+    +'<div class="uz-hint">Zip up all the images you want to upload into one folder, then select it here. JPG, PNG and HEIC files only.</div>'
     +'<button class="btn-choose">Choose file</button>'
     +'<div class="file-pill">📦 images_batch_apr25.zip</div></div>'+CONV+'</div>'
     +'<div class="modal-footer"><span class="foot-note">25 images detected across 4 Points</span>'
@@ -868,7 +965,7 @@ function successHTML(){
     +'<div class="mt-wrap"><table class="mt"><tr><th>Image file</th><th>Point</th><th>What happened</th></tr>'
     +'<tr><td>9063_dir2.jpg &amp; 9063_dir2 (1).jpg</td><td>Clementi Mall B1</td><td>Two images for the same slot — both skipped. Upload just one to fix.</td></tr>'
     +'<tr><td>photo_exterior.jpg</td><td>—</td><td>Skipped during the "Review issues" step.</td></tr>'
-    +'<tr><td>9064_cover.webp</td><td>—</td><td>File type not supported (.webp). Save as JPG or PNG and re-upload.</td></tr>'
+    +'<tr><td>9064_cover.heic</td><td>—</td><td>File type not supported (.heic). Save as JPG or PNG and re-upload.</td></tr>'
     +'</table></div></div>'
     +'<div class="modal-footer"><span class="foot-note"></span>'
     +'<div class="btn-group"><button class="btn-cancel" onclick="downloadSkipReport()">↓ Download skip report</button>'
@@ -880,7 +977,7 @@ function downloadSkipReport(){
   var csv='Image file,Point,What happened\n'
     +'"9063_dir2.jpg & 9063_dir2 (1).jpg","Clementi Mall B1","Two images for the same slot — both skipped."\n'
     +'"photo_exterior.jpg","—","Skipped during Review issues step."\n'
-    +'"9064_cover.webp","—","File type not supported (.webp)."\n';
+    +'"9064_cover.heic","—","File type not supported (.heic)."\n';
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   a.download='skip_report_apr25.csv';a.click();
 }
