@@ -715,8 +715,11 @@ function reviewHTML(){
     +'<div class="rp-main" id="rpMain">'+rightPanelHTML()+'</div>'
     +'</div>'
     +'<div class="modal-footer"><span class="foot-note" id="reviewFn">'+parts.join(' &nbsp;·&nbsp; ')+'</span>'
+    +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">'
     +'<div class="btn-group"><button class="btn-cancel" onclick="goTo(\'orphan\')">← Back</button>'
-    +'<button class="btn-blue" onclick="closeModal()">Confirm &amp; upload</button></div></div></div>';
+    +'<button class="btn-blue" onclick="closeModal()">Confirm &amp; upload</button></div>'
+    +'<div style="font-size:10px;color:#9ca3af;">Cancelling will discard your upload and all image assignments.</div>'
+    +'</div></div></div>';
 }
 
 function refreshReview(){
@@ -758,16 +761,7 @@ function orphanHTML(){
     +'<div class="step-sub">Review any files that need attention before continuing.</div></div>'
     +'<div class="modal-body">';
 
-  if(hasBad){
-    h+='<div style="font-size:11px;font-weight:600;color:#374151;margin-bottom:6px">Unsupported file formats — will be skipped</div>'
-      +'<div class="alert-warn" style="margin-bottom:10px"><div class="aw-body">Only JPG, PNG and HEIC files can be uploaded.</div></div>'
-      +'<div class="mt-wrap" style="margin-bottom:16px"><table class="mt"><tr><th>Filename</th><th>File type</th></tr>'
-      +badFiles.map(function(f){return '<tr><td>'+f.file+'</td><td>'+f.type+' — not supported</td></tr>';}).join('')
-      +'</table></div>';
-  }
-
   if(hasAssign){
-    if(hasBad) h+='<div style="border-top:1px solid #f3f4f6;margin-bottom:14px"></div>';
     h+='<div style="font-size:11px;font-weight:600;color:#374151;margin-bottom:5px">Images that need to be assigned</div>'
       +'<div class="orphan-intro" style="margin-bottom:10px">These images could not be placed automatically — either the Point name was not recognised, or the slot type was unclear. Assign each one to the correct Point and slot, or skip it.</div>'
       +'<div class="orphan-table-wrap"><table class="orphan-tbl">'
@@ -808,17 +802,18 @@ function orphanHTML(){
     h+='</tbody></table></div>';
   }
 
-  if(!hasBad&&!hasAssign){
+  if(!hasAssign){
     h+='<div style="text-align:center;padding:32px 0;color:#9ca3af;font-size:12px">✓ No issues to review — all images matched and formats are supported.</div>';
   }
 
   h+='</div>';
   var footParts=[];
-  if(hasBad) footParts.push(badFiles.length+' file'+(badFiles.length>1?'s':'')+' will be skipped (unsupported format)');
   if(hasAssign) footParts.push(totalAssigned+' assigned  ·  '+totalSkipped+' skipped  ·  '+totalRemaining+' remaining');
   h+='<div class="modal-footer"><span class="foot-note">'+footParts.join('&nbsp;&nbsp;')+'</span>'
-    +'<div class="btn-group"><button class="btn-cancel" onclick="goTo(&quot;upload&quot;)">← Back</button>'
-    +'<button class="btn-blue" onclick="goTo(&quot;review&quot;)">Next: review mapping →</button>'
+    +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">'
+    +'<div class="btn-group"><button class="btn-cancel" onclick="closeModal()">Cancel</button>'
+    +'<button class="btn-blue" onclick="goTo(&quot;review&quot;)">Next: review mapping →</button></div>'
+    +'<div style="font-size:10px;color:#9ca3af;">Cancelling will discard your upload — you\'ll need to re-select the folder.</div>'
     +'</div></div></div>';
   return h;
 }
@@ -945,13 +940,67 @@ function uploadHTML(){
   return '<div class="modal"><div class="modal-header">'+stepFlowHTML(1)
     +'<div class="step-sub">Upload a folder of images. The system will automatically match each image to the right Point and slot based on the filename.</div></div>'
     +'<div style="padding:16px 22px;overflow-y:auto;flex:1">'
-    +'<div class="uz"><div class="uz-icon">📦</div><div class="uz-title">Images folder (.zip)</div>'
-    +'<div class="uz-hint">Zip up all the images you want to upload into one folder, then select it here. JPG, PNG and HEIC files only.</div>'
-    +'<button class="btn-choose">Choose file</button>'
-    +'<div class="file-pill">📦 images_batch_apr25.zip</div></div>'+CONV+'</div>'
-    +'<div class="modal-footer"><span class="foot-note">25 images detected across 4 Points</span>'
+    +'<div id="uz-select">'
+    +'<div class="uz"><div class="uz-icon">📁</div><div class="uz-title">Images folder</div>'
+    +'<div class="uz-hint">Select the folder containing your images. JPG, PNG and HEIC files only. Do not move or delete files from the folder while the upload is in progress.</div>'
+    +'<button class="btn-choose" onclick="startFolderUpload()">Choose folder</button>'
+    +'<div class="file-pill">📁 images_batch_apr25</div></div>'+CONV+'</div>'
+    +'<div id="uz-progress" style="display:none;padding-bottom:8px;">'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">'
+    +'<span style="font-size:18px;">📁</span>'
+    +'<span style="font-size:13px;font-weight:600;color:#374151;">images_batch_apr25</span>'
+    +'</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+    +'<span id="up-status" style="font-size:12px;color:#6b7280;">Uploading...</span>'
+    +'<span id="up-count" style="font-size:12px;font-weight:600;color:#374151;">0 / 25</span>'
+    +'</div>'
+    +'<div style="background:#f3f4f6;border-radius:4px;height:8px;overflow:hidden;margin-bottom:8px;">'
+    +'<div id="up-bar" style="height:100%;width:0%;background:#2563eb;border-radius:4px;transition:width 0.15s;"></div>'
+    +'</div>'
+    +'<div id="up-file" style="font-size:11px;color:#9ca3af;margin-top:2px;">—</div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="modal-footer"><span class="foot-note" id="up-foot"></span>'
     +'<div class="btn-group"><button class="btn-cancel" onclick="closeModal()">Cancel</button>'
-    +'<button class="btn-blue" onclick="goTo(\'orphan\')">Next →</button></div></div></div>';
+    +'<button class="btn-blue" id="btn-next-upload" style="opacity:.4;pointer-events:none;" onclick="goTo(\'orphan\')">Next →</button></div></div></div>';
+}
+function startFolderUpload(){
+  document.getElementById('uz-select').style.display='none';
+  document.getElementById('uz-progress').style.display='block';
+  var files=[
+    '9001_cover.jpg','9001_dir1.jpg','9001_dir2.jpg',
+    '9002_cover.jpg','9002_dir1.jpg','9002_dir2.jpg','9002_dir3.jpg',
+    '9003_cover.jpg','9003_dir1.jpg',
+    '9004_cover.jpg','9004_dir1.jpg','9004_dir2.jpg','9004_dir3.jpg','9004_dir4.jpg',
+    '9005_cover.jpg','9005_dir1.jpg','9005_dir2.jpg',
+    '9063_cover.jpg','9063_dir1.jpg','9063_dir2.jpg','9063_dir2 (1).jpg',
+    '9064_cover.jpg','9064_dir1.jpg',
+    'NUS Stephan Riady Centre_cover.jpg','photo_exterior.jpg'
+  ];
+  var total=files.length,current=0;
+  var bar=document.getElementById('up-bar');
+  var count=document.getElementById('up-count');
+  var fileLbl=document.getElementById('up-file');
+  var status=document.getElementById('up-status');
+  var iv=setInterval(function(){
+    if(current>=total){
+      clearInterval(iv);
+      bar.style.width='100%';
+      count.textContent=total+' / '+total;
+      fileLbl.textContent='✓ All files read';
+      status.textContent='Upload complete';
+      status.style.color='#16a34a';
+      document.getElementById('up-foot').textContent=total+' images detected across 4 Points';
+      var btn=document.getElementById('btn-next-upload');
+      btn.style.opacity='1';
+      btn.style.pointerEvents='auto';
+      return;
+    }
+    current++;
+    bar.style.width=Math.round((current/total)*100)+'%';
+    count.textContent=current+' / '+total;
+    fileLbl.textContent='Reading: '+files[current-1];
+  },160);
 }
 function warnFmtHTML(){ return orphanHTML(); } /* merged into step 2 */
 function successHTML(){
