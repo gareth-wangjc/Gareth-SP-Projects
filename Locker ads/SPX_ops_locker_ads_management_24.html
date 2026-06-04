@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>SPX Service Point — Locker Ads</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;color:#333;font-size:14px;}
+.topbar{height:52px;background:#fff;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;padding:0 16px;gap:12px;position:sticky;top:0;z-index:300;}
+.spx-logo{display:flex;flex-direction:column;line-height:1;text-decoration:none;}
+.spx-logo .l1{font-size:20px;font-weight:800;color:#ee4d2d;font-style:italic;letter-spacing:-1px;}
+.spx-logo .l2{font-size:9px;font-weight:600;color:#ee4d2d;letter-spacing:.06em;}
+.tb-div{width:1px;height:28px;background:#e8e8e8;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.tb-notif{position:relative;cursor:pointer;color:#666;font-size:16px;}
+.tb-nbadge{position:absolute;top:-4px;right:-5px;background:#ee4d2d;color:#fff;font-size:9px;font-weight:700;padding:0 4px;border-radius:8px;min-width:16px;text-align:center;}
+.tb-lang{font-size:12px;color:#555;cursor:pointer;border:1px solid #e0e0e0;padding:3px 8px;border-radius:3px;}
+.tb-user{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#555;}
+.tb-av{width:26px;height:26px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#555;}
+.role-sel{border:1px solid #e0e0e0;border-radius:3px;padding:3px 8px;font-size:12px;color:#555;cursor:pointer;background:#fff;}
+.shell{display:flex;min-height:calc(100vh - 52px);}
+.sidebar{width:200px;background:#fff;border-right:1px solid #e8e8e8;flex-shrink:0;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;}
+.sb-grp{font-size:12px;color:#888;padding:9px 14px 5px;font-weight:500;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.sb-grp:hover{color:#555;}
+.sb-kids{overflow:hidden;}
+.sb-kids.closed{display:none;}
+.sb-link{display:block;padding:6px 14px 6px 26px;font-size:13px;color:#555;cursor:pointer;text-decoration:none;border-left:2px solid transparent;white-space:nowrap;}
+.sb-link:hover{color:#ee4d2d;background:#fef5f5;}
+.sb-link.on{color:#ee4d2d;font-weight:500;border-left-color:#ee4d2d;background:#fef5f5;}
+.sb-badge{background:#ee4d2d;color:#fff;font-size:9px;font-weight:700;padding:0 5px;border-radius:8px;margin-left:4px;vertical-align:middle;}
+.sb-div{height:1px;background:#f0f0f0;margin:5px 14px;}
+.main{flex:1;overflow:auto;}
+.bc{padding:10px 20px 0;font-size:12px;color:#aaa;display:flex;align-items:center;gap:5px;}
+.bc a{color:#aaa;text-decoration:none;cursor:pointer;}
+.bc a:hover{color:#ee4d2d;}
+.bc .cur{color:#555;} .bc .sep{font-size:10px;}
+.page-hdr{padding:10px 20px 14px;display:flex;align-items:flex-start;justify-content:space-between;background:#fff;border-bottom:1px solid #e8e8e8;}
+.page-title{font-size:18px;font-weight:600;}
+.page-sub{font-size:12px;color:#888;margin-top:2px;}
+.page-acts{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+.htab-bar{background:#fff;border-bottom:1px solid #e8e8e8;padding:0 20px;display:flex;}
+.htab{padding:11px 18px;font-size:13px;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;}
+.htab:hover{color:#ee4d2d;}
+.htab.on{color:#ee4d2d;border-bottom-color:#ee4d2d;font-weight:500;}
+.content{padding:16px 20px 24px;}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.metric{background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:14px 16px;}
+.m-lbl{font-size:12px;color:#888;margin-bottom:6px;}
+.m-val{font-size:22px;font-weight:600;}
+.m-val.red{color:#ee4d2d;} .m-val.grn{color:#389e0d;} .m-val.org{color:#d46b08;}
+.m-sub{font-size:11px;color:#aaa;margin-top:3px;}
+.btn-r{background:#ee4d2d;color:#fff;border:none;border-radius:3px;padding:6px 16px;font-size:13px;font-weight:500;cursor:pointer;}
+.btn-r:hover{background:#c83030;}
+.btn-w{background:#fff;color:#333;border:1px solid #d0d0d0;border-radius:3px;padding:6px 14px;font-size:13px;cursor:pointer;}
+.btn-w:hover{border-color:#ee4d2d;color:#ee4d2d;}
+.btn-sm{background:#fff;color:#555;border:1px solid #d0d0d0;border-radius:3px;padding:3px 10px;font-size:12px;cursor:pointer;}
+.btn-sm:hover{border-color:#ee4d2d;color:#ee4d2d;}
+.btn-sm-r{background:#ee4d2d;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:12px;cursor:pointer;}
+.btn-sm-r:hover{background:#c83030;}
+.btn-sm-d{background:#fff;color:#cf1322;border:1px solid #ffa39e;border-radius:3px;padding:3px 10px;font-size:12px;cursor:pointer;}
+.btn-sm-d:hover{background:#fff1f0;}
+.btn-link{background:transparent;border:none;color:#ee4d2d;font-size:12px;cursor:pointer;padding:0;font-family:inherit;}
+.btn-log{background:#fff;color:#555;border:1px solid #d0d0d0;border-radius:3px;padding:4px 11px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.btn-log:hover{border-color:#ee4d2d;color:#ee4d2d;}
+.card{background:#fff;border:1px solid #e8e8e8;border-radius:4px;margin-bottom:12px;}
+.card-hd{padding:11px 14px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:13px;font-weight:600;}
+.card-bd{padding:12px 14px;}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:500;white-space:nowrap;}
+.pill::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.pg{background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f;}.pg::before{background:#52c41a;}
+.po{background:#fff7e6;color:#d46b08;border:1px solid #ffd591;}.po::before{background:#fa8c16;}
+.pr{background:#fff1f0;color:#cf1322;border:1px solid #ffa39e;}.pr::before{background:#f5222d;}
+.pb{background:#e6f4ff;color:#096dd9;border:1px solid #91caff;}.pb::before{background:#1890ff;}
+.pk{background:#fafafa;color:#888;border:1px solid #d9d9d9;}.pk::before{background:#bfbfbf;}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:12px;color:#888;font-weight:500;text-align:left;padding:9px 12px;border-bottom:1px solid #e8e8e8;background:#fafafa;white-space:nowrap;}
+.tbl td{padding:9px 12px;border-bottom:1px solid #f5f5f5;font-size:13px;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#fafafa;}
+.fi{border:1px solid #d0d0d0;border-radius:3px;padding:6px 10px;font-size:12px;color:#555;background:#fff;outline:none;}
+.fi:focus{border-color:#ee4d2d;}
+.frow{display:flex;align-items:flex-start;margin-bottom:11px;}
+.frow:last-child{margin-bottom:0;}
+.flbl{width:160px;flex-shrink:0;font-size:13px;color:#666;padding-top:7px;}
+.flbl.req::after{content:" *";color:#ee4d2d;}
+.fbody{flex:1;}
+.finput{width:100%;border:1px solid #d0d0d0;border-radius:3px;padding:6px 9px;font-size:13px;color:#333;outline:none;font-family:inherit;}
+.finput:focus{border-color:#ee4d2d;}
+.finput::placeholder{color:#ccc;}
+.fhint{font-size:11px;color:#aaa;margin-top:3px;}
+.ein{border:1px solid #d0d0d0;border-radius:3px;padding:4px 7px;font-size:12px;font-family:inherit;color:#333;outline:none;background:#fff;}
+.ein:focus{border-color:#ee4d2d;}
+.p-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.22);z-index:400;}
+.p-overlay.open{display:block;}
+.p-panel{position:fixed;top:0;right:-520px;bottom:0;width:520px;background:#fff;box-shadow:-3px 0 18px rgba(0,0,0,.1);z-index:401;display:flex;flex-direction:column;transition:right .2s;}
+.p-panel.open{right:0;}
+.p-hdr{padding:13px 17px;border-bottom:1px solid #e8e8e8;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
+.p-title{font-size:14px;font-weight:600;}
+.p-ref{font-size:11px;color:#aaa;margin-top:2px;}
+.p-close{background:transparent;border:none;font-size:18px;cursor:pointer;color:#aaa;}
+.p-body{flex:1;overflow-y:auto;padding:14px 17px 24px;}
+.p-footer{padding:11px 17px;border-top:1px solid #e8e8e8;display:flex;gap:7px;justify-content:flex-end;}
+.kv{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px;}
+.kv td{padding:5px 0;border-bottom:1px solid #f5f5f5;}
+.kv td:first-child{color:#888;width:120px;}
+.kv td:last-child{font-weight:500;}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:500;align-items:center;justify-content:center;}
+.modal-ov.open{display:flex;}
+.modal{background:#fff;border-radius:4px;width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 4px 24px rgba(0,0,0,.15);}
+.modal-hdr{padding:14px 18px;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:15px;font-weight:600;}
+.modal-close{background:transparent;border:none;font-size:18px;cursor:pointer;color:#aaa;}
+.modal-body{padding:18px;}
+.modal-ft{padding:12px 18px;border-top:1px solid #e8e8e8;display:flex;gap:8px;justify-content:flex-end;}
+.uzone{border:1.5px dashed #d0d0d0;border-radius:3px;padding:18px;text-align:center;cursor:pointer;background:#fafafa;}
+.uzone:hover{border-color:#ee4d2d;background:#fef5f5;}
+.ai-check{border:1px solid #e8e8e8;border-radius:3px;padding:8px 10px;margin-bottom:5px;}
+.ai-check.flagged{border-color:#ffa39e;}
+.ai-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.ai-bar{height:3px;background:#f0f0f0;border-radius:2px;}
+.ai-bar-fill{height:3px;border-radius:2px;}
+.cr-card{background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:11px 13px;display:flex;gap:11px;margin-bottom:7px;cursor:pointer;}
+.cr-card:hover{border-color:#ee4d2d;}
+.cr-thumb{width:38px;height:68px;background:#f0f0f0;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;color:#bbb;flex-shrink:0;}
+.cr-flags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;}
+.cf{font-size:10px;padding:1px 5px;border-radius:2px;font-weight:500;}
+.cf-ok{background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f;}
+.cf-warn{background:#fff7e6;color:#d46b08;border:1px solid #ffd591;}
+.g-wrap{overflow-x:auto;background:#fff;}
+.g-hdr-row{display:flex;background:#fafafa;border-bottom:2px solid #e8e8e8;}
+.g-row{background:#fff;}
+.g-row{display:flex;border-bottom:1px solid #f5f5f5;min-height:44px;align-items:stretch;}
+.timeline-entry{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:12px;}
+.timeline-dot{width:8px;height:8px;border-radius:50%;background:#e8e8e8;margin-top:4px;flex-shrink:0;}
+.timeline-dot.r{background:#ee4d2d;} .timeline-dot.g{background:#52c41a;} .timeline-dot.o{background:#fa8c16;}
+.log-entry{font-size:12px;padding:8px 0;border-bottom:1px solid #f5f5f5;display:flex;gap:10px;align-items:flex-start;}
+.log-ts{color:#aaa;white-space:nowrap;flex-shrink:0;width:130px;}
+.log-action{flex:1;}
+.log-user{color:#aaa;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="spx-logo" href="#"><div class="l1">SPX</div><div class="l2">SERVICE POINT</div></a>
+  <div class="tb-div"></div>
+  <select class="role-sel"><option>Admin</option></select>
+  <div class="tb-right">
+    <div class="tb-notif">🔔<div class="tb-nbadge">3</div></div>
+    <div class="tb-notif" style="font-size:14px;">📋</div>
+    <div class="tb-lang">English ▾</div>
+    <div class="tb-user"><div class="tb-av">G</div><span>gareth.wangjc ▾</span></div>
+  </div>
+</div>
+<div class="shell">
+<div class="sidebar">
+  <div class="sb-grp" onclick="tog(this)"><span>📋 Order Management</span><span>▾</span></div>
+  <div class="sb-kids closed"><a class="sb-link" href="#">Drop-off</a><a class="sb-link" href="#">Self-Collection</a><a class="sb-link" href="#">AWB Printing</a></div>
+  <div class="sb-grp" onclick="tog(this)"><span>📊 Report Center</span><span>▾</span></div>
+  <div class="sb-kids closed"><a class="sb-link" href="#">Point Overview</a><a class="sb-link" href="#">Reports</a></div>
+  <div class="sb-grp" onclick="tog(this)"><span>👤 User Management</span><span>▾</span></div>
+  <div class="sb-kids closed"><a class="sb-link" href="#">Role List</a><a class="sb-link" href="#">User List</a></div>
+  <div class="sb-grp" onclick="tog(this)"><span>📍 SP Management</span><span>▾</span></div>
+  <div class="sb-kids closed"><a class="sb-link" href="#">Point List</a><a class="sb-link" href="#">Zone List</a></div>
+  <div class="sb-grp" onclick="tog(this)"><span>💰 Financial Management</span><span>▾</span></div>
+  <div class="sb-kids closed"><a class="sb-link" href="#">SP Commission Report</a></div>
+  <div class="sb-grp open" onclick="tog(this)"><span>🔒 Inhouse Locker Management</span><span>▴</span></div>
+  <div class="sb-kids">
+    <a class="sb-link" href="#">Locker Control Panel</a>
+    <a class="sb-link" href="#">Locker Cells Management</a>
+    <a class="sb-link" href="#">Device Dashboard</a>
+    <a class="sb-link" href="#">Locker Device Info</a>
+    <a class="sb-link" href="#">Layout Configuration</a>
+    <div class="sb-div"></div>
+    <a class="sb-link on" href="#">Locker Ads <span class="sb-badge">3</span></a>
+  </div>
+  <div class="sb-grp" onclick="tog(this)"><span>📦 3PL Locker Management</span><span>▾</span></div>
+  <div class="sb-kids closed"><a class="sb-link" href="#">3PL Locker List</a></div>
+  <div class="sb-grp" onclick="tog(this)"><span>🎫 SP Support</span><span>▾</span></div>
+  <div class="sb-kids closed"><a class="sb-link" href="#">Ticket Center</a></div>
+</div>
+<div class="main">
+  <div class="bc"><a href="#">Inhouse Locker Management</a><span class="sep">›</span><span class="cur">Locker Ads</span></div>
+  <div class="page-hdr">
+    <div><div class="page-title">Locker Ads</div><div class="page-sub" id="page-sub">Monday, 20 Apr 2026 · Singapore</div></div>
+    <div class="page-acts"><button class="btn-w" onclick="openModal('upload')">+ Upload internal ad</button></div>
+  </div>
+  <div class="htab-bar">
+    <div class="htab on" id="ht-overview" onclick="switchTab('overview')">Overview</div>
+    <div class="htab" id="ht-schedule" onclick="switchTab('schedule')">Schedule</div>
+    <div class="htab" id="ht-review" onclick="switchTab('review')">Ad Management <span class="sb-badge" style="vertical-align:middle;margin-left:4px;">2</span></div>
+    <div class="htab" id="ht-finance" onclick="switchTab('finance')">Booking Configuration</div>
+  </div>
+  <div id="tab-content"></div>
+</div>
+</div>
+
+<!-- PANEL -->
+<div class="p-overlay" id="p-overlay" onclick="closePanel()"></div>
+<div class="p-panel" id="p-panel">
+  <div class="p-hdr"><div><div class="p-title" id="p-title"></div><div class="p-ref" id="p-ref"></div></div><button class="p-close" onclick="closePanel()">✕</button></div>
+  <div class="p-body" id="p-body"></div>
+  <div class="p-footer" id="p-footer"></div>
+</div>
+
+<!-- UPLOAD INTERNAL AD MODAL -->
+<div class="modal-ov" id="modal-upload">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Upload internal ad</div><button class="modal-close" onclick="closeModal('upload')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:3px;padding:8px 11px;font-size:12px;color:#096dd9;margin-bottom:14px;">Internal ads skip the review queue. They are auto-assigned to all playlists that allow internal ads.</div>
+      <div class="frow"><div class="flbl req" style="padding-top:7px;">Ad name</div><input class="finput" placeholder="e.g. SPX Brand May 2026"/></div>
+
+      <div class="frow" style="margin-top:9px;"><div class="flbl req" style="padding-top:7px;">Run period</div><div><div style="display:flex;align-items:center;gap:8px;"><input type="date" class="finput" style="width:140px;"/><span style="color:#aaa;">→</span><input type="date" class="finput" style="width:140px;"/></div></div></div>
+      <div class="frow" style="margin-top:9px;"><div class="flbl" style="padding-top:7px;">Priority</div><label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;padding-top:8px;"><input type="checkbox" style="accent-color:#ee4d2d;"/> Plays before seller ads in rotation</label></div>
+      <div style="margin-top:14px;"><div style="font-size:12px;font-weight:500;color:#555;margin-bottom:8px;">Creative file</div>
+        <div class="uzone" onclick="alert('File picker')"><div style="font-size:22px;color:#ccc;margin-bottom:6px;">☁️</div><div style="font-size:13px;font-weight:500;margin-bottom:2px;">Drop file here or click to browse</div><div style="font-size:12px;color:#bbb;">JPG or PNG · 1080×1920 px · Max 10 MB</div></div>
+      </div>
+    </div>
+    <div class="modal-ft"><button class="btn-w" onclick="closeModal('upload')">Cancel</button><button class="btn-r" onclick="closeModal('upload');alert('Internal ad scheduled')">Schedule ad</button></div>
+  </div>
+</div>
+
+<!-- PLAYLIST MODAL -->
+<div class="modal-ov" id="modal-playlist">
+  <div class="modal" style="width:660px;">
+    <div class="modal-hdr"><div class="modal-title" id="pl-modal-title">New playlist</div><button class="modal-close" onclick="closeModal('playlist')">✕</button></div>
+    <div class="modal-body" id="pl-modal-body"></div>
+    <div class="modal-ft"><button class="btn-w" onclick="closeModal('playlist')">Cancel</button><button class="btn-r" onclick="savePlModal()">Save playlist</button></div>
+  </div>
+</div>
+
+<!-- UNASSIGNED LOCKERS MODAL -->
+<div class="modal-ov" id="modal-unassigned">
+  <div class="modal" style="width:580px;">
+    <div class="modal-hdr"><div class="modal-title">Lockers without a playlist</div><button class="modal-close" onclick="closeModal('unassigned')">✕</button></div>
+    <div class="modal-body" id="modal-unassigned-body"></div>
+    <div class="modal-ft"><button class="btn-w" onclick="closeModal('unassigned')">Close</button></div>
+  </div>
+</div>
+
+<!-- AI CRITERIA MODAL -->
+<div class="modal-ov" id="modal-ai">
+  <div class="modal" style="width:680px;">
+    <div class="modal-hdr"><div class="modal-title" id="ai-modal-title">Edit review criterion</div><button class="modal-close" onclick="closeModal('ai')">✕</button></div>
+    <div class="modal-body" id="ai-modal-body"></div>
+    <div class="modal-ft"><button class="btn-w" onclick="closeModal('ai')">Cancel</button><button class="btn-r" onclick="saveAiModal()">Save criterion</button></div>
+  </div>
+</div>
+
+<script>
+// ══════════════ DATA ══════════════
+const MARKET = {name:'Singapore', regionField:'Postal sector (derived)', regionLabel:'Region/Town'};
+
+if(!window.CAMPS) window.CAMPS=[
+  {name:'SPF Advisory',     type:'int',buyer:'SPX Internal',   company:'SPX',         ref:'SPXSGAD260000000001',
+   start:1,end:30,startDate:'2026-04-01',endDate:'2026-04-30',order:1,status:'Live',creative:'spf_advisory.jpg',
+   spotsBased:false,bookedLocTypes:['HDB Residential','MRT Stations'],bookedRegions:['North','East','Central','West','North East'],
+   approvedDate:'2026-04-01 09:00:00',assignedPlaylists:['pl-1','pl-2'], reviewLog:[
+    {date:'01 Apr 2026, 09:00', event:'Submitted for review', by:'seller'},
+    {date:'01 Apr 2026, 09:00', event:'Approved by SPX', by:'spx'},
+  ]},
+  {name:'Lazada Returns',   type:'ext',buyer:'Priya Nair',      company:'Lazada SG',   ref:'SPXSGAD260000000398',
+   start:6,end:30,startDate:'2026-04-06',endDate:'2026-04-30',order:2,status:'Live',creative:'lazada_returns_v2.jpg',
+   spotsBased:false,bookedLocTypes:['MRT Stations','HDB Residential'],bookedRegions:['East','Central'],
+   approvedDate:'2026-04-05 14:22:11',assignedPlaylists:['pl-1'], reviewLog:[
+    {date:'04 Apr 2026, 10:15', event:'Submitted for review', by:'seller'},
+    {date:'05 Apr 2026, 14:22', event:'Approved by SPX', by:'spx'},
+  ]},
+  {name:'Senoko Energy',    type:'ext',buyer:'K. Lim',           company:'Senoko Energy',ref:'SPXSGAD260000000380',
+   start:10,end:28,startDate:'2026-04-10',endDate:'2026-04-28',order:3,status:'Live',creative:'senoko_livesmart.jpg',
+   spotsBased:true,spotsBooked:6000,bookedLocTypes:['HDB Residential'],bookedRegions:['North','North East'],
+   approvedDate:'2026-04-09 11:05:44',assignedPlaylists:['pl-1'], reviewLog:[
+    {date:'08 Apr 2026, 16:20', event:'Submitted for review', by:'seller'},
+    {date:'09 Apr 2026, 11:05', event:'Approved by SPX', by:'spx'},
+  ]},
+  {name:'SPX Brand May',    type:'int',buyer:'SPX Internal',     company:'SPX',         ref:'SPXSGAD260000000002',
+   start:22,end:30,startDate:'2026-04-22',endDate:'2026-05-31',order:4,status:'Scheduled',creative:'spx_brand_may.jpg',
+   spotsBased:false,bookedLocTypes:['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs','Condominiums','Offices'],bookedRegions:['North','North East','East','Central','West'],
+   approvedDate:'2026-04-18 10:00:00',assignedPlaylists:['pl-1','pl-2'], reviewLog:[
+    {date:'18 Apr 2026, 10:00', event:'Internal ad activated', by:'system'},
+  ]},
+  {name:'Panasonic TOUGHBOOK',type:'ext',buyer:'K. Watanabe',  company:'Panasonic SG',ref:'SPXSGAD260000000390',
+   start:22,end:30,startDate:'2026-07-01',endDate:'2026-07-31',order:5,status:'Scheduled',creative:'panasonic_tb.jpg',
+   reviewLog:[
+    {date:'18 Apr 2026, 14:30', event:'Submitted for review', by:'seller'},
+   ],
+   spotsBased:true,spotsBooked:9000,bookedLocTypes:['MRT Stations','Shopping Malls'],bookedRegions:['Central','East','West'],
+   approvedDate:null,assignedPlaylists:[]},
+  // Pending review — not yet approved or assigned
+  {name:'FairPrice Q2',     type:'ext',buyer:'Maya Tan',         company:'FairPrice Group',ref:'SPXSGAD260000000441',
+   start:1,end:30,startDate:'2026-09-01',endDate:'2026-10-31',order:6,status:'Scheduled',creative:'fairprice_q2.jpg',
+   reviewLog:[
+    {date:'19 Apr 2026, 09:15', event:'Submitted for review', by:'seller'},
+    {date:'20 Apr 2026, 11:30', event:'Approved by SPX', by:'spx'},
+   ],
+   spotsBased:false,bookedLocTypes:['HDB Residential','Shopping Malls'],bookedRegions:['North','East','West','Central','North East'],
+   approvedDate:'2026-04-20 11:30:00',assignedPlaylists:[]},
+];
+if(!window.DONE) window.DONE=[
+  {name:'FairPrice CNY',company:'FairPrice Group',buyer:'Maya Tan',ref:'SPXSGAD260000000388',start:'1 Mar',end:'28 Apr',days:58,lockers:100,impressions:1740000,hours:4350,status:'Completed'},
+  {name:'Singtel Broadband',company:'Singtel',buyer:'J. Ong',ref:'SPXSGAD250000000412',start:'10 Jan',end:'21 Apr',days:101,lockers:100,impressions:3030000,hours:7575,status:'Completed'},
+];
+if(!window.CANCELLED) window.CANCELLED=[];
+
+// Lockers — each has one assigned playlist (one-to-one)
+// Each locker has: locType (dropdown), tags (free-text keywords), confirmedPlaylistId (explicit assignment)
+if(!window.LOCKERS) window.LOCKERS=[
+  {id:'SG-0101',name:'Tampines MRT',          locType:'MRT Stations',     region:'East',       confirmedPlaylistId:'pl-1'},
+  {id:'SG-0102',name:'Bishan MRT',            locType:'MRT Stations',     region:'Central',    confirmedPlaylistId:'pl-1'},
+  {id:'SG-0103',name:'Woodlands MRT',         locType:'MRT Stations',     region:'North',      confirmedPlaylistId:'pl-1'},
+  {id:'SG-0201',name:'Blk 412A Yishun',       locType:'HDB Residential',  region:'North',      confirmedPlaylistId:'pl-1'},
+  {id:'SG-0202',name:'Blk 216 Bukit Batok',   locType:'HDB Residential',  region:'West',       confirmedPlaylistId:'pl-1'},
+  {id:'SG-0203',name:'Blk 103 Hougang',       locType:'HDB Residential',  region:'North East', confirmedPlaylistId:'pl-1'},
+  {id:'SG-0301',name:'Northwave Condo',        locType:'Condominiums',     region:'North',      confirmedPlaylistId:'pl-2'},
+  {id:'SG-0302',name:'The Sail @ Marina Bay',  locType:'Condominiums',     region:'Central',    confirmedPlaylistId:'pl-2'},
+  {id:'SG-0401',name:'Asia Square Tower 1',    locType:'Offices',          region:'Central',    confirmedPlaylistId:'pl-2'},
+  {id:'SG-0402',name:'Mapletree Business City',locType:'Offices',          region:'West',       confirmedPlaylistId:'pl-2'},
+  {id:'SG-0501',name:'Canberra Plaza',         locType:'Shopping Malls',   region:'North',      confirmedPlaylistId:'pl-1'},
+  {id:'SG-0502',name:'Our Tampines Hub',       locType:'Community Clubs',  region:'East',       confirmedPlaylistId:'pl-1'},
+  {id:'SG-0503',name:'Bishan Bus Interchange', locType:'Bus Interchanges', region:'Central',    confirmedPlaylistId:'pl-1'},
+  {id:'SG-0601',name:'Khatib MRT',             locType:'MRT Stations',     region:'North',      confirmedPlaylistId:null},
+  {id:'SG-0602',name:'Yishun Community Club',  locType:'Community Clubs',  region:'North',      confirmedPlaylistId:null},
+]
+// LOCKER_CONFLICTS: lockers flagged due to tag changes that suggest a different playlist
+if(!window.LOCKER_CONFLICTS) window.LOCKER_CONFLICTS=[];
+if(!window.REGIONS) window.REGIONS=['North','North East','East','Central','West','South'];
+
+// Playlists — explicit confirmed assignment model
+// filter: {locTypes:[], anyTags:[], allTags:[]} — preview tool only, assignment requires explicit confirm
+if(!window.PLAYLISTS) window.PLAYLISTS=[
+  {id:'pl-1',name:'Playlist 1',slug:'playlist-1',desc:'Runs all approved seller campaigns and internal ads.',
+   rules:{ext:true,int:true},
+   locTypes:['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs'],
+   regions:['North','North East','East','Central','West']},
+  {id:'pl-2',name:'Playlist 2',slug:'playlist-2',desc:'Runs internal SPX ads only. No seller campaigns.',
+   rules:{ext:false,int:true},
+   locTypes:['Condominiums','Offices'],
+   regions:['North','North East','East','Central','West']},
+];
+// Derive suggested playlists for a campaign booking
+function suggestPlaylists(bookedLocTypes, bookedRegions){
+  return window.PLAYLISTS.filter(pl=>{
+    const ltMatch=!bookedLocTypes.length||bookedLocTypes.some(lt=>pl.locTypes.includes(lt));
+    const rMatch=!bookedRegions.length||bookedRegions.some(r=>pl.regions.includes(r));
+    return ltMatch && rMatch;
+  });
+}
+function plSlug(name){ return name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+function plBySlug(slug){ return window.PLAYLISTS.find(p=>p.slug===slug||p.id===slug); }
+const ALL_LOC_TYPES=['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs','Condominiums','Offices'];
+
+// AI criteria — ops-configurable named categories
+if(!window.AI_CRITERIA) window.AI_CRITERIA=[
+  {id:'c1',label:'Technical compliance',desc:'Check file format, dimensions, colour mode and file size meet spec.',example:'Reject if not 1080×1920px, not JPG/PNG, or over 10MB.',enabled:true},
+  {id:'c2',label:'Prohibited content',desc:'Check for tobacco, alcohol, gambling, adult content, or political material.',example:'Flag if creative shows cigarette packaging or casino imagery.',enabled:true},
+  {id:'c3',label:'Site-specific restrictions',desc:'Check for competitor logistics/e-commerce brand logos or names.',example:'Flag if Ninja Van, J&T, Lazada (when restricted by HDB rules) logos are visible.',enabled:true},
+  {id:'c4',label:'Brand safety',desc:'Check that content is suitable for all ages including children.',example:'Flag if creative contains violent imagery or sexually suggestive content.',enabled:true},
+];
+
+if(!window.ACCT_LOG) window.ACCT_LOG=[
+  {ts:'17 Apr 14:55',action:'Account Agency XYZ — status changed to Suspended',user:'gareth.wangjc'},
+  {ts:'5 Apr 11:30',action:'Account Lazada SG — new account created',user:'gareth.wangjc'},
+];
+
+const ACCTS={
+  fp:{company:'FairPrice Group',contact:'Maya Tan',email:'billing@fairprice.com.sg',status:'Active',spend:'SGD 240k',camps:2},
+  lz:{company:'Lazada SG',contact:'Priya Nair',email:'p.nair@lazada.com',status:'Active',spend:'SGD 67,200',camps:1},
+  pn:{company:'Panasonic SG',contact:'Ken Watanabe',email:'mktg@panasonic.sg',status:'Active',spend:'SGD 38,200',camps:1},
+  ax:{company:'Agency XYZ',contact:'—',email:'—',status:'Suspended',spend:'SGD 36,200',camps:0},
+};
+
+const RC={
+  price_per_spot: 0.00003,   // SGD per spot (e.g. 0.00003 = SGD 3 per 100,000 spots)
+  cycle_interval: 10,        // seconds per ad slot
+  inactivity_timeout: 30,    // seconds of locker inactivity before showing ad
+  tiers:[
+    {name:'Starter',  spots:150000},
+    {name:'Standard', spots:300000},
+    {name:'Premium',  spots:600000},
+  ],
+  discounts:[
+    {weeks:4, pct:5},
+    {weeks:8, pct:10},
+  ],
+  locTypeOptions:{
+    'HDB Residential':true,
+    'MRT Stations':true,
+    'Shopping Malls':true,
+    'Bus Interchanges':true,
+    'Community Clubs':true,
+    'Condominiums':false,
+    'Offices':false,
+  },
+}
+
+function getOrdered(plId){
+  const camps = plId ? window.CAMPS.filter(c=>campInPl(c,plId)) : window.CAMPS;
+  return [...camps].sort((a,b)=>a.order-b.order);
+}
+function campInPl(c,plId){
+  return Array.isArray(c.assignedPlaylists) && c.assignedPlaylists.includes(plId);
+}
+function plLockers(plId){ return window.LOCKERS.filter(l=>l.confirmedPlaylistId===plId); }
+
+// ══════════════ NAV ══════════════
+let curTab='overview', finSub='payments', activePl='pl-1', expandedLockers=false, editingAcctId=null;
+let _panelForcedBack = false;
+function switchTab(t){curTab=t;['overview','schedule','review','finance'].forEach(id=>document.getElementById('ht-'+id).classList.toggle('on',id===t));renderTab();}
+function renderTab(){document.getElementById('tab-content').innerHTML=({overview:renderOverview,schedule:renderSchedule,review:renderReview,finance:renderFinance}[curTab]||renderOverview)();}
+function tog(el){const ch=el.nextElementSibling;ch.classList.toggle('closed');el.querySelector('span:last-child').textContent=ch.classList.contains('closed')?'▾':'▴';}
+document.addEventListener('DOMContentLoaded',renderTab);
+
+// ══════════════ OVERVIEW ══════════════
+function renderOverview(){
+  // Derive priority actions from live data
+  const pendingCreatives = window.CAMPS.filter(c => !c.approvedDate);
+
+  // Upcoming campaigns in next 30 days (scheduled or live, not yet ended)
+  const upcoming = window.CAMPS.filter(c => c.status === 'Scheduled' || c.status === 'Live');
+
+  // ── METRICS ──
+  let body = `<div class="content">
+    <div class="metrics">
+      <div class="metric">
+        <div class="m-lbl">Creative approvals needed</div>
+        <div class="m-val red">${pendingCreatives.length}</div>
+        <div class="m-sub">${pendingCreatives.length === 1 ? '1 creative pending' : pendingCreatives.length + ' creatives pending'}</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">Active campaigns</div>
+        <div class="m-val">${window.CAMPS.filter(c=>c.status==='Live').length}</div>
+        <div class="m-sub">Currently running</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">MTD revenue</div>
+        <div class="m-val">SGD 142k</div>
+        <div class="m-sub">Apr 2026</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+      <!-- ── PRIORITY ACTIONS ── -->
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Priority actions</div></div>
+        <div class="card-bd" style="padding:8px 12px;">`;
+
+  // Filter bar
+  if(!window._paFilter) window._paFilter = 'all';
+  body += `<div style="display:flex;gap:6px;margin-bottom:10px;">
+    <button style="padding:3px 12px;font-size:12px;border-radius:3px;border:1px solid ${window._paFilter==='all'?'#ee4d2d':'#d0d0d0'};background:${window._paFilter==='all'?'#ee4d2d':'#fff'};color:${window._paFilter==='all'?'#fff':'#555'};cursor:pointer;" onclick="window._paFilter='all';renderTab()">All</button>
+    <button style="padding:3px 12px;font-size:12px;border-radius:3px;border:1px solid ${window._paFilter==='creative'?'#ee4d2d':'#d0d0d0'};background:${window._paFilter==='creative'?'#ee4d2d':'#fff'};color:${window._paFilter==='creative'?'#fff':'#555'};cursor:pointer;" onclick="window._paFilter='creative';renderTab()">Ad reviews</button>
+  </div>`;
+
+  // Creative approvals
+  if(window._paFilter==='all'||window._paFilter==='creative') pendingCreatives.forEach(c => {
+    const goLive = c.startDate ? `Goes live: ${c.startDate}` : 'Go-live date TBC';
+    body += `<div style="background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:9px 13px;display:flex;align-items:center;gap:11px;margin-bottom:7px;border-left:3px solid #ee4d2d;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:500;margin-bottom:2px;">${c.buyer}'s creative needs approval</div>
+        <div style="font-size:11px;color:#888;">${goLive} · ${c.name}</div>
+      </div>
+      <button class="btn-sm" style="flex-shrink:0;" onclick="switchTab('review');setTimeout(()=>openAdPanel('${c.ref}'),80)">Review</button>
+    </div>`;
+  });
+
+  if(pendingCreatives.length === 0){
+    body += `<div style="font-size:13px;color:#aaa;padding:8px 0;">No actions needed right now.</div>`;
+  }
+
+  body += `</div></div>
+
+      <!-- ── UPCOMING CAMPAIGNS ── -->
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-title">Upcoming campaigns</div>
+          <button class="btn-sm" onclick="switchTab('schedule')">View schedule →</button>
+        </div>
+        <div class="card-bd" style="padding:6px 12px;">`;
+
+  if(upcoming.length === 0){
+    body += `<div style="font-size:13px;color:#aaa;padding:8px 0;">No upcoming campaigns in the next 30 days.</div>`;
+  } else {
+    upcoming.forEach(c => {
+      const dot = c.status==='Live' ? '#389e0d' : '#d46b08';
+      body += `<div style="display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid #f5f5f5;">
+        <span style="width:7px;height:7px;border-radius:50%;background:${dot};flex-shrink:0;margin-top:4px;"></span>
+        <div>
+          <div style="font-size:13px;font-weight:500;">${c.name}</div>
+          <div style="font-size:11px;color:#888;">${c.startDate} to ${c.endDate} · ${c.buyer}</div>
+        </div>
+      </div>`;
+    });
+  }
+
+  body += `</div></div>
+
+    </div><!-- grid -->
+  </div>`;
+
+  return body;
+}
+
+// ══════════════ SCHEDULE ══════════════
+// schedule sub-views: 'gantt' | 'playlists' | 'coverage' | 'order'
+let schedView = 'home';
+
+function renderSchedule(){
+  if(schedView==='home') return`<div style="display:flex;min-height:500px;">${buildSchedLeft()}<div style="flex:1;display:flex;align-items:center;justify-content:center;background:#fff;"><div style="text-align:center;color:#aaa;"><div style="font-size:32px;margin-bottom:12px;">📋</div><div style="font-size:14px;font-weight:500;color:#bbb;margin-bottom:6px;">Nothing selected</div><div style="font-size:12px;color:#ccc;line-height:1.6;">Select a playlist on the left to view its schedule,<br>or use Manage playlists / Locker coverage below.</div></div></div></div>`;
+  if(schedView==='playlists') return renderPlaylists();
+  if(schedView==='coverage') return renderLockerCoverage();
+
+  const pl=window.PLAYLISTS.find(p=>p.id===activePl)||window.PLAYLISTS[0];
+  const ordered=getOrdered(activePl);
+  const DAYS=30,COL=27,LBL=215;
+  const locs=plLockers(activePl);
+  const activeToday=ordered.filter(c=>20>=c.start&&c.end>=20);
+  const extToday=activeToday.filter(c=>c.type==='ext').length;
+  const intToday=activeToday.filter(c=>c.type==='int').length;
+
+  let gantt='';
+
+  gantt+=`<div style="background:#fafafa;border:1px solid #e8e8e8;border-radius:3px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:18px;font-size:12px;flex-wrap:wrap;">
+    <div><span style="color:#888;">Playlist: </span><span style="font-weight:500;">${pl.name}</span></div>
+    <button class="btn-sm" style="margin-left:auto;" onclick="schedView='playlists';renderTab()">Manage playlists</button>
+    <button class="btn-sm" onclick="schedView='coverage';renderTab()">Locker coverage</button>
+    <button class="btn-sm" onclick="openOrderPanel()">Edit playback order</button>
+  </div>`;
+
+  gantt+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <div style="display:flex;align-items:center;gap:6px;"><button class="btn-sm">‹ Mar</button><span style="font-size:13px;font-weight:600;padding:0 6px;">April 2026</span><button class="btn-sm">May ›</button></div>
+    <div style="display:flex;align-items:center;gap:12px;font-size:11px;color:#888;">
+      <span><span style="display:inline-block;width:10px;height:10px;background:#bfdbfe;border-left:3px solid #1677ff;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>Internal (SPX)</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:#fde68a;border-left:3px solid #d46b08;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>External (seller)</span>
+      <span><span style="display:inline-block;width:24px;height:10px;background:rgba(253,230,138,0.4);border:1px dashed #d46b08;border-left:3px solid #d46b08;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>Faded + dashed = spots-based (estimated end)</span>
+    </div>
+  </div>`;
+
+  gantt+=`<div class="g-wrap"><div style="min-width:${LBL+DAYS*COL}px;border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">`;
+  gantt+=`<div class="g-hdr-row"><div style="width:${LBL}px;flex-shrink:0;padding:6px 10px;font-size:11px;font-weight:600;color:#888;border-right:1px solid #e8e8e8;display:flex;align-items:center;gap:5px;">Campaign <span style="background:#ee4d2d;color:#fff;font-size:9px;padding:1px 4px;border-radius:2px;">PLAY ORDER</span></div>`;
+  for(let d=1;d<=DAYS;d++) gantt+=`<div style="width:${COL}px;flex-shrink:0;font-size:10px;color:\${d===20?'#ee4d2d':'#aaa'};text-align:center;padding:4px 0;border-left:1px solid #f5f5f5;background:'transparent';font-weight:\${d===20?700:400};">${d}</div>`;
+  gantt+=`</div>`;
+  ordered.forEach(c=>{
+    const isInt=c.type==='int',periodLabel=c.startDate?`${c.startDate} to ${c.endDate}`:'—';
+    gantt+=`<div class="g-row" style="background:'#fff';">`;
+    gantt+=`<div style="width:${LBL}px;flex-shrink:0;padding:7px 10px;border-right:1px solid #e8e8e8;display:flex;align-items:center;gap:7px;background:'#fff';">
+      <div style="width:18px;height:18px;border-radius:50%;background:#ee4d2d;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${c.order}</div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.name}</div><div style="font-size:10px;color:#aaa;">${c.buyer}</div></div>
+      <button class="btn-sm" style="font-size:10px;padding:2px 6px;flex-shrink:0;" onclick="openCampPanel('${c.name}')">View</button>
+    </div>`;
+    gantt+=`<div style="flex:1;position:relative;min-height:44px;">`;
+    for(let d=0;d<DAYS;d++) gantt+=`<div style="position:absolute;left:${d*COL}px;top:0;bottom:0;width:${COL}px;background:\${d===19?'rgba(238,77,45,.04)':'transparent'};border-right:1px solid #f8f8f8;"></div>`;
+    gantt+=`<div style="position:absolute;left:${19*COL+COL/2-1}px;top:0;bottom:0;width:1px;background:#ee4d2d;opacity:.35;"></div>`;
+    const dispEnd=Math.min(c.end,DAYS);const bL=(c.start-1)*COL+2,bW=(dispEnd-c.start+1)*COL-4;
+    const isSpots=c.spotsBased;
+    const spotLabel=isSpots?` · ~${c.spotsBooked?.toLocaleString()} spots`:'';
+    const solidBg=isInt?'#bfdbfe':'#fde68a';
+    const spotsBg=isInt?'rgba(191,219,254,0.4)':'rgba(253,230,138,0.4)';
+    const bdrColor=isInt?'#1677ff':'#d46b08';
+    const spotsBorderStyle=isSpots?('border:1px dashed '+bdrColor+';border-left:3px solid '+bdrColor+';'):'';
+    gantt+=`<div onclick="openCampPanel('${c.name}')" style="position:absolute;left:${bL}px;top:10px;width:${bW}px;height:24px;border-radius:3px;display:flex;align-items:center;padding:0 7px;gap:5px;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;cursor:pointer;background:${isSpots?spotsBg:solidBg};color:${isInt?'#1e3a8a':'#92400e'};border-left:3px solid ${bdrColor};${spotsBorderStyle}"><span>${c.name}</span><span style="font-weight:400;opacity:.75;flex-shrink:0;">${periodLabel}${spotLabel}</span></div>`;
+    gantt+=`</div></div>`;
+  });
+  gantt+=`</div></div>`;
+
+  gantt+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;">
+    <div class="metric"><div class="m-lbl">Active campaigns today</div><div class="m-val">${activeToday.length}</div><div class="m-sub">${extToday} seller · ${intToday} internal</div></div>
+    <div class="metric"><div class="m-lbl">Lockers on this playlist</div><div class="m-val">${locs.length}</div><div class="m-sub">${[...new Set(locs.map(l=>l.locType))].join(', ')}</div></div>
+    <div class="metric"><div class="m-lbl">Campaigns this month</div><div class="m-val">${ordered.length}</div><div class="m-sub">${ordered.filter(c=>c.type==='ext').length} seller · ${ordered.filter(c=>c.type==='int').length} internal</div></div>
+  </div>`;
+  // Locker list for this playlist
+  gantt+=`<div class="card" style="margin-top:12px;">
+    <div class="card-hd"><div class="card-title">Lockers on this playlist (${locs.length})</div></div>
+    ${locs.length?`<div style="overflow-x:auto;"><table class="tbl"><thead><tr><th>Locker ID</th><th>Locker name</th><th>Location type</th><th>Region</th><th>Action</th></tr></thead><tbody>
+      ${locs.map(l=>`<tr><td style="font-size:12px;color:#888;">${l.id}</td><td style="font-weight:500;">${l.name}</td><td>${l.locType}</td><td>${l.region}</td><td><button class="btn-sm" style="font-size:11px;padding:2px 8px;" onclick="openLockerAssign('${l.id}')">Change playlist</button></td></tr>`).join('')}
+    </tbody></table></div>`:`<div style="padding:12px 14px;font-size:12px;color:#aaa;">No lockers assigned. Go to Locker coverage to assign lockers.</div>`}
+  </div>`;
+
+  return`<div style="display:flex;min-height:500px;">${buildSchedLeft()}<div style="flex:1;padding:16px 20px;overflow:auto;background:#fff;">${gantt}</div></div>`;
+}
+
+// ── PLAYLIST MANAGEMENT VIEW ──────────────────────────────────────────
+function renderPlaylists(){
+  if(!window._plCollapsed) window._plCollapsed={};
+  window.PLAYLISTS.forEach(p=>{ if(window._plCollapsed[p.id]===undefined) window._plCollapsed[p.id]=true; });
+
+  let body=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div><div style="font-size:15px;font-weight:600;">Manage playlists</div>
+      <div style="font-size:12px;color:#888;margin-top:2px;">Create, rename, or delete playlists. Each locker is explicitly assigned to one playlist.</div></div>
+    <button class="btn-r" onclick="openPlModal(null)">+ New playlist</button>
+  </div>`;
+
+  window.PLAYLISTS.forEach(pl=>{
+    const locs=plLockers(pl.id);
+    const collapsed=!!window._plCollapsed[pl.id];
+    body+=`<div class="card">
+      <div class="card-hd">
+        <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="window._plCollapsed['${pl.id}']=!window._plCollapsed['${pl.id}'];renderTab()">
+          <span style="font-size:11px;color:#aaa;user-select:none;width:12px;">${collapsed?'▶':'▼'}</span>
+          <div class="card-title">${pl.name}</div>
+        </div>
+        <div style="display:flex;gap:7px;">
+          <button class="btn-sm" onclick="openPlModal('${pl.id}')">Edit</button>
+          <button class="btn-sm-d" onclick="deletePl('${pl.id}')">Delete</button>
+        </div>
+      </div>
+      ${collapsed?'':`<div class="card-bd">
+        <div style="font-size:12px;color:#888;margin-bottom:10px;">${pl.desc}</div>
+        <div style="font-size:11px;color:#888;margin-bottom:10px;">${pl.locTypes?.length?`Location types: ${pl.locTypes.join(', ')}`:'No location types set'} · ${pl.regions?.length?`Regions: ${pl.regions.join(', ')}`:'All regions'}</div>
+        <div style="font-size:12px;font-weight:500;color:#555;margin-bottom:8px;">${locs.length} lockers assigned</div>
+        ${locs.length?`<div style="overflow-x:auto;">
+          <table class="tbl" style="border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">
+            <thead><tr><th>Locker ID</th><th>Locker name</th><th>Location type</th><th>Region</th><th>Action</th></tr></thead>
+            <tbody>${locs.map(l=>`<tr>
+              <td style="font-size:12px;color:#888;">${l.id}</td>
+              <td style="font-weight:500;">${l.name}</td>
+              <td>${l.locType}</td>
+              <td>${l.region}</td>
+              <td><button class="btn-sm" style="font-size:11px;padding:2px 8px;" onclick="openLockerAssign('${l.id}')">Change playlist</button></td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>`:`<div style="font-size:12px;color:#aaa;padding:4px 0;">No lockers assigned yet. Use Locker coverage to assign lockers to this playlist.</div>`}
+      </div>`}
+    </div>`;
+  });
+
+  return`<div style="display:flex;min-height:500px;">${buildSchedLeft()}<div style="flex:1;padding:16px 20px;overflow:auto;background:#fff;">${body}</div></div>`;
+}
+
+function deletePl(id){
+  const pl=window.PLAYLISTS.find(p=>p.id===id); if(!pl) return;
+  const cnt=plLockers(id).length;
+  const msg=cnt>0
+    ?`Delete playlist "${pl.name}"?\n\n${cnt} locker${cnt>1?'s are':' is'} currently assigned to it. These lockers will be left without a playlist and won't play any ads until reassigned.\n\nThis cannot be undone.`
+    :`Delete playlist "${pl.name}"?\n\nThis cannot be undone.`;
+  if(!confirm(msg)) return;
+  window.LOCKERS.filter(l=>l.confirmedPlaylistId===id).forEach(l=>l.confirmedPlaylistId=null);
+  window.PLAYLISTS=window.PLAYLISTS.filter(p=>p.id!==id);
+  renderTab();
+}
+
+
+// ── LOCKER COVERAGE VIEW ──────────────────────────────────────────────
+function renderLockerCoverage(){
+  if(!window._covFilter) window._covFilter={id:'',name:'',locType:'',region:'',playlist:''};
+  const f=window._covFilter;
+
+  let rows=window.LOCKERS.filter(l=>{
+    const pl=window.PLAYLISTS.find(p=>p.id===l.confirmedPlaylistId);
+    const plName=pl?.name||'';
+    const matchPl=!f.playlist||(f.playlist==='Unassigned'?!l.confirmedPlaylistId:plName.toLowerCase().includes(f.playlist.toLowerCase()));
+    return (!f.id||l.id.toLowerCase().includes(f.id.toLowerCase()))
+      && (!f.name||l.name.toLowerCase().includes(f.name.toLowerCase()))
+      && (!f.locType||l.locType===f.locType)
+      && (!f.region||l.region===f.region)
+      && matchPl;
+  });
+
+  const unassigned=window.LOCKERS.filter(l=>!l.confirmedPlaylistId);
+  const conflicts=window.LOCKER_CONFLICTS;
+
+  let body=`<div style="margin-bottom:14px;">
+    <div style="font-size:15px;font-weight:600;">Locker coverage</div>
+    <div style="font-size:12px;color:#888;margin-top:2px;">All lockers and their playlist assignments. Assign or change playlists here.</div>
+  </div>`;
+
+  if(unassigned.length){
+    body+=`<div style="background:#fff1f0;border:1px solid #ffa39e;border-radius:3px;padding:10px 14px;margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:600;color:#cf1322;margin-bottom:6px;">🔴 ${unassigned.length} locker${unassigned.length>1?'s':''} not yet assigned to a playlist</div>
+      <div style="font-size:12px;color:#888;">These lockers have ads enabled but no playlist assigned. They will not play any ads until assigned. <button onclick="openUnassignedModal()" style="background:none;border:none;padding:0;font-size:12px;color:#096dd9;cursor:pointer;text-decoration:underline;font-family:inherit;">View more</button></div>
+    </div>`;
+  }
+
+  if(conflicts.length){
+    body+=`<div style="background:#fff1f0;border:1px solid #ffa39e;border-radius:3px;padding:10px 14px;margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:600;color:#cf1322;margin-bottom:6px;">⚠️ ${conflicts.length} locker${conflicts.length>1?'s need':'needs'} attention</div>
+      ${conflicts.map(c=>{const curPl=window.PLAYLISTS.find(p=>p.id===c.confirmedPlaylistId);const sugPl=window.PLAYLISTS.find(p=>p.id===c.suggestedPlaylistId);return`<div style="background:#fff;border:1px solid #ffd6d6;border-radius:3px;padding:9px 12px;display:flex;align-items:center;gap:12px;margin-bottom:5px;">
+        <div style="flex:1;font-size:12px;"><div style="font-weight:500;">${c.name} <span style="color:#888;">(${c.id})</span></div>
+          <div style="color:#888;margin-top:1px;">Currently: <b>${curPl?.name||'—'}</b> → Suggested: <b>${sugPl?.name||'—'}</b></div>
+          <div style="color:#aaa;font-size:11px;">Reason: ${c.reason||''}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="btn-sm" onclick="resolveConflict('${c.id}','keep')">Keep current</button>
+          <button class="btn-sm-r" onclick="resolveConflict('${c.id}','move')">Move to suggested</button>
+        </div>
+      </div>`;}).join('')}
+    </div>`;
+  }
+
+  // Filters — one per column (no tags column)
+  body+=`<div style="background:#fff;border:1px solid #e8e8e8;border-radius:3px;padding:10px 14px;margin-bottom:12px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Locker ID</span><input class="fi" placeholder="e.g. SG-01" style="width:100px;" value="${f.id}" oninput="window._covFilter.id=this.value"/></div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Locker name</span><input class="fi" placeholder="Search name" style="width:130px;" value="${f.name}" oninput="window._covFilter.name=this.value"/></div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;">Location type</span><select class="fi" onchange="window._covFilter.locType=this.value"><option value="">All</option>${[...new Set(window.LOCKERS.map(l=>l.locType))].map(t=>`<option ${f.locType===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;">Region</span><select class="fi" onchange="window._covFilter.region=this.value"><option value="">All</option>${window.REGIONS.map(r=>`<option ${f.region===r?'selected':''}>${r}</option>`).join('')}</select></div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Assigned playlist</span><select class="fi" onchange="window._covFilter.playlist=this.value"><option value="">All</option>${window.PLAYLISTS.map(p=>`<option ${f.playlist===p.name?'selected':''}>${p.name}</option>`).join('')}<option ${f.playlist==='Unassigned'?'selected':''}>Unassigned</option></select></div>
+    </div>
+    <div style="display:flex;gap:7px;"><button class="btn-r" style="padding:5px 14px;font-size:12px;" onclick="renderTab()">Search</button><button class="btn-w" style="padding:5px 12px;font-size:12px;" onclick="window._covFilter={id:'',name:'',locType:'',region:'',playlist:''};renderTab()">Reset</button></div>
+  </div>`;
+
+  body+=`<div style="overflow-x:auto;"><table class="tbl" style="border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">
+    <thead><tr><th>Locker ID</th><th>Locker name</th><th>Location type</th><th>Region</th><th>Assigned playlist</th><th>Action</th></tr></thead>
+    <tbody>
+      ${rows.map(l=>{
+        const pl=window.PLAYLISTS.find(p=>p.id===l.confirmedPlaylistId);
+        const isUnassigned=!l.confirmedPlaylistId;
+        const hasConflict=window.LOCKER_CONFLICTS.some(c=>c.id===l.id);
+        return`<tr style="background:${hasConflict?'#fff1f0':isUnassigned?'#fafafa':''};">
+          <td style="font-size:12px;color:#888;">${l.id}</td>
+          <td style="font-weight:500;">${l.name}${hasConflict?' <span style="color:#ee4d2d;font-size:11px;">⚠</span>':''}</td>
+          <td>${l.locType}</td>
+          <td>${l.region}</td>
+          <td style="font-size:13px;">${pl?pl.name:'<span style="color:#cf1322;font-size:12px;">Unassigned</span>'}</td>
+          <td>${pl?`<button class="btn-sm" style="font-size:11px;padding:2px 8px;" onclick="openLockerAssign('${l.id}')">Change playlist</button>`:`<button class="btn-sm-r" style="font-size:11px;padding:2px 8px;" onclick="openLockerAssign('${l.id}')">Assign playlist</button>`}</td>
+        </tr>`;
+      }).join('')}
+      ${rows.length===0?`<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No lockers match these filters.</td></tr>`:''}
+    </tbody>
+  </table></div>`;
+
+  return`<div style="display:flex;min-height:500px;">${buildSchedLeft()}<div style="flex:1;padding:16px 20px;overflow:auto;background:#fff;">${body}</div></div>`;
+}
+
+
+function buildSchedLeft(){
+  const isGantt=schedView==='gantt', isPl=schedView==='playlists', isCov=schedView==='coverage', isHome=schedView==='home';
+  return`<div style="width:220px;flex-shrink:0;background:#fff;border-right:1px solid #e8e8e8;display:flex;flex-direction:column;min-height:500px;">
+    <div style="padding:12px 16px;font-size:13px;font-weight:600;border-bottom:1px solid #f0f0f0;">Playlists</div>
+    ${window.PLAYLISTS.map(p=>{const cnt=plLockers(p.id).length;return`<div onclick="activePl='${p.id}';schedView='gantt';expandedLockers=false;renderTab()" style="padding:12px 16px;font-size:13px;cursor:pointer;border-bottom:1px solid #f5f5f5;color:${activePl===p.id&&isGantt?'#ee4d2d':'#333'};font-weight:${activePl===p.id&&isGantt?500:400};background:${activePl===p.id&&isGantt?'#fef5f5':'#fff'};">${p.name}
+      <div style="font-size:11px;color:#aaa;margin-top:2px;font-weight:400;">${cnt} lockers</div></div>`;}).join('')}
+    <div style="padding:12px 16px;border-bottom:1px solid #f5f5f5;">
+      <button class="btn-sm" style="width:100%;padding:7px 0;font-size:12px;${isPl?'background:#fef5f5;border-color:#ee4d2d;color:#ee4d2d;':''}" onclick="schedView='playlists';renderTab()">Manage playlists</button>
+    </div>
+    <div style="padding:12px 16px;">
+      <button class="btn-sm" style="width:100%;padding:7px 0;font-size:12px;${isCov?'background:#fef5f5;border-color:#ee4d2d;color:#ee4d2d;':''}" onclick="schedView='coverage';window._covFilter={id:'',name:'',locType:'',tag:'',playlist:''};renderTab()">Locker coverage</button>
+    </div>
+  </div>`;
+}
+
+
+// ── FILTER BUILDER (for assigning lockers to a playlist) ──────────────
+let filterBuilderState = {plId:null, locTypes:[], anyTags:'', allTags:'', preview:[]};
+function openFilterBuilder(plId){
+  const pl=window.PLAYLISTS.find(p=>p.id===plId); if(!pl) return;
+  filterBuilderState={plId, locTypes:[...pl.filter.locTypes], anyTags:pl.filter.anyTags.join(', '), allTags:pl.filter.allTags.join(', '), preview:[]};
+  previewFilter();
+  document.getElementById('p-title').textContent='Assign lockers to: '+pl.name;
+  document.getElementById('p-ref').textContent='Step 1: Build filter → Step 2: Preview → Step 3: Confirm assignment';
+  renderFilterBuilderPanel();
+  openPanel();
+}
+function previewFilter(){
+  const {locTypes,anyTags,allTags}=filterBuilderState;
+  const anyList=anyTags.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+  const allList=allTags.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+  filterBuilderState.preview=window.LOCKERS.filter(l=>{
+    const ltMatch=locTypes.length===0||locTypes.includes(l.locType);
+    const lTags=l.tags.toLowerCase();
+    const anyMatch=anyList.length===0||anyList.some(t=>lTags.includes(t));
+    const allMatch=allList.length===0||allList.every(t=>lTags.includes(t));
+    return ltMatch&&anyMatch&&allMatch;
+  });
+}
+function renderFilterBuilderPanel(){
+  const pl=window.PLAYLISTS.find(p=>p.id===filterBuilderState.plId);
+  const preview=filterBuilderState.preview;
+  const conflicting=preview.filter(l=>l.confirmedPlaylistId!==filterBuilderState.plId);
+  document.getElementById('p-body').innerHTML=`
+    <div style="font-size:12px;color:#888;margin-bottom:12px;">Build a filter to find the lockers you want to assign. This is a preview tool — no changes are made until you click <b>Confirm assignment</b>.</div>
+    <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">Location type</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+      ${['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs','Condominiums','Offices'].map(lt=>{
+        const on=filterBuilderState.locTypes.includes(lt);
+        return`<span onclick="toggleFBLocType('${lt}')" style="border:1px solid ${on?'#ee4d2d':'#d0d0d0'};border-radius:3px;padding:4px 10px;font-size:12px;cursor:pointer;background:${on?'#fef5f5':'#fff'};color:${on?'#ee4d2d':'#555'};font-weight:${on?500:400};">${lt}</span>`;
+      }).join('')}
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:4px;">Tags — match ANY of these keywords</div>
+    <input class="finput" id="fb-any" value="${filterBuilderState.anyTags}" placeholder="e.g. north, central (comma-separated)" style="margin-bottom:10px;" oninput="filterBuilderState.anyTags=this.value;previewFilter();updateFBPreview()"/>
+    <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:4px;">Tags — must match ALL of these keywords</div>
+    <input class="finput" id="fb-all" value="${filterBuilderState.allTags}" placeholder="e.g. hdb, condo (comma-separated)" style="margin-bottom:12px;" oninput="filterBuilderState.allTags=this.value;previewFilter();updateFBPreview()"/>
+    <div id="fb-preview"></div>`;
+  updateFBPreview();
+  document.getElementById('p-footer').innerHTML=`
+    <button class="btn-w" onclick="closePanel()">Cancel</button>
+    <button class="btn-r" id="fb-confirm-btn" onclick="confirmAssignment()" ${filterBuilderState.preview.length===0?'disabled':''}>Confirm assignment (${filterBuilderState.preview.length} lockers)</button>`;
+}
+function updateFBPreview(){
+  previewFilter();
+  const preview=filterBuilderState.preview;
+  const conflicting=preview.filter(l=>l.confirmedPlaylistId!==filterBuilderState.plId);
+  const el=document.getElementById('fb-preview'); if(!el) return;
+  if(preview.length===0){el.innerHTML=`<div style="font-size:12px;color:#aaa;padding:12px 0;">No lockers match this filter. Try adjusting the criteria.</div>`;return;}
+  el.innerHTML=`<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">Preview — ${preview.length} locker${preview.length>1?'s':''} match${preview.length===1?'es':''}</div>
+    ${conflicting.length?`<div style="background:#fff7e6;border:1px solid #ffd591;border-radius:3px;padding:8px 10px;margin-bottom:8px;font-size:12px;color:#7a5c00;">⚠️ ${conflicting.length} locker${conflicting.length>1?'s are':' is'} currently in a different playlist. Confirming will move them.</div>`:''}
+    <div style="max-height:220px;overflow-y:auto;border:1px solid #e8e8e8;border-radius:3px;">
+      ${preview.map(l=>{const curPl=window.PLAYLISTS.find(p=>p.id===l.confirmedPlaylistId);const diff=l.confirmedPlaylistId!==filterBuilderState.plId;return`<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid #f5f5f5;font-size:12px;background:${diff?'#fffbe6':'#fff'};">
+        <div style="flex:1;"><div style="font-weight:500;">${l.name} <span style="color:#888;font-weight:400;">(${l.id})</span></div><div style="color:#aaa;">${l.locType} · ${l.tags}</div></div>
+        ${diff?`<span style="font-size:11px;color:#d46b08;">Currently: ${curPl?.name}</span>`:'<span style="font-size:11px;color:#389e0d;">Already here</span>'}
+      </div>`;}).join('')}
+    </div>`;
+  const btn=document.getElementById('fb-confirm-btn');
+  if(btn){btn.textContent=`Confirm assignment (${preview.length} lockers)`;btn.disabled=preview.length===0;}
+}
+function toggleFBLocType(lt){
+  const arr=filterBuilderState.locTypes;
+  const i=arr.indexOf(lt);
+  if(i>-1) arr.splice(i,1); else arr.push(lt);
+  previewFilter(); renderFilterBuilderPanel();
+}
+function confirmAssignment(){
+  const {plId,preview}=filterBuilderState;
+  if(!preview.length) return;
+  const conflicts=preview.filter(l=>l.confirmedPlaylistId!==plId);
+  if(conflicts.length){
+    const ok=confirm(`This will move ${conflicts.length} locker${conflicts.length>1?'s':''} from their current playlist.\n\nLockers being moved:\n${conflicts.map(l=>l.name).join('\n')}\n\nConfirm?`);
+    if(!ok) return;
+  }
+  preview.forEach(l=>{l.confirmedPlaylistId=plId;});
+  // Save filter back to playlist
+  const pl=window.PLAYLISTS.find(p=>p.id===plId);
+  if(pl){pl.filter.locTypes=[...filterBuilderState.locTypes];pl.filter.anyTags=filterBuilderState.anyTags.split(',').map(s=>s.trim()).filter(Boolean);pl.filter.allTags=filterBuilderState.allTags.split(',').map(s=>s.trim()).filter(Boolean);}
+  closePanel();
+  alert(`${preview.length} locker${preview.length>1?'s':''} assigned to "${pl?.name}".`);
+  renderTab();
+}
+
+// Unassigned lockers modal
+function openUnassignedModal(){
+  const unassigned=window.LOCKERS.filter(l=>!l.confirmedPlaylistId);
+  document.getElementById('modal-unassigned-body').innerHTML=unassigned.length===0
+    ?'<div style="font-size:13px;color:#aaa;padding:4px 0;">All lockers are now assigned to a playlist.</div>'
+    :`<table class="tbl" style="border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">
+        <thead><tr><th>Locker ID</th><th>Locker name</th><th>Action</th></tr></thead>
+        <tbody>${unassigned.map(l=>`<tr>
+          <td style="font-size:12px;color:#888;">${l.id}</td>
+          <td style="font-weight:500;">${l.name}<div style="font-size:11px;color:#aaa;margin-top:1px;">${l.locType} · ${l.region}</div></td>
+          <td><button class="btn-sm-r" style="font-size:11px;padding:2px 8px;" onclick="closeModal('unassigned');openLockerAssign('${l.id}')">Assign playlist</button></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+  openModal('unassigned');
+}
+
+// Assign playlist to a new/unassigned locker
+function openLockerAssign(id){
+  const l=window.LOCKERS.find(x=>x.id===id); if(!l) return;
+  document.getElementById('p-title').textContent='Assign playlist: '+l.name;
+  document.getElementById('p-ref').textContent=l.id+' · '+l.locType;
+  const isCurrent = l.confirmedPlaylistId;
+  const unassignedNote = !isCurrent ? '<div style="background:#e6f4ff;border:1px solid #91caff;border-radius:3px;padding:9px 12px;font-size:12px;color:#096dd9;margin-bottom:12px;">This locker has ads enabled but no playlist assigned. It will not play any ads until assigned.</div>' : '';
+  document.getElementById('p-body').innerHTML=`
+    ${unassignedNote}
+    <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">Select a playlist</div>
+    <input class="finput" id="pl-search" placeholder="Type to search playlists..." style="margin-bottom:10px;" oninput="filterAssignOpts(this.value,'${l.id}')"/>
+    <div id="assign-opts">
+    ${window.PLAYLISTS.map(p=>`<div onclick="window._overridePl='${p.id}';document.querySelectorAll('.assign-opt').forEach(el=>{el.style.borderColor='#e8e8e8';el.style.background='#fff';});this.style.borderColor='#ee4d2d';this.style.background='#fef5f5';" class="assign-opt" style="border:1px solid ${l.confirmedPlaylistId===p.id?'#ee4d2d':'#e8e8e8'};border-radius:3px;padding:11px 13px;margin-bottom:7px;cursor:pointer;background:${l.confirmedPlaylistId===p.id?'#fef5f5':'#fff'};">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><div style="font-size:13px;font-weight:500;">${p.name}</div>${l.confirmedPlaylistId===p.id?`<span style="font-size:11px;color:#ee4d2d;">Current</span>`:''}</div>
+      <div style="font-size:12px;color:#888;margin-bottom:5px;">${p.desc}</div>
+      <div style="display:flex;gap:5px;"><span style="font-size:11px;color:#aaa;margin-left:auto;">${plLockers(p.id).length} lockers</span></div>
+    </div>`).join('')}
+    </div>`;
+  window._overridePl=l.confirmedPlaylistId||null;
+  document.getElementById('p-footer').innerHTML=`
+    <button class="btn-w" onclick="closePanel()">Cancel</button>
+    <button class="btn-r" onclick="saveLockerOverride('${id}')">Save</button>`;
+  openPanel();
+}
+
+// Fuzzy search within assign panel
+function filterAssignOpts(query, lockerId){
+  const q=query.toLowerCase().trim();
+  const l=window.LOCKERS.find(x=>x.id===lockerId);
+  const container=document.getElementById('assign-opts'); if(!container) return;
+  container.innerHTML=window.PLAYLISTS.filter(p=>!q||p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)||p.slug.includes(q)).map(p=>`<div onclick="window._overridePl='${p.id}';document.querySelectorAll('.assign-opt').forEach(el=>{el.style.borderColor='#e8e8e8';el.style.background='#fff';});this.style.borderColor='#ee4d2d';this.style.background='#fef5f5';" class="assign-opt" style="border:1px solid ${l&&l.confirmedPlaylistId===p.id?'#ee4d2d':'#e8e8e8'};border-radius:3px;padding:11px 13px;margin-bottom:7px;cursor:pointer;background:${l&&l.confirmedPlaylistId===p.id?'#fef5f5':'#fff'};">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><div style="font-size:13px;font-weight:500;">${p.name}</div>${l&&l.confirmedPlaylistId===p.id?'<span style="font-size:11px;color:#ee4d2d;">Current</span>':''}</div>
+    <div style="font-size:12px;color:#888;margin-bottom:5px;">${p.desc}</div>
+    <div style="display:flex;gap:5px;">${p.rules.int?`<span style="border:1px solid #ee4d2d;border-radius:3px;padding:2px 7px;font-size:11px;color:#ee4d2d;background:#fff;">Internal ads</span>`:''} ${p.rules.ext?`<span style="border:1px solid #ee4d2d;border-radius:3px;padding:2px 7px;font-size:11px;color:#ee4d2d;background:#fff;">Seller ads</span>`:''}<span style="font-size:11px;color:#aaa;margin-left:auto;">${plLockers(p.id).length} lockers</span></div>
+  </div>`).join('')||'<div style="font-size:12px;color:#aaa;padding:10px 0;">No playlists match.</div>';
+}
+
+// Locker override (individual)
+function openLockerOverride(id){
+  const l=window.LOCKERS.find(x=>x.id===id); if(!l) return;
+  const curPl=window.PLAYLISTS.find(p=>p.id===l.confirmedPlaylistId);
+  document.getElementById('p-title').textContent='Override playlist for: '+l.name;
+  document.getElementById('p-ref').textContent=l.id+' · '+l.locType;
+  document.getElementById('p-body').innerHTML=`
+    <div style="margin-bottom:12px;"><div style="font-size:12px;color:#888;margin-bottom:6px;">Current playlist</div><span class="pill pb">${curPl?.name||'Unassigned'}</span></div>
+    <div style="font-size:12px;color:#888;margin-bottom:6px;">Current tags</div>
+    <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:14px;">${l.tags.split(',').map(t=>`<span style="background:#f5f5f5;border:1px solid #e8e8e8;border-radius:2px;padding:2px 7px;font-size:11px;">${t.trim()}</span>`).join('')}</div>
+    <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;">Assign to a different playlist</div>
+    ${window.PLAYLISTS.map(p=>`<div onclick="window._overridePl='${p.id}';document.querySelectorAll('.override-opt').forEach(el=>el.style.borderColor='#e8e8e8');this.style.borderColor='#ee4d2d';" class="override-opt" style="border:1px solid ${l.confirmedPlaylistId===p.id?'#ee4d2d':'#e8e8e8'};border-radius:3px;padding:10px 12px;margin-bottom:6px;cursor:pointer;">
+      <div style="font-size:13px;font-weight:500;">${p.name}</div>
+      <div style="font-size:11px;color:#888;margin-top:2px;">${p.desc} · ${plLockers(p.id).length} lockers</div>
+    </div>`).join('')}
+    <div style="margin-top:10px;font-size:11px;color:#aaa;">Manual overrides take precedence over filter-based assignments. They will not be overwritten unless you explicitly reassign via the filter builder.</div>`;
+  window._overridePl=l.confirmedPlaylistId;
+  document.getElementById('p-footer').innerHTML=`<button class="btn-w" onclick="closePanel()">Cancel</button><button class="btn-r" onclick="saveLockerOverride('${id}')">Save</button>`;
+  openPanel();
+}
+function saveLockerOverride(id){
+  const l=window.LOCKERS.find(x=>x.id===id); if(!l) return;
+  const newPl=window.PLAYLISTS.find(p=>p.id===window._overridePl);
+  if(l.confirmedPlaylistId===window._overridePl){closePanel();return;}
+  l.confirmedPlaylistId=window._overridePl;
+  l.manualOverride=true;
+  window.LOCKER_CONFLICTS=window.LOCKER_CONFLICTS.filter(c=>c.id!==id);
+  closePanel();
+  alert(`${l.name} manually assigned to "${newPl?.name}".`);
+  renderTab();
+}
+
+// Conflict resolution
+function resolveConflict(lockerId, action){
+  const conflict=window.LOCKER_CONFLICTS.find(c=>c.id===lockerId);
+  const l=window.LOCKERS.find(x=>x.id===lockerId);
+  if(!conflict||!l) return;
+  if(action==='move') l.confirmedPlaylistId=conflict.suggestedPlaylistId;
+  window.LOCKER_CONFLICTS=window.LOCKER_CONFLICTS.filter(c=>c.id!==lockerId);
+  renderTab();
+}
+
+// Simulate a tag-change conflict (for demo)
+function simulateTagConflict(){
+  const l=window.LOCKERS.find(x=>x.id==='SG-0301');
+  if(l&&!window.LOCKER_CONFLICTS.find(c=>c.id===l.id)){
+    l.tags='north, hdb, sembawang-updated';
+    window.LOCKER_CONFLICTS.push({id:'SG-0301',name:'Northwave Condo',confirmedPlaylistId:'pl-2',suggestedPlaylistId:'pl-1',newTags:'north, hdb, sembawang-updated'});
+    renderTab();
+  }
+}
+
+// Playback order panel (replaces the standalone order sub-page)
+function openOrderPanel(){
+  const pl=window.PLAYLISTS.find(p=>p.id===activePl)||window.PLAYLISTS[0];
+  const ordered=getOrdered(activePl);
+  document.getElementById('p-title').textContent='Edit playback order';
+  document.getElementById('p-ref').textContent=pl.name+' · '+plLockers(activePl).length+' lockers';
+  let rows=`<div style="background:#fff;border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;margin-bottom:12px;"><div style="display:grid;grid-template-columns:44px 1fr auto;background:#fafafa;border-bottom:2px solid #e8e8e8;padding:6px 12px;font-size:11px;font-weight:600;color:#888;gap:10px;"><div>ORDER</div><div>CAMPAIGN</div><div>MOVE</div></div>`;
+  ordered.forEach((c,i)=>{const iF=i===0,iL=i===ordered.length-1,isInt=c.type==='int';
+    rows+=`<div draggable="true" ondragstart="dS(event,${c.order})" ondragover="dO(event)" ondrop="dD(event,${c.order})" ondragleave="dL(event)" style="display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f5f5f5;background:#fff;cursor:grab;">
+      <div style="display:flex;align-items:center;gap:5px;"><span style="color:#ccc;font-size:12px;">⠿</span><div style="width:20px;height:20px;border-radius:50%;background:#ee4d2d;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;">${c.order}</div></div>
+      <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:24px;border-radius:3px;background:${isInt?'#dbeafe':'#fef3c7'};display:flex;align-items:center;justify-content:center;font-size:10px;">${isInt?'🏢':'🏷️'}</div>
+        <div><div style="font-size:13px;font-weight:500;">${c.name}</div><div style="font-size:11px;color:#888;">${c.buyer} · ${c.startDate||'—'} to ${c.endDate||'—'}</div></div></div>
+      <div style="display:flex;gap:3px;"><button onclick="mUp(${c.order});openOrderPanel()" ${iF?'disabled':''} style="border:1px solid ${iF?'#e8e8e8':'#d0d0d0'};border-radius:2px;padding:2px 6px;font-size:12px;cursor:${iF?'default':'pointer'};color:${iF?'#ccc':'#555'};background:#fff;">↑</button><button onclick="mDown(${c.order});openOrderPanel()" ${iL?'disabled':''} style="border:1px solid ${iL?'#e8e8e8':'#d0d0d0'};border-radius:2px;padding:2px 6px;font-size:12px;cursor:${iL?'default':'pointer'};color:${iL?'#ccc':'#555'};background:#fff;">↓</button></div>
+    </div>`;
+  });
+  rows+=`</div>`;
+  document.getElementById('p-body').innerHTML=rows;
+  document.getElementById('p-footer').innerHTML=`<button class="btn-w" onclick="closePanel()">Cancel</button><button class="btn-r" onclick="closePanel();alert('Playback order saved')">Save order</button>`;
+  openPanel();
+}
+
+
+// ══════════════ AD MANAGEMENT ══════════════
+let adMgmtSub = 'all'; // 'all' | 'pending'
+
+function renderReview(){
+  const allAds = window.CAMPS;
+  // Init filter state FIRST before using af
+  if(!window._adFilter) window._adFilter={name:'',campaignId:'',company:'',exposure:'',status:''};
+  const af=window._adFilter;
+  // sub-filter
+  const filtered = allAds.filter(c=>{
+    const st_label=c.rejected?'Rejected':!c.approvedDate?'Pending review':c.assignedPlaylists.length===0?'Approved':c.status==='Live'?'Live':c.status==='Scheduled'?'Scheduled':c.status==='Cancelled'?'Cancelled':'Completed';
+    const exposureLabel=c.spotsBased?'By Spots':'By Duration';
+    const subMatch = adMgmtSub==='pending' ? !c.approvedDate : true;
+    return subMatch
+      && (!af.name || c.name.toLowerCase().includes(af.name.toLowerCase()))
+      && (!af.campaignId || c.ref.toLowerCase().includes(af.campaignId.toLowerCase()))
+      && (!af.company || c.company.toLowerCase().includes(af.company.toLowerCase()))
+      && (!af.exposure || exposureLabel===af.exposure)
+      && (!af.status || st_label===af.status);
+  }).sort((a,b)=>{
+    const ts = c => new Date((c.reviewLog?.[0]?.date||'').replace(',',''));
+    return ts(b) - ts(a);
+  });
+
+  // status helper
+  function adStatus(c){
+    if(c.rejected) return {label:'Rejected',cls:'pr'};
+    if(!c.approvedDate) return {label:'Pending review',cls:'po'};
+    if(c.assignedPlaylists.length===0) return {label:'Approved',cls:'pb'};
+    if(c.status==='Live') return {label:'Live',cls:'pg'};
+    if(c.status==='Scheduled') return {label:'Scheduled',cls:'pb'};
+    if(c.status==='Cancelled') return {label:'Cancelled',cls:'pr'};
+    return {label:'Completed',cls:'pk'};
+  }
+
+  const pendingCount = allAds.filter(c=>!c.approvedDate).length;
+
+  let body=`<div class="content">
+    <!-- Sub-filter pills + search filters -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
+      <button style="padding:5px 14px;font-size:13px;border-radius:3px;border:1px solid ${adMgmtSub==='all'?'#ee4d2d':'#d0d0d0'};background:${adMgmtSub==='all'?'#ee4d2d':'#fff'};color:${adMgmtSub==='all'?'#fff':'#555'};cursor:pointer;" onclick="adMgmtSub='all';renderTab()">All ads</button>
+      <button style="padding:5px 14px;font-size:13px;border-radius:3px;border:1px solid ${adMgmtSub==='pending'?'#ee4d2d':'#d0d0d0'};background:${adMgmtSub==='pending'?'#ee4d2d':'#fff'};color:${adMgmtSub==='pending'?'#fff':'#555'};cursor:pointer;" onclick="adMgmtSub='pending';renderTab()">Pending review${pendingCount?` <span style="background:${adMgmtSub==='pending'?'#fff':'#ee4d2d'};color:${adMgmtSub==='pending'?'#ee4d2d':'#fff'};font-size:10px;padding:0 5px;border-radius:8px;font-weight:700;">${pendingCount}</span>`:''}
+      </button>
+    </div>
+    <!-- Column search filters -->
+    <div style="background:#fff;border:1px solid #e8e8e8;border-radius:3px;padding:10px 14px;margin-bottom:12px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Ad name</span><input class="fi" placeholder="Search..." style="width:140px;" value="${af.name}" oninput="window._adFilter.name=this.value"/></div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Campaign ID</span><input class="fi" placeholder="Search..." style="width:160px;" value="${af.campaignId}" oninput="window._adFilter.campaignId=this.value"/></div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;">Company</span><input class="fi" placeholder="Search..." style="width:130px;" value="${af.company}" oninput="window._adFilter.company=this.value"/></div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Exposure type</span><select class="fi" onchange="window._adFilter.exposure=this.value"><option value="">All</option><option>By Spots</option><option>By Duration</option></select></div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;">Status</span><select class="fi" onchange="window._adFilter.status=this.value"><option value="">All</option><option>Pending review</option><option>Approved</option><option>Scheduled</option><option>Live</option><option>Rejected</option><option>Ended</option><option>Cancelled</option></select></div>
+      </div>
+      <div style="display:flex;gap:7px;"><button class="btn-r" style="padding:5px 14px;font-size:12px;" onclick="renderTab()">Search</button><button class="btn-w" style="padding:5px 12px;font-size:12px;" onclick="window._adFilter={name:'',campaignId:'',company:'',exposure:'',status:''};renderTab()">Reset</button></div>
+    </div>
+
+    <!-- Table -->
+    <div style="overflow-x:auto;background:#fff;border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">
+    <table class="tbl" style="background:#fff;">
+      <thead><tr>
+        <th>Ad name</th>
+        <th>Campaign ID</th>
+        <th>Company</th>
+        <th>Uploaded by</th>
+        <th>Exposure type</th>
+        <th>Campaign period</th>
+        <th>Playlists assigned</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr></thead>
+      <tbody>
+        ${filtered.map(c=>{
+          const st=adStatus(c);
+          const plNames=c.assignedPlaylists.map(id=>window.PLAYLISTS.find(p=>p.id===id)?.name||id);
+          const period=(c.startDate&&c.endDate)?`${c.startDate} to ${c.endDate}`:'—';
+          const exposure=c.spotsBased?`By Spots · ${c.spotsBooked?.toLocaleString()}`:'By Duration';
+          const isPending=!c.approvedDate;
+          return`<tr>
+            <td><div style="font-weight:500;">${c.name}</div></td>
+            <td style="font-size:12px;color:#888;">${c.ref}</td>
+            <td>${c.company}</td>
+            <td>${c.buyer}</td>
+            <td style="font-size:12px;color:#555;">${exposure}</td>
+            <td style="font-size:12px;color:#888;white-space:nowrap;">${period}</td>
+            <td><div style="display:flex;flex-wrap:wrap;gap:3px;">${plNames.length?plNames.map(n=>`<span style="background:#f5f5f5;border:1px solid #e8e8e8;border-radius:2px;padding:1px 6px;font-size:11px;color:#555;">${n}</span>`).join(''):'<span style="font-size:12px;color:#aaa;">—</span>'}</div></td>
+            <td style="font-size:12px;color:#555;">${st.label}</td>
+            <td>${isPending?`<button class="btn-sm-r" style="font-size:11px;padding:2px 8px;" onclick="openAdPanel('${c.ref}')">Review</button>`:`<span style="color:#1890ff;cursor:pointer;font-size:13px;" onclick="openAdPanel('${c.ref}')">View</span>`}</td>
+          </tr>`;
+        }).join('')}
+        ${filtered.length===0?`<tr><td colspan="9" style="text-align:center;color:#aaa;padding:20px;">No ads match this filter.</td></tr>`:''}
+      </tbody>
+    </table></div>
+  </div>`;
+  return body;
+}
+
+// ── AD DETAIL PANEL ──────────────────────────────────────────────────
+function openAdPanel(ref){
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  function adStatus(c){
+    if(c.rejected) return {label:'Rejected',cls:'pr'};
+    if(!c.approvedDate) return {label:'Pending review',cls:'po'};
+    if(c.assignedPlaylists.length===0) return {label:'Approved',cls:'pb'};
+    if(c.status==='Live') return {label:'Live',cls:'pg'};
+    if(c.status==='Scheduled') return {label:'Scheduled',cls:'pb'};
+    if(c.status==='Cancelled') return {label:'Cancelled',cls:'pr'};
+    return {label:'Completed',cls:'pk'};
+  }
+  const st=adStatus(c);
+  const isApproved = !!c.approvedDate && c.assignedPlaylists.length === 0 && !c.rejected;
+  const isPending = !c.approvedDate && !c.rejected;
+  const showCreativeStep = isPending || _panelForcedBack;
+  _panelForcedBack = false;
+
+  // Playlist suggestion based on booking
+  const suggested=suggestPlaylists(c.bookedLocTypes||[],c.bookedRegions||[]);
+  const suggestedIds=new Set(suggested.map(p=>p.id));
+  const eligiblePls=window.PLAYLISTS;
+
+  document.getElementById('p-title').textContent=c.name;
+  document.getElementById('p-ref').textContent=c.ref;
+
+  // Build body using string concat to avoid nested backtick issues
+  let body='';
+
+  // Creative preview
+  body += '<div style="background:#f0f0f0;border-radius:3px;height:140px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;margin-bottom:12px;">'
+        + '<div style="text-align:center;"><div style="font-size:24px;margin-bottom:5px;">🖼️</div>'
+        + '['+(c.creative||'no creative')+']'
+        + '<div style="font-size:11px;margin-top:3px;">1080×1920 px · 9:16</div></div></div>';
+
+  // Details table
+  const bookedScope = (c.bookedLocTypes||[]).join(', ')+'<br><span style="color:#888;">'+(c.bookedRegions||[]).join(', ')+'</span>';
+  body += '<table class="kv">'
+        + '<tr><td>Company</td><td>'+c.company+'</td></tr>'
+        + '<tr><td>Uploaded by</td><td>'+c.buyer+'</td></tr>'
+        + '<tr><td>Review date</td><td>'+(c.approvedDate||'—')+'</td></tr>'
+        + '<tr><td>Campaign period</td><td>'+(c.startDate||'—')+' to '+(c.endDate||'—')+(c.spotsBased?' · ~'+(c.spotsBooked||0).toLocaleString()+' spots (est. end)':'')+'</td></tr>'
+        + '<tr><td>Booked scope</td><td>'+bookedScope+'</td></tr>'
+        + '<tr><td>Status</td><td>'+st.label+'</td></tr>'
+        + '<tr><td>Ad type</td><td>'+(c.type==='int'?'Internal':'Seller campaign')+'</td></tr>'
+        + '</table>';
+
+  if(showCreativeStep){
+    // AI screening
+    body += '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:7px;">AI screening</div>';
+    window.AI_CRITERIA.filter(x=>x.enabled).forEach((cr,i)=>{
+      const flagged=i===2;
+      body += '<div class="ai-check'+(flagged?' flagged':'')+'"><div class="ai-row">'
+            + '<span style="font-size:12px;font-weight:500;">'+cr.label+'</span>'
+            + '<span style="font-size:11px;color:'+(flagged?'#cf1322':'#389e0d')+';font-weight:500;">'+(flagged?'Flagged · 62%':'Pass · 96%')+'</span>'
+            + '</div>'
+            + (flagged?'<div style="font-size:11px;color:#888;margin-bottom:3px;">Possible competitor brand logo (bottom-right).</div>':'')
+            + '<div class="ai-bar"><div class="ai-bar-fill" style="width:'+(flagged?62:96)+'%;background:'+(flagged?'#cf1322':'#52c41a')+';">'
+            + '</div></div></div>';
+    });
+    body += '<div style="margin-top:12px;"><div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">Feedback to seller (if changes requested)</div>'
+          + '<textarea class="finput" id="cr-feedback" rows="3" placeholder="Describe what needs to change." style="resize:vertical;" oninput="checkFeedback()"></textarea>'
+          + '<div style="font-size:11px;color:#aaa;margin-top:4px;" id="fb-hint">Minimum 15 characters required.</div></div>';
+  } else {
+    // Playlist assignment
+    body += '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:4px;">Playlist assignment</div>'
+          + '<div style="font-size:12px;color:#888;margin-bottom:8px;">Playlists have been auto-assigned based on the seller\'s booked location types and regions. Each locker only plays this ad if it matches the booking — no over-delivery. De-select any before saving if needed.</div>';
+    if(eligiblePls.length===0){
+      body += '<div style="font-size:12px;color:#aaa;">No eligible playlists for this ad type.</div>';
+    } else {
+      eligiblePls.forEach(p=>{
+        const isAssigned=c.assignedPlaylists.includes(p.id);
+        const isSuggested=suggestedIds.has(p.id);
+        const isChecked=isAssigned||isSuggested;
+        const totalLockers=window.LOCKERS.filter(l=>l.confirmedPlaylistId===p.id).length;
+        const matchingLockers=window.LOCKERS.filter(l=>
+          l.confirmedPlaylistId===p.id &&
+          (c.bookedLocTypes||[]).includes(l.locType) &&
+          (c.bookedRegions||[]).includes(l.region)
+        ).length;
+        if(matchingLockers===0) return;
+        const matchColor=matchingLockers?'#389e0d':'#d46b08';
+        const matchNote=matchingLockers+' of '+totalLockers+' locker'+(totalLockers!==1?'s':'')+' match your booking'+(matchingLockers===0?' — no overlap':' · plays on matched lockers only');
+        const locTypesHtml=(p.locTypes||[]).map(t=>'<div style="margin-bottom:2px;">'+t+'</div>').join('');
+        const regionsHtml=(p.regions||[]).map(r=>'<div style="margin-bottom:2px;">'+r+'</div>').join('');
+        body += '<div style="border:1px solid #e8e8e8;border-radius:3px;margin-bottom:6px;background:#fff;overflow:hidden;">'
+              + '<label style="display:flex;align-items:flex-start;gap:9px;padding:10px 12px;cursor:pointer;margin:0;">'
+              + '<input type="checkbox" class="pl-assign-cb" data-plid="'+p.id+'" '+(isChecked?'checked':'')+' style="accent-color:#ee4d2d;margin-top:2px;flex-shrink:0;"/>'
+              + '<div style="flex:1;min-width:0;">'
+              + '<div style="font-size:13px;font-weight:500;">'+p.name+'</div>'
+              + '<div style="font-size:11px;margin-top:3px;display:flex;align-items:center;gap:6px;">'
+              + '<span style="color:'+matchColor+';">'+matchNote+'</span>'
+              + '<button onclick="event.preventDefault();event.stopPropagation();togglePlDetail(\''+p.id+'\',this)" style="background:none;border:none;color:#1890ff;cursor:pointer;font-size:11px;padding:0;flex-shrink:0;">▾ Details</button>'
+              + '</div>'
+              + '</div></label>'
+              + '<div id="pl-detail-'+p.id+'" style="display:none;padding:8px 12px 10px 34px;border-top:1px solid #f0f0f0;">'
+              + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:11px;color:#555;">'
+              + '<div><div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Location types</div>'+locTypesHtml+'</div>'
+              + '<div><div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Regions</div>'+regionsHtml+'</div>'
+              + '</div></div>'
+              + '</div>';
+      });
+    }
+  }
+
+  document.getElementById('p-body').innerHTML=body;
+  document.getElementById('p-body').innerHTML += renderReviewLog(c.reviewLog, false, c.buyer);
+  const nextLabel = isPending ? 'Approve' : 'Next →';
+  document.getElementById('p-footer').innerHTML=showCreativeStep
+    ? '<button id="btn-req-changes" class="btn-sm" disabled style="opacity:0.4;cursor:not-allowed;" onclick="requestChanges(\''+c.ref+'\')">Request changes</button>'
+      + '<button class="btn-sm-r" onclick="approveCreative(\''+c.ref+'\')">' + nextLabel + '</button>'
+    : '<button class="btn-sm" onclick="closePanel()">Cancel</button>'
+      + '<button class="btn-sm" onclick="backToReview(\''+c.ref+'\')">← Back</button>'
+      + '<button class="btn-sm-r" onclick="assignPlaylist(\''+c.ref+'\')">Assign playlist</button>';
+  openPanel();
+}
+
+function approveCreative(ref){
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  if(!c.approvedDate) c.approvedDate=new Date().toISOString().replace('T',' ').substring(0,19);
+  openAdPanel(ref);
+}
+
+function requestChanges(ref){
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  const feedback=document.getElementById('cr-feedback')?.value||'';
+  c.rejected=true;
+  c.approvedDate=null;
+  c.reviewLog=c.reviewLog||[];
+  c.reviewLog.push({date:new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',',''), event:'Changes requested by SPX', by:'spx', note:feedback});
+  closePanel();
+  renderTab();
+}
+
+function backToReview(ref){
+  _panelForcedBack=true;
+  openAdPanel(ref);
+}
+
+function assignPlaylist(ref){
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  const checked=[...document.querySelectorAll('.pl-assign-cb:checked')].map(el=>el.dataset.plid);
+  c.assignedPlaylists=checked;
+  const today=new Date();
+  const start=c.startDate?new Date(c.startDate):null;
+  c.status=(start&&start<=today)?'Live':'Scheduled';
+  closePanel();
+  renderTab();
+}
+
+function checkFeedback(){
+  const ta=document.getElementById('cr-feedback');
+  const btn=document.getElementById('btn-req-changes');
+  const hint=document.getElementById('fb-hint');
+  if(!ta||!btn) return;
+  const len=ta.value.trim().length;
+  const ready=len>=15;
+  btn.disabled=!ready;
+  btn.style.opacity=ready?'1':'0.4';
+  btn.style.cursor=ready?'pointer':'not-allowed';
+  if(hint) hint.textContent=ready?'':((15-len)+' more character'+(15-len===1?'':'s')+' needed.');
+}
+
+function togglePlDetail(plId,btn){
+  const el=document.getElementById('pl-detail-'+plId);
+  if(!el) return;
+  const open=el.style.display!=='none';
+  el.style.display=open?'none':'block';
+  btn.textContent=open?'▾ Details':'▴ Hide';
+}
+
+
+// ══════════════ FINANCE ══════════════
+function renderFinance(){
+  // No sub-tabs — Booking Configuration is a single flat view
+  const body = renderBookingConfig();
+  return`<div style="background:#fff;min-height:100%;"><div class="content">${body}</div></div>`;
+}
+
+function renderBookingConfig(){
+  // Spot packages — tier name + spot count only (no pricing shown here)
+  const tiersHTML = RC.tiers.map((t,i)=>{
+    return `<div style="display:grid;grid-template-columns:1fr 180px 28px;gap:8px;padding:7px 0;border-bottom:1px solid #f5f5f5;align-items:center;">
+      <input class="ein" value="${t.name}" placeholder="e.g. Starter" onchange="RC.tiers[${i}].name=this.value"/>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <input class="ein" style="width:90px;" value="${t.spots}" type="number" min="0" onchange="RC.tiers[${i}].spots=+this.value"/>
+        <span style="font-size:12px;color:#888;">spots</span>
+      </div>
+      <button onclick="RC.tiers.splice(${i},1);renderTab()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:14px;">✕</button>
+    </div>`;
+  }).join('');
+
+  const ltHTML = Object.entries(RC.locTypeOptions).map(([lt,enabled])=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5;">
+    <input type="checkbox" style="accent-color:#ee4d2d;width:14px;height:14px;" ${enabled?'checked':''} onchange="RC.locTypeOptions['${lt}']=this.checked;renderTab()"/>
+    <span style="font-size:13px;flex:1;">${lt}</span>
+    <span style="font-size:11px;color:#aaa;margin-left:auto;">${enabled?'Seller-selectable':'Internal ads only'}</span>
+  </div>`).join('');
+
+  return`<div style="max-width:700px;padding-bottom:32px;">
+
+    <!-- FINANCE PORTAL CALLOUT -->
+    <div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:10px 14px;margin-bottom:24px;display:flex;align-items:flex-start;gap:8px;">
+      <span style="font-size:15px;flex-shrink:0;">ℹ️</span>
+      <div style="font-size:12px;color:#8a6d00;line-height:1.6;">
+        <b>Spot rates are managed per merchant type in Finance Portal.</b><br/>
+        To view or update pricing, go to Finance Portal → Billing Rule → Service Point → Locker Advertisement.
+      </div>
+    </div>
+
+    <!-- SECTION: AD PLAYBACK -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+      <div style="width:4px;height:18px;background:#ee4d2d;border-radius:1px;flex-shrink:0;"></div>
+      <span style="font-size:14px;font-weight:700;color:#222;">Ad playback</span>
+    </div>
+
+    <div class="frow">
+      <div class="flbl">Ad slot duration</div>
+      <div class="fbody">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input class="finput" value="${RC.cycle_interval}" style="width:70px;" type="number" min="1" onchange="RC.cycle_interval=+this.value"/>
+          <span style="font-size:13px;color:#666;">seconds per ad</span>
+        </div>
+        <div class="fhint">Used to estimate total spots for duration-based campaigns. Longer slots mean fewer spots per locker per hour.</div>
+      </div>
+    </div>
+
+    <div class="frow">
+      <div class="flbl">Inactivity timeout</div>
+      <div class="fbody">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input class="finput" value="${RC.inactivity_timeout}" style="width:70px;" type="number" min="0" onchange="RC.inactivity_timeout=+this.value"/>
+          <span style="font-size:13px;color:#666;">seconds of locker inactivity</span>
+        </div>
+        <div class="fhint">How long the locker screen must be idle before the ad begins playing. Prevents ads from showing mid-interaction.</div>
+      </div>
+    </div>
+
+    <!-- SECTION: SELLER BOOKING OPTIONS -->
+    <div style="display:flex;align-items:center;gap:10px;margin:28px 0 18px;">
+      <div style="width:4px;height:18px;background:#ee4d2d;border-radius:1px;flex-shrink:0;"></div>
+      <span style="font-size:14px;font-weight:700;color:#222;">Seller booking options</span>
+    </div>
+
+    <div class="frow" style="align-items:flex-start;">
+      <div class="flbl" style="padding-top:4px;">Spot packages</div>
+      <div class="fbody">
+        <div style="border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">
+          <div style="display:grid;grid-template-columns:1fr 180px 28px;gap:8px;padding:6px 10px;background:#fafafa;border-bottom:2px solid #e8e8e8;font-size:11px;font-weight:600;color:#888;">
+            <div>Package name</div><div>Total spots</div><div></div>
+          </div>
+          <div style="padding:0 10px;">
+            ${tiersHTML||'<div style="font-size:12px;color:#aaa;padding:10px 0;">No packages configured.</div>'}
+          </div>
+        </div>
+        <button class="btn-sm" style="margin-top:8px;" onclick="RC.tiers.push({name:'New package',spots:0});renderTab()">+ Add package</button>
+        <div class="fhint">Define the preset spot counts sellers can choose from when booking by spot. Spots are distributed across all matched lockers proportionally by their operating hours. Pricing is calculated at checkout based on the seller's merchant type rate in Finance Portal.</div>
+      </div>
+    </div>
+
+    <div class="frow" style="align-items:flex-start;">
+      <div class="flbl" style="padding-top:4px;">Seller-selectable<br>location types</div>
+      <div class="fbody">
+        <div style="border:1px solid #e8e8e8;border-radius:3px;padding:0 12px;">
+          ${ltHTML}
+        </div>
+        <div class="fhint">Checked types appear as options when sellers book. Unchecked types only run internal SPX ads.</div>
+      </div>
+    </div>
+
+    <div class="frow" style="align-items:flex-start;">
+      <div class="flbl" style="padding-top:4px;">Regions for<br>seller targeting</div>
+      <div class="fbody">
+        <div style="border:1px solid #e8e8e8;border-radius:3px;padding:0 12px;">
+          ${window.REGIONS.map((r,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f5f5f5;"><input class="ein" style="flex:1;" value="${r}" onchange="window.REGIONS[${i}]=this.value"/><button onclick="window.REGIONS.splice(${i},1);renderTab()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:14px;">✕</button></div>`).join('')}
+        </div>
+        <button class="btn-sm" style="margin-top:8px;" onclick="addRegion()">+ Add region</button>
+        <div class="fhint">These region names appear as filter options when sellers book. Each locker point can be tagged to one region in Point List.</div>
+      </div>
+    </div>
+
+    <!-- SECTION: AI REVIEW CRITERIA -->
+    <div style="display:flex;align-items:center;gap:10px;margin:28px 0 18px;">
+      <div style="width:4px;height:18px;background:#ee4d2d;border-radius:1px;flex-shrink:0;"></div>
+      <span style="font-size:14px;font-weight:700;color:#222;">AI review criteria</span>
+    </div>
+
+    <div style="font-size:12px;color:#888;margin-bottom:14px;line-height:1.6;">Each criterion is a named screening category. The AI scores creatives against the label, description, and example you define. A human ops member always makes the final approval decision.</div>
+
+    ${window.AI_CRITERIA.map((c,i)=>`<div style="border:1px solid #e8e8e8;border-radius:3px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><input type="checkbox" style="accent-color:#ee4d2d;width:13px;height:13px;" ${c.enabled?'checked':''} onchange="window.AI_CRITERIA[${i}].enabled=this.checked;renderTab()"/><span style="font-size:13px;font-weight:500;">${c.label}</span></div>
+        <div style="font-size:12px;color:#888;padding-left:20px;">${c.desc}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn-sm" onclick="openAiModal(${i})">Edit</button>
+        <button class="btn-sm-d" onclick="if(confirm('Remove criterion: ${c.label}?')){window.AI_CRITERIA.splice(${i},1);renderTab()}">Delete</button>
+      </div>
+    </div>`).join('')}
+    <button class="btn-sm" onclick="openAiModal(-1)">+ Add criterion</button>
+
+    <div style="margin-top:28px;padding-top:16px;border-top:1px solid #e8e8e8;">
+      <button class="btn-r" onclick="alert('Settings saved')">Save all</button>
+    </div>
+  </div>`;
+}
+
+// ══════════════ PANELS ══════════════
+function openPanel(){document.getElementById('p-overlay').classList.add('open');document.getElementById('p-panel').classList.add('open');}
+function closePanel(){document.getElementById('p-overlay').classList.remove('open');document.getElementById('p-panel').classList.remove('open');}
+
+function openCampPanel(name){
+  const c=window.CAMPS.find(x=>x.name===name); if(!c) return;
+  const stMap={live:'pg',scheduled:'pb',cancelled:'pr'};
+  document.getElementById('p-title').textContent=c.name;
+  document.getElementById('p-ref').textContent=c.ref;
+  document.getElementById('p-body').innerHTML=`
+    <div style="margin-bottom:12px;"><span class="pill ${stMap[c.status]||'pk'}">${c.status.charAt(0).toUpperCase()+c.status.slice(1)}</span> <span class="pill ${c.type==='int'?'pb':'po'}">${c.type==='int'?'Internal':'External'}</span></div>
+    <table class="kv">
+      <tr><td>Advertiser</td><td>${c.company}</td></tr>
+      <tr><td>Seller</td><td>${c.buyer}</td></tr>
+      <tr><td>Period</td><td>${c.startDate||'—'} to ${c.endDate||'—'}</td></tr>
+      <tr><td>Lockers</td><td>100 island-wide</td></tr>
+      <tr><td>Playlist</td><td>${window.PLAYLISTS.filter(p=>campInPl(c,p.id)).map(p=>p.name).join(', ')||'—'}</td></tr>
+      <tr><td>Playback order</td><td><span style="background:#ee4d2d;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;font-weight:700;">#${c.order}</span></td></tr>
+    </table>
+    <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:7px;">Creative</div>
+    <div style="background:#f0f0f0;border-radius:3px;height:180px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;margin-bottom:4px;"><div style="text-align:center;"><div style="font-size:26px;margin-bottom:6px;">🖼️</div><div>[${c.creative||'no creative uploaded'}]</div><div style="font-size:11px;margin-top:3px;">1080×1920 px · 9:16 portrait</div></div></div>`;
+  const campLog = c.reviewLog || [{date: c.approvedDate || '—', event: 'Approved by SPX', by: 'spx'}];
+  document.getElementById('p-body').innerHTML += renderReviewLog(campLog, false, c.buyer);
+  document.getElementById('p-footer').innerHTML=c.status!=='Cancelled'?`<button class="btn-sm-d" onclick="cancelCamp('${c.name}')">Cancel campaign</button><button class="btn-sm" onclick="closePanel()">Close</button>`:`<button class="btn-sm" onclick="closePanel()">Close</button>`;
+  openPanel();
+}
+
+function openCreativePanel(){
+  document.getElementById('p-title').textContent='Reviewing: Lazada — Returns campaign';
+  document.getElementById('p-ref').textContent='SPX-SG-2026-00398';
+  document.getElementById('p-body').innerHTML=`
+    <div style="background:#f0f0f0;border-radius:3px;height:160px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;margin-bottom:12px;"><div style="text-align:center;"><div style="font-size:24px;margin-bottom:5px;">🖼️</div>[lazada_returns_v2.jpg · 1080×1920px]</div></div>
+    <table class="kv">
+      <tr><td>Goes live</td><td style="color:#d46b08;font-weight:600;">22 Apr 2026 (2 days)</td></tr>
+      <tr><td>Advertiser</td><td>Lazada Singapore</td></tr>
+      <tr><td>Seller</td><td>P••••• Nair</td></tr>
+      <tr><td>Period</td><td>6 Apr – 2 May 2026</td></tr>
+      <tr><td>Playlist</td><td>Standard — All ads</td></tr>
+      <tr><td>Value</td><td style="font-weight:600;">SGD 67,200</td></tr>
+    </table>
+    <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:7px;">AI screening results</div>
+    ${window.AI_CRITERIA.filter(c=>c.enabled).map((c,i)=>{const flagged=i===2;return`<div class="ai-check ${flagged?'flagged':''}"><div class="ai-row"><span style="font-size:12px;font-weight:500;">${c.label}</span><span style="font-size:11px;color:${flagged?'#d46b08':'#389e0d'};font-weight:500;">${flagged?'Flagged · 62%':'Pass · 96%'}</span></div>${flagged?`<div style="font-size:11px;color:#888;margin-bottom:3px;">Possible competitor brand logo (bottom-right). Please inspect.</div>`:''}
+    <div class="ai-bar"><div class="ai-bar-fill" style="width:${flagged?62:96}%;background:${flagged?'#fa8c16':'#52c41a'};"></div></div></div>`;}).join('')}
+    <div style="margin-top:12px;"><div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">Feedback to seller (sent if changes requested)</div>
+    <textarea class="finput" rows="3" placeholder="Describe what needs to change." style="resize:vertical;"></textarea></div>`;
+  document.getElementById('p-footer').innerHTML=`<button class="btn-sm" onclick="closePanel();alert('Seller notified — asked to revise and resubmit')">Request changes</button><button class="btn-sm-r" onclick="closePanel();alert('Approved — queued for 22 Apr')">Approve</button>`;
+  openPanel();
+}
+
+function openAcctPanel(id){
+  const a=ACCTS[id]; if(!a) return;
+  editingAcctId=id;
+  document.getElementById('p-title').textContent=a.company;
+  document.getElementById('p-ref').textContent='Advertiser account';
+  // Campaign history
+  const campHistory=window.CAMPS.filter(c=>c.company===a.company).concat(window.DONE.filter(c=>c.company===a.company));
+  const histRows=campHistory.length?campHistory.map(c=>`<div class="timeline-entry"><div class="timeline-dot ${c.status==='Live'?'g':c.status==='Scheduled'?'o':''}"></div><div style="flex:1;"><div style="font-weight:500;font-size:12px;">${c.name}</div><div style="color:#aaa;font-size:11px;">${c.ref} · ${c.startDate||'—'} to ${c.endDate||''} · ${c.status}</div></div></div>`).join(''):`<div style="font-size:12px;color:#aaa;">No campaign history.</div>`;
+  document.getElementById('p-body').innerHTML=`
+    <div class="frow"><div class="flbl" style="width:120px;font-size:13px;padding-top:7px;">Company</div><input class="finput" value="${a.company}"/></div>
+    <div class="frow" style="margin-top:9px;"><div class="flbl" style="width:120px;font-size:13px;padding-top:7px;">Contact</div><input class="finput" value="${a.contact}"/></div>
+    <div class="frow" style="margin-top:9px;"><div class="flbl" style="width:120px;font-size:13px;padding-top:7px;">Email</div><input class="finput" value="${a.email}"/></div>
+    <div class="frow" style="margin-top:9px;"><div class="flbl" style="width:120px;font-size:13px;padding-top:7px;">Status</div><select class="finput"><option ${a.status==='Active'?'selected':''}>Active</option><option ${a.status==='Suspended'?'selected':''}>Suspended</option><option>Inactive</option></select></div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e8e8e8;"><div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;">Campaign history</div>${histRows}</div>`;
+  document.getElementById('p-footer').innerHTML=`<button class="btn-sm" onclick="closePanel()">Cancel</button><button class="btn-sm-r" onclick="alert('Account saved');closePanel()">Save</button>`;
+  openPanel();
+}
+
+function openLogPanel(){
+  document.getElementById('p-title').textContent='Accounts log';
+  document.getElementById('p-ref').textContent='All actions on this page';
+  document.getElementById('p-body').innerHTML=window.ACCT_LOG.map(l=>`<div class="log-entry"><div class="log-ts">${l.ts}</div><div class="log-action">${l.action} <span class="log-user">· ${l.user}</span></div></div>`).join('');
+  document.getElementById('p-footer').innerHTML=`<button class="btn-sm" onclick="closePanel()">Close</button>`;
+  openPanel();
+}
+
+function openDonePanel(ref){
+  const c=[...window.DONE,...window.CANCELLED].find(x=>x.ref===ref); if(!c) return;
+  document.getElementById('p-title').textContent=c.name;
+  document.getElementById('p-ref').textContent=c.ref;
+  document.getElementById('p-body').innerHTML=`<div style="margin-bottom:11px;"><span class="pill ${c.status==='Completed'?'pk':'pr'}">${c.status==='Completed'?'Completed':'Cancelled'}</span></div>
+    <table class="kv"><tr><td>Advertiser</td><td>${c.company}</td></tr><tr><td>Period</td><td>${c.start} – ${c.end}</td></tr><tr><td>Days active</td><td>${c.days}</td></tr><tr><td>Lockers</td><td>${c.lockers}</td></tr></table>
+    ${c.status==='Completed'?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+      <div class="metric"><div class="m-lbl">Total impressions</div><div class="m-val">${(c.impressions/1e6).toFixed(2)}M</div><div class="m-sub">${Math.round(c.impressions/c.days).toLocaleString()}/day avg</div></div>
+      <div class="metric"><div class="m-lbl">Total hours</div><div class="m-val">${c.hours.toLocaleString()}</div><div class="m-sub">${Math.round(c.hours/c.days)} hrs/day avg</div></div>
+    </div>`:`<div style="font-size:12px;color:#aaa;margin-top:10px;">Cancelled — no report available.</div>`}`;
+  document.getElementById('p-footer').innerHTML=`<button class="btn-sm" onclick="closePanel()">Close</button>`;
+  openPanel();
+}
+
+// ══════════════ PLAYLIST MODAL ══════════════
+function openPlModal(editId){
+  const pl=editId?window.PLAYLISTS.find(p=>p.id===editId):null;
+  document.getElementById('pl-modal-title').textContent=pl?'Edit playlist':'New playlist';
+  document.getElementById('pl-modal-body').innerHTML=`
+    <div class="frow"><div class="flbl req" style="padding-top:7px;">Playlist name</div><input class="finput" id="pl-name-in" value="${pl?pl.name:''}"/></div>
+    <div class="frow" style="margin-top:9px;"><div class="flbl" style="padding-top:7px;">Description</div><input class="finput" id="pl-desc-in" value="${pl?pl.desc:''}" placeholder="For internal reference"/></div>
+
+    <div style="margin-top:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Location types covered</div>
+      <div style="font-size:12px;color:#888;margin-bottom:8px;">Select all location types where this playlist's lockers are placed.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        ${ALL_LOC_TYPES.map(lt=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px 10px;border:1px solid #e8e8e8;border-radius:3px;"><input type="checkbox" class="pl-lt" style="accent-color:#ee4d2d;" data-lt="${lt}" ${pl&&pl.locTypes&&pl.locTypes.includes(lt)?'checked':''}/> ${lt}</label>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-top:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Regions covered</div>
+      <div style="font-size:12px;color:#888;margin-bottom:8px;">Select all regions where this playlist's lockers are located.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+        ${window.REGIONS.map(r=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px 10px;border:1px solid #e8e8e8;border-radius:3px;"><input type="checkbox" class="pl-region" style="accent-color:#ee4d2d;" data-region="${r}" ${pl&&pl.regions&&pl.regions.includes(r)?'checked':''}/> ${r}</label>`).join('')}
+      </div>
+    </div>
+    <div style="margin-top:14px;background:#f8f8f8;border-radius:4px;padding:10px 12px;font-size:12px;color:#666;line-height:1.6;">
+      ℹ️ Include every location type and region where this playlist's lockers are placed. Any locker not covered by these selections won't receive seller campaigns — it will only show SPX internal content.
+    </div>`;
+  window._editPlId=editId;
+  openModal('playlist');
+}
+
+function savePlModal(){
+  const name=document.getElementById('pl-name-in').value.trim(); if(!name){alert('Please enter a playlist name.');return;}
+  const autoTypes=[...document.querySelectorAll('.pl-lt:checked')].map(el=>el.dataset.lt);
+  const autoRegions=[...document.querySelectorAll('.pl-region:checked')].map(el=>el.dataset.region);
+  const plName=name;const slug=plSlug(plName);const data={name:plName,slug,desc:document.getElementById('pl-desc-in').value,locTypes:autoTypes,regions:autoRegions};
+  if(window._editPlId){Object.assign(window.PLAYLISTS.find(p=>p.id===window._editPlId),data);}
+  else{window.PLAYLISTS.push({id:'pl-'+Date.now(),...data});}
+  closeModal('playlist'); renderTab();
+}
+
+// ══════════════ AI CRITERIA MODAL ══════════════
+let editAiIdx=-1;
+function openAiModal(idx){
+  editAiIdx=idx;
+  const c=idx>=0?window.AI_CRITERIA[idx]:null;
+  document.getElementById('ai-modal-title').textContent=c?'Edit review criterion':'Add review criterion';
+  document.getElementById('ai-modal-body').innerHTML=`
+    <div class="frow"><div class="flbl req" style="padding-top:7px;">Category name</div><input class="finput" id="ai-label" value="${c?c.label:''}" placeholder="e.g. Prohibited content"/></div>
+    <div class="frow" style="margin-top:10px;"><div class="flbl req" style="padding-top:7px;">Guidelines for AI to review</div><textarea class="finput" id="ai-desc" rows="4" placeholder="Describe what the AI should look for in the creative.">${c?c.desc:''}</textarea></div>
+    <div style="margin-top:12px;background:#f8f8f8;border:1px solid #e8e8e8;border-radius:3px;padding:10px 12px;font-size:12px;color:#888;">
+      <b>How this works:</b> The category name and guidelines are combined into a prompt that the AI uses to screen each creative. The AI returns a confidence score. If below the review threshold, a coloured tag (matching the category name) appears in the creative review panel for human inspection.
+    </div>`;
+  openModal('ai');
+}
+
+function saveAiModal(){
+  const label=document.getElementById('ai-label').value.trim(); if(!label){alert('Please enter a category name.');return;}
+  const data={label,desc:document.getElementById('ai-desc').value,enabled:true};
+  if(editAiIdx>=0){Object.assign(window.AI_CRITERIA[editAiIdx],data);}
+  else{window.AI_CRITERIA.push({id:'c'+Date.now(),...data});}
+  closeModal('ai'); renderTab();
+}
+
+// ══════════════ HELPERS ══════════════
+function cancelCamp(name){if(!confirm(`Cancel "${name}"?\n\nThis will stop the campaign and notify the seller.`))return;const i=window.CAMPS.findIndex(c=>c.name===name);if(i>-1){const c=window.CAMPS.splice(i,1)[0];c.status='Cancelled';window.CANCELLED.push(c);window.CAMPS.forEach((x,j)=>x.order=j+1);}closePanel();renderTab();}
+
+function toggleSuspend(acctId,invId,btn){
+  const a=ACCTS[acctId]; if(!a) return;
+  if(a.status==='Suspended'){
+    a.status='Active';btn.textContent='Suspend account';btn.className='btn-sm-d';
+    window.ACCT_LOG.unshift({ts:'Now',action:`Account ${a.company} — suspension lifted`,user:'gareth.wangjc'});
+    alert(`Account ${a.company} reinstated.`);
+  } else {
+    a.status='Suspended';btn.textContent='Unsuspend account';btn.className='btn-sm';
+    window.ACCT_LOG.unshift({ts:'Now',action:`Account ${a.company} — suspended`,user:'gareth.wangjc'});
+    alert(`Account ${a.company} suspended. Seller notified.`);
+  }
+}
+
+function overrideLocker(lockerId){
+  const l=window.LOCKERS.find(x=>x.id===lockerId); if(!l) return;
+  const opts=window.PLAYLISTS.map((p,i)=>`${i+1}. ${p.name}`).join('\n');
+  const choice=prompt(`Override playlist for ${l.name} (${lockerId}).\n\nAvailable playlists:\n${opts}\n\nEnter number:`);
+  const idx=parseInt(choice)-1;
+  if(idx>=0&&idx<window.PLAYLISTS.length){l.confirmedPlaylistId=window.PLAYLISTS[idx].id;l.manualOverride=true;alert(`${l.name} manually assigned to: ${window.PLAYLISTS[idx].name}`);renderTab();}
+}
+
+let _dO=null;
+function dS(e,o){_dO=o;e.dataTransfer.effectAllowed='move';e.currentTarget.style.opacity='.5';}
+function dO(e){e.preventDefault();e.currentTarget.style.background='#fef5f5';e.currentTarget.style.borderTop='2px solid #ee4d2d';}
+function dL(e){e.currentTarget.style.background='#fff';e.currentTarget.style.borderTop='';}
+function dD(e,t){e.preventDefault();e.currentTarget.style.background='#fff';e.currentTarget.style.borderTop='';if(_dO===null||_dO===t)return;const a=window.CAMPS.find(c=>c.order===_dO),b=window.CAMPS.find(c=>c.order===t);if(a&&b){const tmp=a.order;a.order=b.order;b.order=tmp;}_dO=null;renderTab();}
+function mUp(o){const s=getOrdered(),i=s.findIndex(c=>c.order===o);if(i<=0)return;const t=s[i].order;s[i].order=s[i-1].order;s[i-1].order=t;renderTab();}
+function mDown(o){const s=getOrdered(),i=s.findIndex(c=>c.order===o);if(i>=s.length-1)return;const t=s[i].order;s[i].order=s[i+1].order;s[i+1].order=t;renderTab();}
+function openModal(id){document.getElementById('modal-'+id).classList.add('open');}
+function closeModal(id){document.getElementById('modal-'+id).classList.remove('open');}
+
+// ── REVIEW LOG (ops view) ──
+function renderReviewLog(log, sellerView, buyerName) {
+  if (!log || log.length === 0) return '';
+  let html = '<div style="margin-top:16px;border-top:1px solid #f0f0f0;padding-top:12px;">';
+  html += '<div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">Review history</div>';
+  log.forEach((entry, i) => {
+    const isLast = i === log.length - 1;
+    const byLabel = sellerView
+      ? (entry.by === 'spx' ? 'SPX' : entry.by === 'system' ? 'System' : 'You')
+      : (entry.by === 'spx' ? 'gareth.wangjc' : entry.by === 'system' ? 'System' : (buyerName||'Seller'));
+    const parts = entry.date.split(', ');
+    const datePart = parts[0] || entry.date;
+    const timePart = parts[1] || '';
+    html += `<div style="display:flex;gap:10px;position:relative;">`;
+    // Timestamp column
+    html += `<div style="width:80px;flex-shrink:0;text-align:right;">`;
+    if (timePart) html += `<div style="font-size:12px;font-weight:600;color:#333;">${timePart}</div>`;
+    html += `<div style="font-size:11px;color:#aaa;">${datePart}</div>`;
+    html += `</div>`;
+    // Timeline line + dot
+    html += `<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:16px;">`;
+    html += `<div style="width:7px;height:7px;border-radius:50%;border:1.5px solid #bbb;background:#fff;margin-top:3px;flex-shrink:0;"></div>`;
+    if (!isLast) html += `<div style="width:1px;flex:1;background:#e8e8e8;margin:3px 0;min-height:16px;"></div>`;
+    html += `</div>`;
+    // Event content
+    html += `<div style="padding-bottom:${isLast?'0':'14px'};flex:1;">`;
+    html += `<div style="font-size:13px;font-weight:500;color:#333;">${entry.event}</div>`;
+    html += `<div style="font-size:11px;color:#aaa;margin-top:2px;">operator: ${byLabel}</div>`;
+    if (entry.note) html += `<div style="font-size:11px;color:#555;margin-top:5px;padding:6px 9px;background:#fafafa;border:1px solid #f0f0f0;border-radius:3px;line-height:1.5;">message: ${entry.note}</div>`;
+    html += `</div></div>`;
+  });
+  html += '</div>';
+  return html;
+}
+</script>
+</body>
+</html>

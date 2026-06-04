@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>SPX Shipment Portal — Locker Ads</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;color:#333;font-size:14px;}
+
+/* ── TOPBAR ── */
+.topbar{height:56px;background:#fff;border-bottom:1px solid #e8e8e8;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:200;}
+.spx-logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.spx-logo-mark{font-size:22px;font-weight:800;color:#e63c3c;font-style:italic;letter-spacing:-1px;}
+.spx-logo-exp{font-size:11px;font-weight:600;color:#e63c3c;letter-spacing:.08em;margin-top:-2px;}
+.tb-divider{width:1px;height:24px;background:#e8e8e8;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.tb-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#888;font-size:15px;position:relative;}
+.tb-badge{position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;background:#e63c3c;border:1px solid #fff;}
+.tb-lang{font-size:12px;color:#555;cursor:pointer;display:flex;align-items:center;gap:3px;border:1px solid #e8e8e8;padding:3px 8px;border-radius:4px;}
+.tb-user{font-size:12px;color:#555;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.tb-av{width:26px;height:26px;border-radius:50%;background:#e63c3c;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;}
+
+/* ── SHELL ── */
+.shell{display:flex;min-height:calc(100vh - 56px);}
+
+/* ── SIDEBAR ── */
+.sidebar{width:190px;background:#fff;border-right:1px solid #e8e8e8;flex-shrink:0;padding:14px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;}
+.btn-create-order{margin:0 12px 14px;background:#e63c3c;color:#fff;border:none;border-radius:5px;padding:8px 0;font-size:13px;font-weight:500;cursor:pointer;width:calc(100% - 24px);display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-create-order:hover{background:#c83030;}
+.sb-item{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:#555;cursor:pointer;border-left:3px solid transparent;}
+.sb-item:hover{background:#fef5f5;color:#e63c3c;}
+.sb-item.active{color:#e63c3c;background:#fef5f5;border-left-color:#e63c3c;font-weight:500;}
+.sb-item.parent{font-weight:500;color:#333;}
+.sb-group{overflow:hidden;max-height:0;transition:max-height .2s;}
+.sb-group.open{max-height:200px;}
+.sb-child{padding:7px 16px 7px 38px;font-size:12px;color:#777;cursor:pointer;display:block;}
+.sb-child:hover{color:#e63c3c;background:#fef5f5;}
+.sb-child.active{color:#e63c3c;font-weight:500;}
+.sb-arrow{margin-left:auto;font-size:10px;color:#aaa;transition:transform .2s;}
+.sb-arrow.open{transform:rotate(180deg);}
+.sb-divider{height:1px;background:#f0f0f0;margin:8px 12px;}
+
+/* ── MAIN ── */
+.main{flex:1;overflow:auto;}
+
+/* ── PAGES ── */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ══ SHIPMENT PORTAL HOME ══ */
+.portal-header{background:#fff;border-bottom:1px solid #e8e8e8;padding:14px 24px;font-size:16px;font-weight:600;color:#333;}
+.portal-content{padding:24px;}
+.portal-hello{font-size:26px;font-weight:600;margin-bottom:6px;}
+.portal-sub{font-size:14px;color:#888;margin-bottom:24px;}
+.create-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
+.create-card{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.create-card:hover{border-color:#e63c3c;box-shadow:0 2px 8px rgba(230,60,60,.1);}
+.cc-icon{width:48px;height:48px;border-radius:50%;background:#fff0ee;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.cc-title{font-size:14px;font-weight:600;margin-bottom:3px;}
+.cc-desc{font-size:12px;color:#aaa;line-height:1.4;}
+.tracking-section{background:#fff;border-radius:8px;border:1px solid #e8e8e8;padding:20px 24px;}
+.tracking-title{font-size:16px;font-weight:600;margin-bottom:16px;}
+.tracking-row{display:flex;gap:10px;}
+.tracking-input{flex:1;border:1px solid #d0d0d0;border-radius:5px;padding:8px 12px;font-size:13px;outline:none;}
+.tracking-input:focus{border-color:#e63c3c;}
+.tracking-btn{background:#e63c3c;color:#fff;border:none;border-radius:5px;padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer;}
+.tracking-hint{font-size:12px;color:#aaa;margin-top:8px;text-align:center;}
+.tracking-hint a{color:#e63c3c;text-decoration:none;}
+
+/* ══ LOCKER ADS PAGE ══ */
+.btn-new-ad{background:#e63c3c;color:#fff;border:none;border-radius:5px;padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.btn-new-ad:hover{background:#c83030;}
+
+.ads-content{padding:20px 24px;display:flex;flex-direction:column;gap:16px;}
+
+/* My Account card */
+.account-card{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:18px 20px;}
+.ac-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.ac-title{font-size:14px;font-weight:600;}
+.ac-more{font-size:12px;color:#e63c3c;cursor:pointer;}
+.ac-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid #f0f0f0;border-radius:6px;overflow:hidden;}
+.ac-stat{padding:14px 16px;border-right:1px solid #f0f0f0;}
+.ac-stat:last-child{border-right:none;}
+.ac-stat-lbl{font-size:11px;color:#aaa;margin-bottom:5px;display:flex;align-items:center;gap:4px;}
+.ac-stat-val{font-size:18px;font-weight:600;}
+.ac-stat-val.red{color:#e63c3c;}
+.ac-stat-val.green{color:#52c41a;}
+.ac-stat-sub{font-size:11px;color:#aaa;margin-top:2px;}
+.ac-warning{background:#fff2f0;border:1px solid #ffccc7;border-radius:4px;padding:8px 12px;font-size:12px;color:#cf1322;margin-top:10px;display:flex;align-items:center;gap:6px;}
+.btn-topup{background:#e63c3c;color:#fff;border:none;border-radius:4px;padding:5px 14px;font-size:12px;font-weight:500;cursor:pointer;margin-left:auto;flex-shrink:0;}
+
+/* Performance card */
+.perf-card{background:#fff;border:1px solid #e8e8e8;border-radius:8px;overflow:hidden;}
+.perf-tab-bar{display:flex;border-bottom:2px solid #e8e8e8;padding:0 20px;}
+.perf-tab{padding:12px 16px;font-size:13px;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;}
+.perf-tab.active{color:#e63c3c;border-bottom-color:#e63c3c;font-weight:500;}
+.perf-body{padding:18px 20px;}
+.perf-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.perf-title{font-size:14px;font-weight:600;}
+.perf-controls{display:flex;gap:8px;}
+.date-btn{border:1px solid #d0d0d0;border-radius:4px;padding:5px 10px;font-size:12px;color:#666;cursor:pointer;background:#fff;display:flex;align-items:center;gap:5px;}
+.export-btn{border:1px solid #d0d0d0;border-radius:4px;padding:5px 10px;font-size:12px;color:#666;cursor:pointer;background:#fff;}
+
+/* Metric row */
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;margin-bottom:14px;}
+.m-cell{padding:14px 16px;border-right:1px solid #e8e8e8;position:relative;}
+.m-cell:last-child{border-right:none;}
+.m-bar-top{position:absolute;top:0;left:0;right:0;height:3px;}
+.m-lbl{font-size:12px;color:#aaa;margin-bottom:5px;display:flex;align-items:center;gap:4px;margin-top:2px;}
+.m-q{font-size:10px;color:#ccc;cursor:pointer;}
+.m-val{font-size:18px;font-weight:600;}
+.m-val.green{color:#52c41a;}
+.m-sub{font-size:11px;color:#aaa;margin-top:2px;}
+.m-bar{height:3px;background:#f0f0f0;border-radius:2px;margin-top:8px;}
+.m-bar-fill{height:3px;border-radius:2px;}
+
+/* Chart */
+.chart-leg{display:flex;justify-content:flex-end;gap:14px;margin-bottom:8px;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:#666;}
+.leg-dot{width:8px;height:8px;border-radius:50%;}
+
+/* Ad list */
+.list-card{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:18px 20px;}
+.list-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.list-title{font-size:14px;font-weight:600;}
+.status-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.sp{border:1px solid #e8e8e8;border-radius:20px;padding:4px 12px;font-size:12px;color:#666;cursor:pointer;background:#fff;}
+.sp:hover{border-color:#e63c3c;color:#e63c3c;}
+.sp.on{border-color:#e63c3c;color:#e63c3c;font-weight:500;}
+.list-filters{display:flex;gap:8px;margin-bottom:12px;}
+.srch{border:1px solid #d0d0d0;border-radius:4px;padding:6px 10px;font-size:12px;width:220px;color:#555;background:#fff;outline:none;}
+.srch:focus{border-color:#e63c3c;}
+.fsel{border:1px solid #d0d0d0;border-radius:4px;padding:5px 10px;font-size:12px;color:#555;background:#fff;cursor:pointer;}
+
+/* Table */
+.ads-tbl{width:100%;border-collapse:collapse;}
+.ads-tbl th{font-size:12px;color:#aaa;font-weight:500;text-align:left;padding:9px 12px;border-bottom:1px solid #e8e8e8;background:#fafafa;white-space:nowrap;}
+.ads-tbl th .srt{color:#d0d0d0;font-size:9px;margin-left:2px;}
+.ads-tbl td{padding:11px 12px;border-bottom:1px solid #f5f5f5;font-size:13px;vertical-align:middle;}
+.ads-tbl tr:last-child td{border-bottom:none;}
+.ads-tbl tr:hover td{background:#fafafa;}
+.ai-wrap{display:flex;align-items:center;gap:10px;}
+.ai-thumb{width:42px;height:42px;background:#f5f5f5;border-radius:4px;border:1px solid #e8e8e8;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.ai-thumb-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.ai-name{font-size:13px;font-weight:500;margin-bottom:2px;}
+.ai-sub{font-size:11px;color:#aaa;line-height:1.4;}
+.ai-tags{display:flex;gap:4px;margin-top:3px;}
+.stag{font-size:10px;padding:1px 6px;border-radius:3px;font-weight:500;}
+.stag-green{background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f;}
+.stag-amber{background:#fffbe6;color:#d48806;border:1px solid #ffe58f;}
+.stag-blue{background:#e6f4ff;color:#096dd9;border:1px solid #91caff;}
+.stag-gray{background:#f5f5f5;color:#999;border:1px solid #e8e8e8;}
+.stag-red{background:#fff1f0;color:#cf1322;border:1px solid #ffa39e;}
+.sdot{width:5px;height:5px;border-radius:50%;display:inline-block;margin-right:3px;}
+.sdot-g{background:#52c41a;}
+.sdot-o{background:#fa8c16;}
+.sdot-b{background:#1890ff;}
+.sdot-k{background:#bfbfbf;}
+.t-num{font-size:13px;font-weight:500;}
+.t-sub{font-size:11px;color:#aaa;margin-top:1px;}
+.pbar-wrap{width:90px;}
+.pbar{height:4px;background:#f0f0f0;border-radius:2px;margin:3px 0;}
+.pbar-fill{height:4px;border-radius:2px;background:#e63c3c;}
+.pbar-fill.g{background:#52c41a;}
+.act-btn{background:#fff;border:1px solid #d0d0d0;border-radius:3px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;}
+.act-btn:hover{border-color:#e63c3c;color:#e63c3c;}
+.cb{width:14px;height:14px;border:1px solid #ccc;border-radius:2px;cursor:pointer;}
+
+/* ══ CREATE AD PAGE ══ */
+.create-header{background:#fff;border-bottom:1px solid #e8e8e8;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.create-title{font-size:16px;font-weight:600;}
+.create-help{font-size:12px;color:#e63c3c;cursor:pointer;}
+.create-body{padding:20px 24px;display:grid;grid-template-columns:1fr 310px;gap:18px;align-items:start;}
+.form-col{display:flex;flex-direction:column;gap:14px;}
+.sec-card{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:20px 22px;}
+.sec-title{font-size:14px;font-weight:600;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;}
+.sec-learn{font-size:12px;color:#e63c3c;font-weight:400;cursor:pointer;}
+.field{display:flex;align-items:flex-start;margin-bottom:16px;}
+.field:last-child{margin-bottom:0;}
+.flbl{width:160px;flex-shrink:0;font-size:13px;color:#555;padding-top:9px;}
+.flbl.req::after{content:" *";color:#e63c3c;}
+.fbody{flex:1;}
+.finput{width:100%;border:1px solid #d0d0d0;border-radius:5px;padding:7px 10px;font-size:13px;color:#333;outline:none;font-family:inherit;}
+.finput:focus{border-color:#e63c3c;}
+.finput::placeholder{color:#ccc;}
+.fhint{font-size:11px;color:#bbb;margin-top:4px;}
+.fchar{color:#bbb;float:right;}
+.date-row{display:flex;align-items:center;gap:8px;}
+.dinput{border:1px solid #d0d0d0;border-radius:5px;padding:7px 10px;font-size:13px;color:#555;width:145px;outline:none;}
+.dinput:focus{border-color:#e63c3c;}
+.dsep{color:#aaa;}
+.dur-lbl{font-size:12px;color:#e63c3c;font-weight:500;white-space:nowrap;}
+.radio-cards{display:flex;flex-direction:column;gap:8px;}
+.rc{border:1px solid #e8e8e8;border-radius:5px;padding:13px 15px;display:flex;gap:10px;cursor:pointer;transition:border-color .15s,background .15s;}
+.rc:hover{border-color:#e63c3c;}
+.rc.sel{border-color:#e63c3c;background:#fff8f8;}
+.rdot{width:16px;height:16px;border-radius:50%;border:2px solid #ccc;flex-shrink:0;margin-top:2px;background:#fff;display:flex;align-items:center;justify-content:center;}
+.rdot.on{border-color:#e63c3c;}
+.rdot.on::after{content:'';width:8px;height:8px;border-radius:50%;background:#e63c3c;display:block;}
+.rc-title{font-size:13px;font-weight:500;margin-bottom:3px;}
+.rc-desc{font-size:12px;color:#888;line-height:1.5;}
+.tag-grp-title{font-size:12px;font-weight:500;color:#555;margin-bottom:7px;}
+.tag-grp{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.tchip{border:1px solid #d0d0d0;border-radius:4px;padding:5px 11px;font-size:12px;cursor:pointer;background:#fff;color:#555;transition:all .12s;}
+.tchip:hover{border-color:#e63c3c;color:#e63c3c;}
+.tchip.on{border-color:#e63c3c;background:#fff8f8;color:#e63c3c;font-weight:500;}
+.tchip-note{font-size:11px;color:#bbb;margin-top:2px;}
+.spots-row{display:flex;flex-wrap:wrap;gap:7px;}
+.spots-row .tchip{min-width:110px;text-align:center;}
+.create-footer{background:#fff;border-top:1px solid #e8e8e8;padding:12px 24px;display:flex;align-items:center;justify-content:flex-end;gap:10px;position:sticky;bottom:0;z-index:100;}
+.foot-note{margin-right:auto;font-size:12px;color:#aaa;display:flex;align-items:center;gap:5px;}
+.btn-cancel{background:#fff;border:1px solid #d0d0d0;border-radius:5px;padding:7px 18px;font-size:13px;color:#555;cursor:pointer;}
+.btn-cancel:hover{border-color:#e63c3c;color:#e63c3c;}
+.btn-draft{background:#fff;border:1px solid #d0d0d0;border-radius:5px;padding:7px 18px;font-size:13px;color:#555;cursor:pointer;}
+.btn-draft:hover{border-color:#e63c3c;color:#e63c3c;}
+.btn-publish{background:#e63c3c;color:#fff;border:none;border-radius:5px;padding:7px 18px;font-size:13px;font-weight:500;cursor:pointer;}
+.btn-publish:hover{background:#c83030;}
+
+/* Preview panel */
+.preview-panel{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:16px;position:sticky;top:52px;}
+.pv-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.pv-title{font-size:13px;font-weight:600;}
+.pv-viewall{font-size:12px;color:#e63c3c;cursor:pointer;}
+.pv-sel{width:100%;border:1px solid #d0d0d0;border-radius:4px;padding:5px 8px;font-size:12px;color:#555;margin-bottom:12px;outline:none;}
+.pv-sel:focus{border-color:#e63c3c;}
+.locker-frame{border-radius:6px;overflow:hidden;border:1px solid #ddd;background:#e0e0e0;}
+.lf-top{background:#c8c8c8;height:22px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;}
+.lf-brand{font-size:9px;font-weight:700;color:#555;}
+.lf-24{font-size:8px;color:#888;}
+.lf-screen{background:#fff;position:relative;}
+.lf-blank{aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f5f5f5,#eee);position:relative;}
+.lf-placeholder{text-align:center;color:#bbb;}
+.lf-ad-tag{position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,.35);color:#fff;font-size:7px;padding:1px 3px;border-radius:2px;}
+.lf-live{aspect-ratio:9/16;background:linear-gradient(135deg,#e63c3c,#ff7043);display:flex;align-items:center;justify-content:center;position:relative;}
+.lf-cells{background:#c8c8c8;padding:6px;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.lf-cell{background:#b0b0b0;border-radius:2px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:7px;color:#888;}
+.lf-dim{font-size:10px;color:#aaa;text-align:center;margin-top:6px;}
+.pv-note{background:#f8f8f8;border-radius:4px;padding:9px 10px;font-size:11px;color:#777;line-height:1.6;margin-top:10px;}
+.pv-note li{margin-left:14px;margin-bottom:2px;}
+
+/* Upload */
+.upload-zone{border:1.5px dashed #d0d0d0;border-radius:5px;padding:22px;text-align:center;cursor:pointer;background:#fafafa;}
+.upload-zone:hover{border-color:#e63c3c;background:#fff8f8;}
+.spec-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.spec-tag{background:#f5f5f5;border:1px solid #e8e8e8;border-radius:3px;padding:2px 7px;font-size:11px;color:#777;}
+.uploaded-block{border:1px solid #e8e8e8;border-radius:5px;padding:10px;display:flex;gap:10px;align-items:center;background:#fafafa;}
+.upt{width:50px;height:89px;background:linear-gradient(135deg,#e63c3c,#ff7043);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a class="spx-logo" href="#">
+    <div>
+    </div>
+  </a>
+  <div class="tb-divider"></div>
+  <span style="font-size:13px;color:#aaa;">Shipment Portal</span>
+  <div class="tb-right">
+    <div class="tb-icon">🔔<div class="tb-badge"></div></div>
+    <div class="tb-icon">📋</div>
+    <div class="tb-lang">🌐 EN ▾</div>
+    <div class="tb-user"><div class="tb-av">N</div><span>ns****</span> ▾</div>
+  </div>
+</div>
+
+<!-- SHELL -->
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <button class="btn-create-order" onclick="alert('Create order flow')">＋ Create Order ▾</button>
+
+    <div class="sb-item active" id="sb-home" onclick="goHome()">🏠 Main Page</div>
+
+    <div class="sb-item parent" onclick="toggleGroup('my-shipment')">
+      📦 My Shipment
+      <span class="sb-arrow" id="arr-my-shipment">▾</span>
+    </div>
+    <div class="sb-group" id="grp-my-shipment">
+      <a class="sb-child" href="#">Order Tracking</a>
+      <a class="sb-child" href="#">Mass Creation History</a>
+      <a class="sb-child" href="#">Pickup Address</a>
+      <a class="sb-child" href="#">Default Order Options</a>
+    </div>
+
+    <div class="sb-item parent" onclick="toggleGroup('promotion')">
+      🏷 Promotion
+      <span class="sb-arrow" id="arr-promotion">▾</span>
+    </div>
+    <div class="sb-group" id="grp-promotion">
+      <a class="sb-child" href="#">Vouchers</a>
+    </div>
+
+    <!-- Marketing with Locker Ads -->
+    <div class="sb-item parent" id="sb-marketing" onclick="toggleGroup('marketing')">
+      📢 Marketing
+      <span class="sb-arrow open" id="arr-marketing">▾</span>
+    </div>
+    <div class="sb-group open" id="grp-marketing">
+      <a class="sb-child active" id="sb-locker" onclick="goLockerAds();return false;" href="#">Locker Ads</a>
+    </div>
+
+    <div class="sb-item parent" onclick="toggleGroup('finance')">
+      💳 Finance
+      <span class="sb-arrow" id="arr-finance">▾</span>
+    </div>
+    <div class="sb-group" id="grp-finance">
+      <a class="sb-child" href="#">My Income</a>
+      <a class="sb-child" href="#">My Balance</a>
+    </div>
+
+    <div class="sb-item parent" onclick="toggleGroup('account')">
+      👤 Account
+      <span class="sb-arrow" id="arr-account">▾</span>
+    </div>
+    <div class="sb-group" id="grp-account">
+      <a class="sb-child" href="#">Profile</a>
+      <a class="sb-child" href="#">Settings</a>
+    </div>
+
+    <div class="sb-divider"></div>
+    <div style="font-size:11px;color:#bbb;padding:6px 16px;">Term of Service | Privacy Policy</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="main">
+
+  <!-- ══ PAGE: PORTAL HOME ══ -->
+  <div class="page" id="page-home">
+    <div class="portal-header">Main Page</div>
+    <div class="portal-content">
+      <div class="portal-hello">Hi There!</div>
+      <div class="portal-sub">Are you ready to ship some parcels?</div>
+      <div class="create-cards">
+        <div class="create-card"><div class="cc-icon">📦</div><div><div class="cc-title">Single Create</div><div class="cc-desc">Create your order step by step.</div></div></div>
+        <div class="create-card"><div class="cc-icon">📦</div><div><div class="cc-title">Mass Create</div><div class="cc-desc">Create multiple orders at once.</div></div></div>
+        <div class="create-card"><div class="cc-icon">📦</div><div><div class="cc-title">EasyPack Order Create</div><div class="cc-desc">Fill in the SPXTN to create order.</div></div></div>
+      </div>
+      <div class="tracking-section">
+        <div class="tracking-title">Order Tracking</div>
+        <div class="tracking-row">
+          <input class="tracking-input" placeholder="Input a Tracking Number"/>
+          <button class="tracking-btn">Search</button>
+        </div>
+        <div class="tracking-hint">Only allow to track the order you created, and you can view order detail on <a href="#">Order Tracking List</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: LOCKER ADS ══ -->
+  <div class="page active" id="page-locker-ads">
+
+    <div class="ads-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <h2 style="font-size:18px;font-weight:600;">Locker Ads</h2>
+        <button class="btn-new-ad" onclick="goCreate()">＋ Create New Ad</button>
+      </div>
+
+      
+
+      <!-- Rejected Callout Banner -->
+      <div id="ar-banner" style="display:none;background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:12px 16px;align-items:center;gap:12px;">
+        <span style="font-size:18px;flex-shrink:0;">⚠️</span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:#cf1322;" id="ar-banner-text">Your campaign needs attention</div>
+          <div style="font-size:12px;color:#888;margin-top:2px;">SPX has requested changes to your creative. Please review and resubmit before your campaign start date.</div>
+        </div>
+        <button onclick="reviewNow()" style="flex-shrink:0;background:#cf1322;color:#fff;border:none;border-radius:4px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;">Review now</button>
+      </div>
+
+      <!-- 2. Performance -->
+      <div class="perf-card">
+        <div class="perf-body">
+          <div class="perf-head-row">
+            <div class="perf-title">SPX Locker Ads Performance</div>
+            <div class="perf-controls">
+              <div class="date-btn">📅 01/01 – 29/04/2026 (GMT+8)</div>
+              <div class="export-btn">Export Data ▾</div>
+            </div>
+          </div>
+
+          <!-- 4 metrics -->
+          <div class="metric-row">
+            <div class="m-cell">
+              <div class="m-bar-top" style="background:#1890ff;border-radius:2px 0 0 0;"></div>
+              <div class="m-lbl">Impressions <span class="m-q" title="Total times your ad played on locker screens">ⓘ</span></div>
+              <div class="m-val">14,820</div>
+              <div class="m-sub">↑ 12% vs previous period</div>
+            </div>
+            <div class="m-cell">
+              <div class="m-lbl">Active Campaign Days <span class="m-q" title="Total days your campaigns were running">ⓘ</span></div>
+              <div class="m-val">58</div>
+              <div class="m-sub">Across 2 campaigns</div>
+            </div>
+            <div class="m-cell">
+              <div class="m-lbl">Avg. Daily Impressions <span class="m-q" title="Average impressions per active day">ⓘ</span></div>
+              <div class="m-val">256</div>
+              <div class="m-sub">per active day</div>
+            </div>
+            <div class="m-cell">
+              <div class="m-bar-top" style="background:#52c41a;"></div>
+              <div class="m-lbl">CPM <span class="m-q" title="Cost per 1,000 impressions. Lower = more efficient.">ⓘ</span></div>
+              <div class="m-val green">SGD 83.3</div>
+              <div class="m-sub">SGD 1,234 total spend</div>
+            </div>
+          </div>
+
+          <!-- Chart -->
+          <div>
+            <div class="chart-leg">
+              <div class="leg-item"><div class="leg-dot" style="background:#1890ff;"></div>Impressions</div>
+              <div class="leg-item"><div class="leg-dot" style="background:#52c41a;"></div>Avg. Daily</div>
+            </div>
+            <svg width="100%" height="140" viewBox="0 0 900 140" preserveAspectRatio="none">
+              <line x1="0" y1="20" x2="900" y2="20" stroke="#f5f5f5" stroke-width="1"/>
+              <line x1="0" y1="55" x2="900" y2="55" stroke="#f5f5f5" stroke-width="1"/>
+              <line x1="0" y1="90" x2="900" y2="90" stroke="#f5f5f5" stroke-width="1"/>
+              <line x1="0" y1="120" x2="900" y2="120" stroke="#f5f5f5" stroke-width="1"/>
+              <path d="M0,120 C60,110 100,80 160,55 C220,30 260,25 320,30 C380,35 420,50 480,45 C540,40 580,30 640,38 C700,46 750,55 820,50 C860,47 880,48 900,46 L900,140 L0,140Z" fill="#1890ff" fill-opacity=".1"/>
+              <path d="M0,120 C60,110 100,80 160,55 C220,30 260,25 320,30 C380,35 420,50 480,45 C540,40 580,30 640,38 C700,46 750,55 820,50 C860,47 880,48 900,46" fill="none" stroke="#1890ff" stroke-width="2"/>
+              <path d="M0,128 C60,120 100,96 160,74 C220,52 260,47 320,51 C380,55 420,66 480,62 C540,58 580,50 640,56 C700,62 750,70 820,66 C860,64 880,64 900,63 L900,140 L0,140Z" fill="#52c41a" fill-opacity=".08"/>
+              <path d="M0,128 C60,120 100,96 160,74 C220,52 260,47 320,51 C380,55 420,66 480,62 C540,58 580,50 640,56 C700,62 750,70 820,66 C860,64 880,64 900,63" fill="none" stroke="#52c41a" stroke-width="2"/>
+              <text x="2" y="136" font-size="9" fill="#bbb" font-family="sans-serif">01/01</text>
+              <text x="175" y="136" font-size="9" fill="#bbb" font-family="sans-serif">01/02</text>
+              <text x="355" y="136" font-size="9" fill="#bbb" font-family="sans-serif">01/03</text>
+              <text x="535" y="136" font-size="9" fill="#bbb" font-family="sans-serif">01/04</text>
+              <text x="715" y="136" font-size="9" fill="#bbb" font-family="sans-serif">29/04</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Ad list -->
+      
+            <div class="list-card" id="ads-list-section">
+        <div class="list-head"><div class="list-title">SPX Locker Ads List</div></div>
+        
+        <div class="list-filters">
+          <input class="srch" placeholder="🔍  Search Campaign Name"/>
+          <select class="fsel"><option>All Exposure Types</option><option>By Spots</option><option>By Duration</option></select>
+          <select class="fsel"><option>All Regions</option><option>North East</option><option>Central</option><option>West</option><option>East</option><option>North</option><option>Island-wide</option></select>
+          <select class="fsel" id="status-filter" onchange="filterByStatus(this.value)"><option value="">All Statuses</option><option value="Pending review">Pending review</option><option value="Rejected">Rejected</option><option value="Scheduled">Scheduled</option><option value="Live">Live</option><option value="Completed">Completed</option><option value="Suspended">Suspended</option></select>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="ads-tbl">
+            <thead>
+              <tr>
+                <th style="width:30px;"><div class="cb"></div></th>
+                <th style="min-width:240px;">Ad Info</th>
+                <th>Exposure Type <span class="srt">⇅</span></th>
+                <th>Campaign Period</th>
+                <th>Impressions <span class="srt">⇅</span></th>
+                <th>Spend <span class="srt">⇅</span></th>
+                <th>CPM <span class="srt">⇅</span></th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-status="Live">
+                <td><div class="cb"></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div class="ai-thumb-inner" style="background:linear-gradient(135deg,#e63c3c,#ff7043);">🏪</div></div><div><div class="ai-name">Brand Campaign — Spring</div><div class="ai-sub">By Spots · NE + Central · MRT + HDB<br>01 Mar – 31 May 2026</div><div class="ai-tags"><span class="stag stag-green"><span class="sdot sdot-g"></span>Live</span></div></div></div></td>
+                <td><div class="t-num">By Spots</div><div class="t-sub">3,000 spots</div></td>
+                <td><div class="t-num">01 Mar – 31 May</div><div class="t-sub">Running</div></td>
+                <td><div class="t-num">8,820</div><div class="t-sub">↑ active</div></td>
+                <td><div class="t-num">SGD 441</div></td>
+                <td><div class="t-num">SGD 50.0</div><div class="t-sub">per 1,000 impr.</div></td>
+                <td><span class="stag stag-green"><span class="sdot sdot-g"></span>Live</span></td>
+                <td><button class="act-btn" onclick="openPanel('view','spring-nss')">View</button></td>
+              </tr>
+              <tr data-status="Pending review">
+                <td><div class="cb"></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div style="font-size:20px;">🖼️</div></div><div><div class="ai-name">Q2 Brand Awareness</div><div class="ai-sub">By Spots · Island-wide<br>01 May – 30 Jun 2026</div><div class="ai-tags"><span class="stag stag-amber"><span class="sdot sdot-o"></span>Pending review</span></div></div></div></td>
+                <td><div class="t-num">By Spots</div><div class="t-sub">6,000 spots</div></td>
+                <td><div class="t-num">01 May – 30 Jun</div><div class="t-sub">Starts in 2 days</div></td>
+                <td><div class="t-sub">—</div></td>
+                <td><div class="t-num">SGD 800</div><div class="t-sub">booked</div></td>
+                <td><div class="t-sub">—</div></td>
+                <td><span class="stag stag-amber"><span class="sdot sdot-o"></span>Pending review</span></td>
+                <td><button class="act-btn">View</button></td>
+              </tr>
+              <!-- Rejected row -->
+              <tr style="background:#fffbe6;" data-status="Rejected">
+                <td><div class="cb"></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div style="font-size:20px;">⚠️</div></div><div><div class="ai-name">Summer Launch 2026</div><div class="ai-sub">By Spots · Island-wide<br>15 May – 15 Jun 2026</div><div class="ai-tags"><span class="stag stag-red"><span class="sdot sdot-r"></span>Rejected</span></div></div></div></td>
+                <td><div class="t-num">By Spots</div><div class="t-sub">6,000 spots</div></td>
+                <td><div class="t-num">15 May – 15 Jun</div><div class="t-sub">Starts in 16 days</div></td>
+                <td><div class="t-sub">—</div></td>
+                <td><div class="t-num">SGD 800</div><div class="t-sub">booked</div></td>
+                <td><div class="t-sub">—</div></td>
+                <td><span class="stag stag-red"><span class="sdot sdot-r"></span>Rejected</span></td>
+                <td><button class="act-btn" style="border-color:#cf1322;color:#cf1322;" onclick="openPanel('review','summer-nss')">Review</button></td>
+              </tr>
+              <tr data-status="Completed">
+                <td><div class="cb"></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div class="ai-thumb-inner" style="background:linear-gradient(135deg,#a8edea,#fed6e3);">✨</div></div><div><div class="ai-name">Year-End Promo 2025</div><div class="ai-sub">By Duration · Island-wide<br>01 Dec – 31 Dec 2025</div><div class="ai-tags"><span class="stag stag-gray"><span class="sdot sdot-k"></span>Completed</span></div></div></div></td>
+                <td><div class="t-num">By Duration</div><div class="t-sub">28 days</div></td>
+                <td><div class="t-num">01–31 Dec 2025</div><div class="t-sub">Completed</div></td>
+                <td><div class="t-num">6,000</div><div class="t-sub">completed</div></td>
+                <td><div class="t-num">SGD 800</div></td>
+                <td><div class="t-num">SGD 66.7</div><div class="t-sub">per 1,000 impr.</div></td>
+                <td><span class="stag stag-gray"><span class="sdot sdot-k"></span>Completed</span></td>
+                <td><button class="act-btn" onclick="openPanel('view','yearend-nss')">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- ads-content -->
+  </div><!-- page-locker-ads -->
+
+  <!-- ══ PAGE: CREATE AD ══ -->
+  <div class="page" id="page-create">
+    <div class="create-header">
+      <div class="create-title">Create SPX Locker Ad</div>
+      <div class="create-help">ⓘ What is SPX Locker Ads?</div>
+    </div>
+
+    <div class="create-body">
+      <div class="form-col">
+
+        <!-- Basic Info -->
+        <div class="sec-card">
+          <div class="sec-title">Basic Info</div>
+          <div class="field">
+            <div class="flbl req">Ad Name</div>
+            <div class="fbody">
+              <input class="finput" id="ad-name" maxlength="50" oninput="document.getElementById('nc').textContent=this.value.length"/>
+              <div class="fhint"><span id="nc">0</span>/50 <span class="fchar">Your ad name will not be shown to buyers.</span></div>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <div class="flbl req">Campaign Period</div>
+            <div class="fbody">
+              <div class="date-row">
+                <input type="date" class="dinput" id="sd" onchange="calcDur()"/>
+                <span class="dsep">→</span>
+                <input type="date" class="dinput" id="ed" onchange="calcDur()"/>
+                <span class="dur-lbl" id="dur-lbl"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ad Exposure -->
+        <div class="sec-card">
+          <div class="sec-title">Ad Exposure <span class="sec-learn">ⓘ Learn more</span></div>
+
+          <div class="field">
+            <div class="flbl req">Exposure Type</div>
+            <div class="fbody">
+              <div class="radio-cards">
+                <div class="rc" id="rc-spots" onclick="selExp('spots')">
+                  <div class="rdot" id="rd-spots"></div>
+                  <div>
+                    <div class="rc-title">By number of spots</div>
+                    <div class="rc-desc">Your ad plays until the selected number of impressions is reached, then stops. Gives you fixed, predictable exposure.</div>
+                  </div>
+                </div>
+                <div class="rc" id="rc-dur" onclick="selExp('dur')">
+                  <div class="rdot" id="rd-dur"></div>
+                  <div>
+                    <div class="rc-title">By duration</div>
+                    <div class="rc-desc">Your ad runs for the full campaign period. A minimum number of spots is guaranteed — any additional plays are a bonus.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field" id="spots-field" style="display:none;">
+            <div class="flbl req">No. of Spots</div>
+            <div class="fbody">
+              <div class="spots-row" id="spots-opts">
+                <div class="tchip" onclick="selSpots(this,3000)">3,000 spots</div>
+                <div class="tchip" onclick="selSpots(this,6000)">6,000 spots</div>
+                <div class="tchip" onclick="selSpots(this,9000)">9,000 spots</div>
+              </div>
+              <div class="tchip-note">Campaign stops automatically once the selected number of spots is reached.</div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:0;">
+            <div class="flbl req">Location</div>
+            <div class="fbody">
+              <div class="tag-grp-title">By Region</div>
+              <div class="tag-grp">
+                <div class="tchip" onclick="tog(this)">North East</div>
+                <div class="tchip" onclick="tog(this)">Central</div>
+                <div class="tchip" onclick="tog(this)">West</div>
+                <div class="tchip" onclick="tog(this)">East</div>
+                <div class="tchip" onclick="tog(this)">North</div>
+                <div class="tchip" onclick="tog(this)">Island-wide</div>
+              </div>
+              <div class="tag-grp-title">By Location Type</div>
+              <div class="tag-grp" style="margin-bottom:4px;">
+                <div class="tchip" onclick="tog(this)">MRT Stations</div>
+                <div class="tchip" onclick="tog(this)">HDB Residential</div>
+                <div class="tchip" onclick="tog(this)">Shopping Malls</div>
+                <div class="tchip" onclick="tog(this)">Bus Interchanges</div>
+                <div class="tchip" onclick="tog(this)">Community Clubs</div>
+                <div class="tchip" onclick="tog(this)">Offices</div>
+              </div>
+              <div class="tchip-note">SPX will allocate the most relevant lockers within your selected region and location type.</div>
+
+              <!-- Estimated Results inline red box -->
+              <div style="background:#fff2f0;border:1px solid #ffccc7;border-radius:5px;padding:12px 14px;margin-top:12px;">
+                <div style="font-size:11px;font-weight:600;color:#cf1322;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em;">Estimated Results</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div>
+                    <div style="font-size:12px;color:#888;margin-bottom:3px;">Impressions ⓘ</div>
+                    <div id="est-impr" style="font-size:13px;font-weight:600;color:#cf1322;">—</div>
+                    <div style="font-size:11px;color:#aaa;margin-top:2px;">Based on selection</div>
+                  </div>
+                  <div>
+                    <div style="font-size:12px;color:#888;margin-bottom:3px;">Cost ⓘ</div>
+                    <div id="est-cost" style="font-size:13px;font-weight:600;color:#cf1322;">—</div>
+                    <div id="est-cost-note" style="font-size:11px;color:#aaa;margin-top:2px;line-height:1.5;">Select exposure type</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Creative -->
+        <div class="sec-card">
+          <div class="sec-title">Creative <span class="sec-learn">Creative Guideline</span></div>
+          <div class="fhint" style="margin-bottom:12px;">Banners are required. JPG or PNG · 1080 × 1920 px · Max 10 MB. <span style="color:#e63c3c;cursor:pointer;">Creative Guideline</span></div>
+          <div class="field" style="margin-bottom:0;">
+            <div class="flbl req">Locker Banner</div>
+            <div class="fbody">
+              <div id="upload-zone" class="upload-zone" onclick="doUpload()">
+                <div style="font-size:26px;margin-bottom:7px;color:#bbb;">☁️</div>
+                <div style="font-size:13px;font-weight:500;margin-bottom:4px;">Upload your banner</div>
+                <div style="font-size:12px;color:#bbb;">Drag and drop, or click to browse</div>
+              </div>
+              <div id="uploaded" style="display:none;">
+                <div class="uploaded-block">
+                  <div class="upt">🖼️</div>
+                  <div style="flex:1;">
+                    <div style="font-size:13px;font-weight:500;">my_locker_banner.jpg</div>
+                    <div style="font-size:11px;color:#aaa;margin-top:2px;">1080 × 1920 px · 2.3 MB</div>
+                    <div style="margin-top:5px;"><span class="stag stag-gray">Pending SPX review</span></div>
+                  </div>
+                  <button onclick="rmUpload()" style="background:transparent;border:none;color:#bbb;font-size:18px;cursor:pointer;">✕</button>
+                </div>
+              </div>
+              <div style="margin-top:10px;background:#f8f8f8;border-radius:5px;padding:10px 12px;">
+                <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">What SPX reviews</div>
+                <ul style="font-size:12px;color:#666;line-height:1.9;padding-left:16px;">
+                  <li>No competitor brand logos or references</li>
+                  <li>All claims must be factual and verifiable — no misleading statistics</li>
+                  <li>Suitable for general audiences, including children</li>
+                  <li>Key content must sit within the safe zone (80px from all edges)</li>
+                  <li>Text must be legible from 0.5m — minimum 60px font size</li>
+                  <li>QR codes must be at least 200×200px and scannable from 0.5m</li>
+                  <li>No flashing or strobing visuals</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- form-col -->
+
+      <!-- Preview panel -->
+      <div class="preview-panel">
+        <div class="pv-head">
+          <div class="pv-title">Locker Preview</div>
+        </div>
+        <div class="locker-frame">
+          <div class="lf-top">
+            <span class="lf-brand">SPX Express</span>
+            <span class="lf-24">OPEN 24 HRS</span>
+          </div>
+          <div class="lf-screen">
+            <div id="pv-blank" class="lf-blank">
+              <div class="lf-placeholder"><div style="font-size:28px;color:#ddd;margin-bottom:6px;">🖼️</div><div style="font-size:11px;">Show creative here</div></div>
+              <div class="lf-ad-tag">Ad</div>
+            </div>
+            <div id="pv-live" class="lf-live" style="display:none;">
+              <div style="text-align:center;color:#fff;padding:16px;">
+                <div style="font-size:10px;opacity:.7;margin-bottom:5px;">✨ EXCLUSIVE OFFER</div>
+                <div style="font-size:13px;font-weight:700;margin-bottom:6px;">Your Brand</div>
+                <div style="font-size:10px;opacity:.9;">Reach buyers at<br>the locker</div>
+                <div style="margin-top:12px;background:#fff;color:#e63c3c;font-size:9px;font-weight:700;padding:3px 10px;border-radius:3px;display:inline-block;">LEARN MORE →</div>
+              </div>
+              <div class="lf-ad-tag">Ad</div>
+            </div>
+          </div>
+          <div class="lf-cells">
+            <div class="lf-cell">A1</div><div class="lf-cell">A2</div><div class="lf-cell">A3</div>
+            <div class="lf-cell">B1</div><div class="lf-cell">B2</div><div class="lf-cell">B3</div>
+            <div class="lf-cell">C1</div><div class="lf-cell">C2</div><div class="lf-cell">C3</div>
+          </div>
+        </div>
+        <div class="lf-dim">Screen: 270mm × 480mm · 9:16 portrait</div>
+        <div class="pv-note">
+          <strong>Note:</strong>
+          <ul>
+            <li>Ad displays on the locker screen while buyers collect their parcel.</li>
+            <li>SPX allocates lockers based on your selected region and location type.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- create-body -->
+
+    <div class="create-footer">
+      <button class="btn-cancel" onclick="goLockerAds()">Cancel</button>
+      <button class="btn-publish" onclick="doPublish()">Submit for Review</button>
+    </div>
+  </div><!-- page-create -->
+
+  </div><!-- main -->
+</div><!-- shell -->
+
+<script>
+// ── RATE CARD (matches Shopee seller portal) ──
+const PRICE_PER_SPOT = 0.15; // SGD per spot (demo rate; actual rate set per merchant type in Finance Portal)
+const EST_SPOTS_PER_WEEK = 1400; // estimated spots/week for duration campaigns (demo flat estimate)
+const MIN_SPOTS_PER_WEEK = 3000;
+const PRICES = {3000: 450, 6000: 900, 9000: 1350}; // derived: spots × SGD 0.15/spot
+let curExpType = null, curSpots = null;
+
+// ── NAV ──
+function goHome(){
+  setPage('page-home');
+  document.getElementById('sb-home').classList.add('active');
+  document.getElementById('sb-locker').classList.remove('active');
+}
+function goLockerAds(){
+  setPage('page-locker-ads');
+  document.getElementById('sb-home').classList.remove('active');
+  document.getElementById('sb-locker').classList.add('active');
+  // ensure marketing group open
+  document.getElementById('grp-marketing').classList.add('open');
+  document.getElementById('arr-marketing').classList.add('open');
+}
+function goCreate(){
+  setPage('page-create');
+  document.getElementById('sb-locker').classList.add('active');
+}
+function setPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('main').scrollTop = 0;
+}
+
+// ── SIDEBAR TOGGLES ──
+function toggleGroup(id){
+  const grp = document.getElementById('grp-'+id);
+  const arr = document.getElementById('arr-'+id);
+  if(!grp) return;
+  grp.classList.toggle('open');
+  if(arr) arr.classList.toggle('open');
+}
+
+// ── DURATION ──
+function calcDur(){
+  const s = new Date(document.getElementById('sd').value);
+  const e = new Date(document.getElementById('ed').value);
+  if(s && e && e > s){
+    const d = Math.round((e - s) / 86400000);
+    const w = Math.round(d / 7);
+    document.getElementById('dur-lbl').textContent = isNaN(w)||w<=0 ? (d+' day'+(d!==1?'s':'')) : (w+' week'+(w!==1?'s':''));
+  } else {
+    document.getElementById('dur-lbl').textContent = '';
+  }
+  if(curExpType === 'dur') calcDurCost();
+}
+function calcDurCost(){
+  const s = new Date(document.getElementById('sd').value);
+  const e = new Date(document.getElementById('ed').value);
+  if(!s || !e || e <= s){
+    document.getElementById('est-cost').textContent = '—';
+    document.getElementById('est-impr').textContent = '—';
+    document.getElementById('est-cost-note').textContent = 'Set campaign period to see estimated cost.';
+    return;
+  }
+  const weeks = Math.max(1, Math.round((e - s) / (7 * 86400000)));
+  const estSpots = weeks * EST_SPOTS_PER_WEEK;
+  const cost = Math.round(estSpots * PRICE_PER_SPOT);
+  document.getElementById('est-impr').textContent = estSpots.toLocaleString() + ' (estimated)';
+  document.getElementById('est-cost').textContent = 'SGD ' + cost.toLocaleString();
+  document.getElementById('est-cost-note').textContent = 'Indicative estimate. Final cost confirmed on SPX review. GST applicable.';
+}
+
+// ── EXPOSURE TYPE ──
+function selExp(type){
+  curExpType = type;
+  ['spots','dur'].forEach(t => {
+    document.getElementById('rc-'+t).classList.toggle('sel', t===type);
+    const dot = document.getElementById('rd-'+t);
+    dot.classList.toggle('on', t===type);
+  });
+  document.getElementById('spots-field').style.display = type==='spots' ? 'flex' : 'none';
+  if(type === 'dur'){
+    curSpots = null;
+    calcDurCost();
+  } else {
+    if(!curSpots){
+      document.getElementById('est-impr').textContent = '—';
+      document.getElementById('est-cost').textContent = '—';
+      document.getElementById('est-cost-note').textContent = 'Select number of spots to see estimated cost.';
+    }
+  }
+}
+function selSpots(el, val){
+  document.querySelectorAll('#spots-opts .tchip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  curSpots = val;
+  const sp = PRICES[val];
+  document.getElementById('est-impr').textContent = val ? val.toLocaleString() : '—';
+  const spotCost = sp ? Math.round(val * PRICE_PER_SPOT) : null;
+  document.getElementById('est-cost').textContent = spotCost ? 'SGD ' + spotCost.toLocaleString() : '—';
+  document.getElementById('est-cost-note').textContent = spotCost ? 'Indicative estimate. Final cost confirmed on SPX review. GST applicable.' : '';
+}
+
+// ── CHIPS ──
+function tog(el){ el.classList.toggle('on'); }
+
+// ── UPLOAD ──
+function doUpload(){
+  document.getElementById('upload-zone').style.display = 'none';
+  document.getElementById('uploaded').style.display = 'block';
+  document.getElementById('pv-blank').style.display = 'none';
+  document.getElementById('pv-live').style.display = 'flex';
+}
+function rmUpload(){
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('uploaded').style.display = 'none';
+  document.getElementById('pv-blank').style.display = 'flex';
+  document.getElementById('pv-live').style.display = 'none';
+}
+
+// ── PUBLISH ──
+function doPublish(){
+  alert('Campaign submitted for SPX review.\n\nYou will be notified within 2 business days once your creative and campaign details have been approved.');
+  goLockerAds();
+}
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', function(){
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2,'0');
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const yyyy = today.getFullYear();
+  const el = document.getElementById('ad-name');
+  if(el){ el.value = 'Locker Ad ' + dd + '/' + mm + '/' + yyyy; document.getElementById('nc').textContent = el.value.length; }
+  // Start on Locker Ads page for demo
+  goLockerAds();
+});
+</script>
+
+<!-- CAMPAIGN DETAIL / REVIEW PANEL -->
+<div id="side-panel" style="display:none;position:fixed;top:0;right:0;bottom:0;width:420px;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,.12);z-index:500;display:none;flex-direction:column;overflow:hidden;">
+  <div style="padding:16px 20px;border-bottom:1px solid #e8e8e8;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;">
+    <div>
+      <div id="panel-title" style="font-size:15px;font-weight:600;"></div>
+      <div id="panel-ref" style="font-size:11px;color:#aaa;margin-top:2px;"></div>
+    </div>
+    <button onclick="closePanel()" style="background:transparent;border:none;font-size:20px;cursor:pointer;color:#aaa;padding:2px;">✕</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:18px 20px;" id="panel-body"></div>
+</div>
+<div id="panel-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:499;" onclick="closePanel()"></div>
+<script>
+// ── PANEL DATA ──
+const CAMPAIGNS = {
+  'spring-nss':  {name:'Brand Campaign — Spring', ref:'SPX-NSS-2026-00101', period:'01 Mar – 31 May 2026', exposure:'By Spots · 3,000', location:'NE + Central · MRT + HDB', status:'Live',  statusClass:'stag-green', spend:'SGD 441', impressions:'8,820', cpm:'SGD 50.0', creative:'banner_spring.jpg', flag:null},
+  'q2-nss':      {name:'Q2 Brand Awareness',       ref:'SPX-NSS-2026-00118', period:'01 May – 30 Jun 2026', exposure:'By Spots · 6,000', location:'Island-wide',           status:'Pending review', statusClass:'stag-amber', spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'q2_brand.jpg',     flag:null},
+  'summer-nss':  {name:'Summer Launch 2026',        ref:'SPX-NSS-2026-00124', period:'15 May – 15 Jun 2026', exposure:'By Spots · 6,000', location:'Island-wide',           status:'Rejected',statusClass:'stag-red',   spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'summer_v1.jpg',     flag:'SPX reviewed your creative and found an issue. Please upload a revised banner before your campaign start date (15 May).', remarks:'Competitor brand logo detected in the bottom-right corner of the banner. Please remove any references to competing logistics or delivery brands before resubmitting.'},
+  'yearend-nss': {name:'Year-End Promo 2025',       ref:'SPX-NSS-2025-00088', period:'01–31 Dec 2025',       exposure:'By Duration · 28 days', location:'Island-wide',    status:'Completed',          statusClass:'stag-gray',  spend:'SGD 800 (invoiced on completion)', impressions:'6,000', cpm:'SGD 66.7', creative:'yearend.jpg',      flag:null},
+};
+
+function openPanel(mode, id){
+  const c = CAMPAIGNS[id];
+  if(!c) return;
+  document.getElementById('panel-title').textContent = c.name;
+  document.getElementById('panel-ref').textContent = c.ref;
+  let body = '';
+  if(mode==='view'){
+    body += `<div style="display:flex;gap:6px;margin-bottom:16px;"><span class="stag ${c.statusClass}">${c.status}</span></div>`;
+    body += `<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">`;
+    const rows=[['Period',c.period],['Exposure',c.exposure],['Location',c.location],['Spend',c.spend],['Impressions',c.impressions],['CPM',c.cpm]];
+    rows.forEach(([l,v])=>{body+=`<tr><td style="color:#aaa;padding:6px 0;border-bottom:1px solid #f5f5f5;width:120px;">${l}</td><td style="padding:6px 0;border-bottom:1px solid #f5f5f5;font-weight:500;">${v}</td></tr>`;});
+    body += `</table>`;
+    body += `<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;">Creative</div>`;
+    body += `<div style="background:#f5f5f5;border:1px solid #e8e8e8;border-radius:5px;padding:10px;display:flex;gap:10px;align-items:center;">`;
+    body += `<div style="width:44px;height:78px;background:#e0e0e0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🖼️</div>`;
+    body += `<div><div style="font-size:13px;font-weight:500;">${c.creative}</div><div style="font-size:11px;color:#aaa;margin-top:2px;">Uploaded</div></div></div>`;
+  } else {
+    // Review mode — show issue + upload action
+    body += `<div style="background:#fff1f0;border:1px solid #ffa39e;border-radius:6px;padding:12px 14px;margin-bottom:16px;display:flex;gap:8px;"><span style="font-size:16px;flex-shrink:0;">⚠️</span><div><div style="font-size:13px;font-weight:600;color:#cf1322;margin-bottom:4px;">Creative rejected by SPX</div><div style="font-size:12px;color:#555;line-height:1.6;">${c.flag}</div></div></div>`;
+    body += `<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">`;
+    const rows=[['Period',c.period],['Exposure',c.exposure],['Location',c.location]];
+    rows.forEach(([l,v])=>{body+=`<tr><td style="color:#aaa;padding:6px 0;border-bottom:1px solid #f5f5f5;width:120px;">${l}</td><td style="padding:6px 0;border-bottom:1px solid #f5f5f5;font-weight:500;">${v}</td></tr>`;});
+    body += `</table>`;
+    body += `<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;">Current creative (flagged)</div>`;
+    body += `<div style="background:#fff1f0;border:1px solid #ffa39e;border-radius:5px;padding:10px;display:flex;gap:10px;align-items:center;margin-bottom:14px;">`;
+    body += `<div style="width:44px;height:78px;background:#ffd6d6;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">⚠️</div>`;
+    body += `<div><div style="font-size:13px;font-weight:500;">${c.creative}</div><div style="font-size:11px;color:#cf1322;margin-top:2px;">Flagged by SPX</div></div></div>`;
+    body += `<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">Remarks from SPX</div>`;
+    body += `<div style="border:1px solid #e8e8e8;border-radius:5px;padding:10px 12px;font-size:12px;color:#555;line-height:1.6;margin-bottom:14px;background:#fafafa;">`+c.remarks+`</div>`;
+    body += `<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;">Upload revised creative</div>`;
+    body += `<div onclick="alert('File picker opened')" style="border:1.5px dashed #d0d0d0;border-radius:5px;padding:18px;text-align:center;cursor:pointer;background:#fafafa;">`;
+    body += `<div style="font-size:22px;color:#bbb;margin-bottom:6px;">☁️</div><div style="font-size:13px;font-weight:500;margin-bottom:3px;">Upload revised banner</div>`;
+    body += `<div style="font-size:12px;color:#bbb;">JPG or PNG · 1080×1920 px · Max 10 MB</div></div>`;
+    body += `<div style="border:1px solid #e8e8e8;border-radius:5px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#555;line-height:1.8;background:#fafafa;"><div style="font-weight:600;color:#555;margin-bottom:4px;">Creative guidelines</div>• Dimensions: 1080×1920 px (9:16 portrait)<br>• Format: JPG or PNG · RGB colour mode · Max 10 MB<br>• Keep text 80px from all edges (bezel safe zone)<br>• Minimum font size 24px<br>• Suitable for all ages including children<br>• No misleading claims or unverifiable statistics<br>• QR codes must be min 200×200 px and scannable from 0.5m</div>`;
+    body += `<div style="display:flex;gap:8px;"><button onclick="closePanel()" style="background:#fff;border:1px solid #d0d0d0;border-radius:4px;padding:7px 16px;font-size:13px;cursor:pointer;">Cancel</button><button onclick="alert('Creative submitted for re-review');closePanel();" style="background:#e63c3c;color:#fff;border:none;border-radius:4px;padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer;flex:1;">Submit for re-review</button></div>`;
+  }
+  document.getElementById('panel-body').innerHTML = body;
+  document.getElementById('side-panel').style.display = 'flex';
+  document.getElementById('panel-overlay').style.display = 'block';
+}
+function closePanel(){
+  document.getElementById('side-panel').style.display = 'none';
+  document.getElementById('panel-overlay').style.display = 'none';
+}
+
+// ── STATUS FILTER ──
+function filterByStatus(status) {
+  const rows = document.querySelectorAll('.ads-tbl tbody tr');
+  rows.forEach(row => {
+    if (!status || row.dataset.status === status) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+}
+
+// ── REVIEW NOW ──
+function reviewNow() {
+  // Set status filter to Rejected
+  const sel = document.getElementById('status-filter');
+  if (sel) { sel.value = 'Rejected'; filterByStatus('Rejected'); }
+  // Scroll to list section
+  const el = document.getElementById('ads-list-section');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── INIT BANNER ──
+function initBanner() {
+  const arRows = document.querySelectorAll('.ads-tbl tbody tr[data-status="Rejected"]');
+  const banner = document.getElementById('ar-banner');
+  if (arRows.length > 0 && banner) {
+    const txt = document.getElementById('ar-banner-text');
+    if (txt) txt.textContent = arRows.length === 1
+      ? '1 campaign needs your attention'
+      : arRows.length + ' campaigns need your attention';
+    banner.style.display = 'flex';
+  }
+}
+document.addEventListener('DOMContentLoaded', initBanner);
+
+</script>
+</body>
+</html>
