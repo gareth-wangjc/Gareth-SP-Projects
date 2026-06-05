@@ -102,7 +102,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .export-btn{border:1px solid #d0d0d0;border-radius:4px;padding:5px 10px;font-size:12px;color:#666;cursor:pointer;background:#fff;}
 
 /* Metric row */
-.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;margin-bottom:14px;}
+.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;margin-bottom:14px;}
 .m-cell{padding:14px 16px;border-right:1px solid #e8e8e8;position:relative;}
 .m-cell:last-child{border-right:none;}
 .m-bar-top{position:absolute;top:0;left:0;right:0;height:3px;}
@@ -365,9 +365,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <span style="font-size:18px;flex-shrink:0;">⚠️</span>
         <div style="flex:1;">
           <div style="font-size:13px;font-weight:600;color:#cf1322;" id="ar-banner-text">Your campaign needs attention</div>
-          <div style="font-size:12px;color:#888;margin-top:2px;">SPX has requested changes to your creative. Please review and resubmit before your campaign start date.</div>
+          <div style="font-size:12px;color:#888;margin-top:2px;">SPX has requested changes to your creative(s). Please review and resubmit before your campaign start date.</div>
         </div>
         <button onclick="reviewNow()" style="flex-shrink:0;background:#cf1322;color:#fff;border:none;border-radius:4px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;">Review now</button>
+      </div>
+
+      <!-- Cancelled Callout Banner -->
+      <div id="cancel-banner" style="display:none;background:#fafafa;border:1px solid #d9d9d9;border-radius:6px;padding:12px 16px;align-items:center;gap:12px;">
+        <span style="font-size:18px;flex-shrink:0;">ℹ️</span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:#555;" id="cancel-banner-text">1 campaign has been cancelled by SPX</div>
+          <div style="font-size:12px;color:#888;margin-top:2px;">Please check the cancellation reason in the campaign details.</div>
+        </div>
+        <button onclick="viewCancelledCampaigns()" style="flex-shrink:0;background:#555;color:#fff;border:none;border-radius:4px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;">View details</button>
+        <button onclick="dismissCancelBanner()" style="flex-shrink:0;background:transparent;border:none;font-size:18px;cursor:pointer;color:#aaa;padding:2px 4px;line-height:1;">×</button>
       </div>
 
       <!-- 2. Performance -->
@@ -385,7 +396,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="metric-row">
             <div class="m-cell">
               <div class="m-bar-top" style="background:#1890ff;border-radius:2px 0 0 0;"></div>
-              <div class="m-lbl">Impressions <span class="m-q" title="Total times your ad played on locker screens">ⓘ</span></div>
+              <div class="m-lbl">Spots played <span class="m-q" title="Total number of times your ad played on locker screens">ⓘ</span></div>
               <div class="m-val">14,820</div>
               <div class="m-sub">↑ 12% vs previous period</div>
             </div>
@@ -395,14 +406,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <div class="m-sub">Across 2 campaigns</div>
             </div>
             <div class="m-cell">
-              <div class="m-lbl">Avg. Daily Impressions <span class="m-q" title="Average impressions per active day">ⓘ</span></div>
-              <div class="m-val">256</div>
-              <div class="m-sub">per active day</div>
-            </div>
-            <div class="m-cell">
               <div class="m-bar-top" style="background:#52c41a;"></div>
-              <div class="m-lbl">CPM <span class="m-q" title="Cost per 1,000 impressions. Lower = more efficient.">ⓘ</span></div>
-              <div class="m-val green">SGD 83.3</div>
+              <div class="m-lbl">Cost per 1,000 spots <span class="m-q" title="Total spend ÷ spots played × 1,000. Lower = more efficient.">ⓘ</span></div>
+              <div class="m-val green">SGD 83.30</div>
               <div class="m-sub">SGD 1,234 total spend</div>
             </div>
           </div>
@@ -410,8 +416,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <!-- Chart -->
           <div>
             <div class="chart-leg">
-              <div class="leg-item"><div class="leg-dot" style="background:#1890ff;"></div>Impressions</div>
-              <div class="leg-item"><div class="leg-dot" style="background:#52c41a;"></div>Avg. Daily</div>
+              <div class="leg-item"><div class="leg-dot" style="background:#1890ff;"></div>Spots played</div>
             </div>
             <svg width="100%" height="140" viewBox="0 0 900 140" preserveAspectRatio="none">
               <line x1="0" y1="20" x2="900" y2="20" stroke="#f5f5f5" stroke-width="1"/>
@@ -420,8 +425,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <line x1="0" y1="120" x2="900" y2="120" stroke="#f5f5f5" stroke-width="1"/>
               <path d="M0,120 C60,110 100,80 160,55 C220,30 260,25 320,30 C380,35 420,50 480,45 C540,40 580,30 640,38 C700,46 750,55 820,50 C860,47 880,48 900,46 L900,140 L0,140Z" fill="#1890ff" fill-opacity=".1"/>
               <path d="M0,120 C60,110 100,80 160,55 C220,30 260,25 320,30 C380,35 420,50 480,45 C540,40 580,30 640,38 C700,46 750,55 820,50 C860,47 880,48 900,46" fill="none" stroke="#1890ff" stroke-width="2"/>
-              <path d="M0,128 C60,120 100,96 160,74 C220,52 260,47 320,51 C380,55 420,66 480,62 C540,58 580,50 640,56 C700,62 750,70 820,66 C860,64 880,64 900,63 L900,140 L0,140Z" fill="#52c41a" fill-opacity=".08"/>
-              <path d="M0,128 C60,120 100,96 160,74 C220,52 260,47 320,51 C380,55 420,66 480,62 C540,58 580,50 640,56 C700,62 750,70 820,66 C860,64 880,64 900,63" fill="none" stroke="#52c41a" stroke-width="2"/>
               <text x="2" y="136" font-size="9" fill="#bbb" font-family="sans-serif">01/01</text>
               <text x="175" y="136" font-size="9" fill="#bbb" font-family="sans-serif">01/02</text>
               <text x="355" y="136" font-size="9" fill="#bbb" font-family="sans-serif">01/03</text>
@@ -441,7 +444,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <input class="srch" placeholder="🔍  Search Campaign Name"/>
           <select class="fsel"><option>All Exposure Types</option><option>By Spots</option><option>By Duration</option></select>
           <select class="fsel"><option>All Regions</option><option>North East</option><option>Central</option><option>West</option><option>East</option><option>North</option><option>Island-wide</option></select>
-          <select class="fsel" id="status-filter" onchange="filterByStatus(this.value)"><option value="">All Statuses</option><option value="Pending review">Pending review</option><option value="Rejected">Rejected</option><option value="Scheduled">Scheduled</option><option value="Live">Live</option><option value="Completed">Completed</option><option value="Suspended">Suspended</option></select>
+          <select class="fsel" id="status-filter" onchange="filterByStatus(this.value)"><option value="">All Statuses</option><option value="Pending review">Pending review</option><option value="Rejected">Rejected</option><option value="Scheduled">Scheduled</option><option value="Live">Live</option><option value="Completed">Completed</option><option value="Suspended">Suspended</option><option value="Cancelled">Cancelled</option></select>
         </div>
         <div style="overflow-x:auto;">
           <table class="ads-tbl">
@@ -449,11 +452,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <tr>
                 <th style="width:30px;"><div class="cb"></div></th>
                 <th style="min-width:240px;">Ad Info</th>
+                <th>Campaign ID</th>
                 <th>Exposure Type <span class="srt">⇅</span></th>
                 <th>Campaign Period</th>
-                <th>Impressions <span class="srt">⇅</span></th>
+                <th>Spots played <span class="srt">⇅</span></th>
                 <th>Spend <span class="srt">⇅</span></th>
-                <th>CPM <span class="srt">⇅</span></th>
+                <th>Cost per 1,000 spots <span class="srt">⇅</span></th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -461,48 +465,64 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <tbody>
               <tr data-status="Live">
                 <td><div class="cb"></div></td>
-                <td><div class="ai-wrap"><div class="ai-thumb"><div class="ai-thumb-inner" style="background:linear-gradient(135deg,#e63c3c,#ff7043);">🏪</div></div><div><div class="ai-name">Brand Campaign — Spring</div><div class="ai-sub">By Spots · NE + Central · MRT + HDB<br>01 Mar – 31 May 2026</div><div class="ai-tags"><span class="stag stag-green"><span class="sdot sdot-g"></span>Live</span></div></div></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div class="ai-thumb-inner" style="background:linear-gradient(135deg,#e63c3c,#ff7043);">🏪</div></div><div><div class="ai-name">Brand Campaign — Spring</div></div></div></td>
+                <td style="font-size:12px;color:#888;">SPXSGAD260000000101</td>
                 <td><div class="t-num">By Spots</div><div class="t-sub">3,000 spots</div></td>
-                <td><div class="t-num">01 Mar – 31 May</div><div class="t-sub">Running</div></td>
-                <td><div class="t-num">8,820</div><div class="t-sub">↑ active</div></td>
+                <td><div class="t-num">2026-03-01 to 2026-05-31</div></td>
+                <td><div class="t-num">2,820</div></td>
                 <td><div class="t-num">SGD 441</div></td>
-                <td><div class="t-num">SGD 50.0</div><div class="t-sub">per 1,000 impr.</div></td>
-                <td><span class="stag stag-green"><span class="sdot sdot-g"></span>Live</span></td>
-                <td><button class="act-btn" onclick="openPanel('view','spring-nss')">View</button></td>
+                <td><div class="t-num">SGD 50.00</div></td>
+                <td>Live</td>
+                <td><button style="background:none;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;" onclick="openPanel('view','spring-nss')">View</button></td>
               </tr>
               <tr data-status="Pending review">
                 <td><div class="cb"></div></td>
-                <td><div class="ai-wrap"><div class="ai-thumb"><div style="font-size:20px;">🖼️</div></div><div><div class="ai-name">Q2 Brand Awareness</div><div class="ai-sub">By Spots · Island-wide<br>01 May – 30 Jun 2026</div><div class="ai-tags"><span class="stag stag-amber"><span class="sdot sdot-o"></span>Pending review</span></div></div></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div style="font-size:20px;">🖼️</div></div><div><div class="ai-name">Q2 Brand Awareness</div></div></div></td>
+                <td style="font-size:12px;color:#888;">SPXSGAD260000000118</td>
                 <td><div class="t-num">By Spots</div><div class="t-sub">6,000 spots</div></td>
-                <td><div class="t-num">01 May – 30 Jun</div><div class="t-sub">Starts in 2 days</div></td>
+                <td><div class="t-num">2026-05-01 to 2026-06-30</div></td>
                 <td><div class="t-sub">—</div></td>
-                <td><div class="t-num">SGD 800</div><div class="t-sub">booked</div></td>
+                <td><div class="t-num">SGD 800</div><div class="t-sub">committed</div></td>
                 <td><div class="t-sub">—</div></td>
-                <td><span class="stag stag-amber"><span class="sdot sdot-o"></span>Pending review</span></td>
-                <td><button class="act-btn">View</button></td>
+                <td>Pending review</td>
+                <td><button style="background:none;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;">View</button></td>
               </tr>
               <!-- Rejected row -->
               <tr style="background:#fffbe6;" data-status="Rejected">
                 <td><div class="cb"></div></td>
-                <td><div class="ai-wrap"><div class="ai-thumb"><div style="font-size:20px;">⚠️</div></div><div><div class="ai-name">Summer Launch 2026</div><div class="ai-sub">By Spots · Island-wide<br>15 May – 15 Jun 2026</div><div class="ai-tags"><span class="stag stag-red"><span class="sdot sdot-r"></span>Rejected</span></div></div></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div style="font-size:20px;">⚠️</div></div><div><div class="ai-name">Summer Launch 2026</div></div></div></td>
+                <td style="font-size:12px;color:#888;">SPXSGAD260000000124</td>
                 <td><div class="t-num">By Spots</div><div class="t-sub">6,000 spots</div></td>
-                <td><div class="t-num">15 May – 15 Jun</div><div class="t-sub">Starts in 16 days</div></td>
+                <td><div class="t-num">2026-05-15 to 2026-06-15</div></td>
                 <td><div class="t-sub">—</div></td>
-                <td><div class="t-num">SGD 800</div><div class="t-sub">booked</div></td>
+                <td><div class="t-num">SGD 800</div><div class="t-sub">committed</div></td>
                 <td><div class="t-sub">—</div></td>
-                <td><span class="stag stag-red"><span class="sdot sdot-r"></span>Rejected</span></td>
-                <td><button class="act-btn" style="border-color:#cf1322;color:#cf1322;" onclick="openPanel('review','summer-nss')">Review</button></td>
+                <td>Rejected</td>
+                <td><button style="background:#cf1322;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:12px;cursor:pointer;font-family:inherit;" onclick="openPanel('review','summer-nss')">Review</button></td>
               </tr>
               <tr data-status="Completed">
                 <td><div class="cb"></div></td>
-                <td><div class="ai-wrap"><div class="ai-thumb"><div class="ai-thumb-inner" style="background:linear-gradient(135deg,#a8edea,#fed6e3);">✨</div></div><div><div class="ai-name">Year-End Promo 2025</div><div class="ai-sub">By Duration · Island-wide<br>01 Dec – 31 Dec 2025</div><div class="ai-tags"><span class="stag stag-gray"><span class="sdot sdot-k"></span>Completed</span></div></div></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div class="ai-thumb-inner" style="background:linear-gradient(135deg,#a8edea,#fed6e3);">✨</div></div><div><div class="ai-name">Year-End Promo 2025</div></div></div></td>
+                <td style="font-size:12px;color:#888;">SPXSGAD250000000088</td>
                 <td><div class="t-num">By Duration</div><div class="t-sub">28 days</div></td>
-                <td><div class="t-num">01–31 Dec 2025</div><div class="t-sub">Completed</div></td>
-                <td><div class="t-num">6,000</div><div class="t-sub">completed</div></td>
+                <td><div class="t-num">2025-12-01 to 2025-12-31</div></td>
+                <td><div class="t-num">6,000</div></td>
                 <td><div class="t-num">SGD 800</div></td>
-                <td><div class="t-num">SGD 66.7</div><div class="t-sub">per 1,000 impr.</div></td>
-                <td><span class="stag stag-gray"><span class="sdot sdot-k"></span>Completed</span></td>
-                <td><button class="act-btn" onclick="openPanel('view','yearend-nss')">View</button></td>
+                <td><div class="t-num">SGD 66.70</div></td>
+                <td>Completed</td>
+                <td><button style="background:none;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;" onclick="openPanel('view','yearend-nss')">View</button></td>
+              </tr>
+              <tr data-status="Cancelled">
+                <td><div class="cb"></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div class="ai-thumb-inner" style="background:linear-gradient(135deg,#b0b0b0,#d0d0d0);">📦</div></div><div><div class="ai-name">Q1 Trade Show 2026</div></div></div></td>
+                <td style="font-size:12px;color:#888;">SPXSGAD260000000095</td>
+                <td><div class="t-num">By Duration</div><div class="t-sub">14 days</div></td>
+                <td><div class="t-num">2026-01-15 to 2026-01-28</div></td>
+                <td><div class="t-sub">—</div></td>
+                <td><div class="t-num">SGD 600</div></td>
+                <td><div class="t-sub">—</div></td>
+                <td>Cancelled</td>
+                <td><button style="background:none;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;" onclick="openPanel('view','q1-nss')">View</button></td>
               </tr>
             </tbody>
           </table>
@@ -611,7 +631,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
                 <div style="font-size:11px;font-weight:600;color:#cf1322;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em;">Estimated Results</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                   <div>
-                    <div style="font-size:12px;color:#888;margin-bottom:3px;">Impressions ⓘ</div>
+                    <div style="font-size:12px;color:#888;margin-bottom:3px;">Spots played ⓘ</div>
                     <div id="est-impr" style="font-size:13px;font-weight:600;color:#cf1322;">—</div>
                     <div style="font-size:11px;color:#aaa;margin-top:2px;">Based on selection</div>
                   </div>
@@ -872,10 +892,11 @@ window.addEventListener('DOMContentLoaded', function(){
 <script>
 // ── PANEL DATA ──
 const CAMPAIGNS = {
-  'spring-nss':  {name:'Brand Campaign — Spring', ref:'SPX-NSS-2026-00101', period:'01 Mar – 31 May 2026', exposure:'By Spots · 3,000', location:'NE + Central · MRT + HDB', status:'Live',  statusClass:'stag-green', spend:'SGD 441', impressions:'8,820', cpm:'SGD 50.0', creative:'banner_spring.jpg', flag:null},
-  'q2-nss':      {name:'Q2 Brand Awareness',       ref:'SPX-NSS-2026-00118', period:'01 May – 30 Jun 2026', exposure:'By Spots · 6,000', location:'Island-wide',           status:'Pending review', statusClass:'stag-amber', spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'q2_brand.jpg',     flag:null},
-  'summer-nss':  {name:'Summer Launch 2026',        ref:'SPX-NSS-2026-00124', period:'15 May – 15 Jun 2026', exposure:'By Spots · 6,000', location:'Island-wide',           status:'Rejected',statusClass:'stag-red',   spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'summer_v1.jpg',     flag:'SPX reviewed your creative and found an issue. Please upload a revised banner before your campaign start date (15 May).', remarks:'Competitor brand logo detected in the bottom-right corner of the banner. Please remove any references to competing logistics or delivery brands before resubmitting.'},
-  'yearend-nss': {name:'Year-End Promo 2025',       ref:'SPX-NSS-2025-00088', period:'01–31 Dec 2025',       exposure:'By Duration · 28 days', location:'Island-wide',    status:'Completed',          statusClass:'stag-gray',  spend:'SGD 800 (invoiced on completion)', impressions:'6,000', cpm:'SGD 66.7', creative:'yearend.jpg',      flag:null},
+  'spring-nss':  {name:'Brand Campaign — Spring', ref:'SPXSGAD260000000101', period:'2026-03-01 to 2026-05-31', exposure:'By Spots · 3,000', location:'NE + Central · MRT + HDB', locType:'MRT Stations, HDB Residential', region:'North East, Central', status:'Live',  statusClass:'stag-green', spend:'SGD 441', impressions:'2,820', cpm:'SGD 50.0', creative:'banner_spring.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2026-02-28 10:30', lockers:'18 lockers', playlists:'Playlist 1', playbackOrder:'#2', adType:'Seller campaign', reviewLog:[{date:'28 Feb 2026, 09:00',event:'Submitted for review',by:'seller'},{date:'28 Feb 2026, 10:30',event:'Approved by SPX',by:'spx'},{date:'01 Mar 2026, 00:00',event:'Campaign went live',by:'system'}]},
+  'q2-nss':      {name:'Q2 Brand Awareness',       ref:'SPXSGAD260000000118', period:'2026-05-01 to 2026-06-30', exposure:'By Spots · 6,000', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Pending review', statusClass:'stag-amber', spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'q2_brand.jpg',     flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', reviewLog:[{date:'29 Apr 2026, 11:00',event:'Submitted for review',by:'seller'}]},
+  'summer-nss':  {name:'Summer Launch 2026',        ref:'SPXSGAD260000000124', period:'2026-05-15 to 2026-06-15', exposure:'By Spots · 6,000', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Rejected',statusClass:'stag-red',   spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'summer_v1.jpg',     flag:'SPX reviewed your creative and found an issue. Please upload a revised banner ASAP to meet your start date.', remarks:'Competitor brand logo detected in the bottom-right corner of the banner. Please remove any references to competing logistics or delivery brands before resubmitting.', company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', reviewLog:[{date:'05 May 2026, 10:22',event:'Submitted for review',by:'seller'},{date:'06 May 2026, 15:47',event:'Changes requested by SPX',by:'spx',note:'Competitor brand logo detected in the bottom-right corner. Please remove any references to competing logistics or delivery brands.'}]},
+  'yearend-nss': {name:'Year-End Promo 2025',       ref:'SPXSGAD250000000088', period:'2025-12-01 to 2025-12-31',       exposure:'By Duration · 28 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Completed',          statusClass:'stag-gray',  spend:'SGD 800 (invoiced on completion)', impressions:'6,000', cpm:'SGD 66.7', creative:'yearend.jpg',      flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2025-11-29 14:22', lockers:'42 lockers', playlists:'Playlist 1, Playlist 2', playbackOrder:'#3', adType:'Seller campaign', reviewLog:[{date:'28 Nov 2025, 09:01',event:'Submitted for review',by:'seller'},{date:'29 Nov 2025, 14:22',event:'Approved by SPX',by:'spx'},{date:'01 Dec 2025, 00:00',event:'Campaign went live',by:'system'},{date:'31 Dec 2025, 23:59',event:'Campaign completed',by:'system'}]},
+  'q1-nss': {name:'Q1 Trade Show 2026', ref:'SPXSGAD260000000095', period:'2026-01-15 to 2026-01-28', exposure:'By Duration · 14 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Cancelled', statusClass:'stag-gray', spend:'SGD 600', impressions:'—', cpm:'—', creative:'q1_tradeshow.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2026-01-10 09:15', lockers:'42 lockers', playlists:'Playlist 1', playbackOrder:'#5', adType:'Seller campaign', reviewLog:[{date:'10 Jan 2026, 09:00',event:'Submitted for review',by:'seller'},{date:'10 Jan 2026, 09:15',event:'Approved by SPX',by:'spx'},{date:'15 Jan 2026, 00:00',event:'Campaign went live',by:'system'},{date:'05 Jun 2026, 16:04',event:'Campaign cancelled',note:'Promotional content no longer compliant with updated SPX advertising guidelines effective June 2026.',by:'spx'}]},
 };
 
 function openPanel(mode, id){
@@ -885,20 +906,27 @@ function openPanel(mode, id){
   document.getElementById('panel-ref').textContent = c.ref;
   let body = '';
   if(mode==='view'){
-    body += `<div style="display:flex;gap:6px;margin-bottom:16px;"><span class="stag ${c.statusClass}">${c.status}</span></div>`;
+    // Creative at top
+    body += `<div style="background:#f0f0f0;border-radius:3px;height:140px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;margin-bottom:14px;"><div style="text-align:center;"><div style="font-size:24px;margin-bottom:5px;">🖼️</div><div>[${c.creative||'no creative'}]</div><div style="font-size:11px;margin-top:3px;">1080×1920 px · 9:16 portrait</div></div></div>`;
+    // Info table
     body += `<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">`;
-    const rows=[['Period',c.period],['Exposure',c.exposure],['Location',c.location],['Spend',c.spend],['Impressions',c.impressions],['CPM',c.cpm]];
-    rows.forEach(([l,v])=>{body+=`<tr><td style="color:#aaa;padding:6px 0;border-bottom:1px solid #f5f5f5;width:120px;">${l}</td><td style="padding:6px 0;border-bottom:1px solid #f5f5f5;font-weight:500;">${v}</td></tr>`;});
+    const rows=[
+      ['Company', c.company],
+      ['Uploaded by', c.uploadedBy],
+      ['Review date', c.reviewDate],
+      ['Campaign period', c.period],
+      ['Location type', c.locType||c.location],
+      ['Region', c.region||'—'],
+      ['Status', c.status],
+    ];
+    rows.forEach(([l,v])=>{body+=`<tr><td style="color:#aaa;padding:6px 0;border-bottom:1px solid #f5f5f5;width:130px;font-size:13px;">${l}</td><td style="padding:6px 0;border-bottom:1px solid #f5f5f5;font-weight:500;font-size:13px;">${v}</td></tr>`;});
     body += `</table>`;
-    body += `<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;">Creative</div>`;
-    body += `<div style="background:#f5f5f5;border:1px solid #e8e8e8;border-radius:5px;padding:10px;display:flex;gap:10px;align-items:center;">`;
-    body += `<div style="width:44px;height:78px;background:#e0e0e0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🖼️</div>`;
-    body += `<div><div style="font-size:13px;font-weight:500;">${c.creative}</div><div style="font-size:11px;color:#aaa;margin-top:2px;">Uploaded</div></div></div>`;
+    body += renderNSSReviewLog(c.reviewLog, true);
   } else {
     // Review mode — show issue + upload action
     body += `<div style="background:#fff1f0;border:1px solid #ffa39e;border-radius:6px;padding:12px 14px;margin-bottom:16px;display:flex;gap:8px;"><span style="font-size:16px;flex-shrink:0;">⚠️</span><div><div style="font-size:13px;font-weight:600;color:#cf1322;margin-bottom:4px;">Creative rejected by SPX</div><div style="font-size:12px;color:#555;line-height:1.6;">${c.flag}</div></div></div>`;
     body += `<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">`;
-    const rows=[['Period',c.period],['Exposure',c.exposure],['Location',c.location]];
+    const rows=[['Period',c.period],['Exposure',c.exposure],['Location type',c.locType||c.location],['Region',c.region||'—']];
     rows.forEach(([l,v])=>{body+=`<tr><td style="color:#aaa;padding:6px 0;border-bottom:1px solid #f5f5f5;width:120px;">${l}</td><td style="padding:6px 0;border-bottom:1px solid #f5f5f5;font-weight:500;">${v}</td></tr>`;});
     body += `</table>`;
     body += `<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;">Current creative (flagged)</div>`;
@@ -913,11 +941,41 @@ function openPanel(mode, id){
     body += `<div style="font-size:12px;color:#bbb;">JPG or PNG · 1080×1920 px · Max 10 MB</div></div>`;
     body += `<div style="border:1px solid #e8e8e8;border-radius:5px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#555;line-height:1.8;background:#fafafa;"><div style="font-weight:600;color:#555;margin-bottom:4px;">Creative guidelines</div>• Dimensions: 1080×1920 px (9:16 portrait)<br>• Format: JPG or PNG · RGB colour mode · Max 10 MB<br>• Keep text 80px from all edges (bezel safe zone)<br>• Minimum font size 24px<br>• Suitable for all ages including children<br>• No misleading claims or unverifiable statistics<br>• QR codes must be min 200×200 px and scannable from 0.5m</div>`;
     body += `<div style="display:flex;gap:8px;"><button onclick="closePanel()" style="background:#fff;border:1px solid #d0d0d0;border-radius:4px;padding:7px 16px;font-size:13px;cursor:pointer;">Cancel</button><button onclick="alert('Creative submitted for re-review');closePanel();" style="background:#e63c3c;color:#fff;border:none;border-radius:4px;padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer;flex:1;">Submit for re-review</button></div>`;
+    body += renderNSSReviewLog(c.reviewLog, true);
   }
   document.getElementById('panel-body').innerHTML = body;
   document.getElementById('side-panel').style.display = 'flex';
   document.getElementById('panel-overlay').style.display = 'block';
 }
+function renderNSSReviewLog(log, sellerView) {
+  if (!log || log.length === 0) return '';
+  let html = '<div style="margin-top:16px;border-top:1px solid #f0f0f0;padding-top:12px;">';
+  html += '<div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">Ad Tracking History</div>';
+  log.forEach((entry, i) => {
+    const isLast = i === log.length - 1;
+    const byLabel = entry.by === 'spx' ? 'SPX' : entry.by === 'system' ? 'System' : 'You';
+    const parts = entry.date.split(', ');
+    const datePart = parts[0] || entry.date;
+    const timePart = parts[1] || '';
+    html += `<div style="display:flex;gap:10px;position:relative;">`;
+    html += `<div style="width:80px;flex-shrink:0;text-align:right;">`;
+    if (timePart) html += `<div style="font-size:12px;font-weight:600;color:#333;">${timePart}</div>`;
+    html += `<div style="font-size:11px;color:#aaa;">${datePart}</div>`;
+    html += `</div>`;
+    html += `<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:16px;">`;
+    html += `<div style="width:7px;height:7px;border-radius:50%;border:1.5px solid #bbb;background:#fff;margin-top:3px;flex-shrink:0;"></div>`;
+    if (!isLast) html += `<div style="width:1px;flex:1;background:#e8e8e8;margin:3px 0;min-height:16px;"></div>`;
+    html += `</div>`;
+    html += `<div style="padding-bottom:${isLast?'0':'14px'};flex:1;">`;
+    html += `<div style="font-size:13px;font-weight:500;color:#333;">${entry.event}</div>`;
+    html += `<div style="font-size:11px;color:#aaa;margin-top:2px;">operator: ${byLabel}</div>`;
+    if (entry.note) html += `<div style="font-size:11px;color:#555;margin-top:5px;padding:6px 9px;background:#fafafa;border:1px solid #f0f0f0;border-radius:3px;line-height:1.5;">message: ${entry.note}</div>`;
+    html += `</div></div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
 function closePanel(){
   document.getElementById('side-panel').style.display = 'none';
   document.getElementById('panel-overlay').style.display = 'none';
@@ -935,26 +993,50 @@ function filterByStatus(status) {
   });
 }
 
+// ── CANCEL BANNER ──
+function dismissCancelBanner() {
+  window._cancelBannerDismissed = true;
+  const b = document.getElementById('cancel-banner');
+  if (b) b.style.display = 'none';
+}
+function viewCancelledCampaigns() {
+  goLockerAds();
+  const sel = document.getElementById('status-filter');
+  if (sel) { sel.value = 'Cancelled'; filterByStatus('Cancelled'); }
+  const el = document.getElementById('ads-list-section');
+  if (el) setTimeout(()=>el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+}
+
 // ── REVIEW NOW ──
 function reviewNow() {
-  // Set status filter to Rejected
+  goLockerAds();
   const sel = document.getElementById('status-filter');
   if (sel) { sel.value = 'Rejected'; filterByStatus('Rejected'); }
-  // Scroll to list section
   const el = document.getElementById('ads-list-section');
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (el) setTimeout(()=>el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
 }
 
 // ── INIT BANNER ──
 function initBanner() {
   const arRows = document.querySelectorAll('.ads-tbl tbody tr[data-status="Rejected"]');
+  const cancelRows = document.querySelectorAll('.ads-tbl tbody tr[data-status="Cancelled"]');
   const banner = document.getElementById('ar-banner');
+  const cancelBanner = document.getElementById('cancel-banner');
+
   if (arRows.length > 0 && banner) {
     const txt = document.getElementById('ar-banner-text');
     if (txt) txt.textContent = arRows.length === 1
       ? '1 campaign needs your attention'
       : arRows.length + ' campaigns need your attention';
     banner.style.display = 'flex';
+  }
+
+  if (cancelRows.length > 0 && cancelBanner && !window._cancelBannerDismissed) {
+    const txt = document.getElementById('cancel-banner-text');
+    if (txt) txt.textContent = cancelRows.length === 1
+      ? '1 campaign has been cancelled by SPX'
+      : cancelRows.length + ' campaigns have been cancelled by SPX';
+    cancelBanner.style.display = 'flex';
   }
 }
 document.addEventListener('DOMContentLoaded', initBanner);

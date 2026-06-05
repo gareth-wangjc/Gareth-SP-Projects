@@ -59,6 +59,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-sm-r:hover{background:#c83030;}
 .btn-sm-d{background:#fff;color:#cf1322;border:1px solid #ffa39e;border-radius:3px;padding:3px 10px;font-size:12px;cursor:pointer;}
 .btn-sm-d:hover{background:#fff1f0;}
+.btn-sm-b{background:#fff;color:#1677ff;border:1px solid #91caff;border-radius:3px;padding:3px 10px;font-size:12px;cursor:pointer;}
+.btn-sm-b:hover{background:#e6f4ff;border-color:#1677ff;}
+.btn-link-b{background:transparent;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;}
+.btn-link-b:hover{text-decoration:underline;}
 .btn-link{background:transparent;border:none;color:#ee4d2d;font-size:12px;cursor:pointer;padding:0;font-family:inherit;}
 .btn-log{background:#fff;color:#555;border:1px solid #d0d0d0;border-radius:3px;padding:4px 11px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;}
 .btn-log:hover{border-color:#ee4d2d;color:#ee4d2d;}
@@ -187,7 +191,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
   <div class="htab-bar">
     <div class="htab on" id="ht-overview" onclick="switchTab('overview')">Overview</div>
-    <div class="htab" id="ht-schedule" onclick="switchTab('schedule')">Schedule</div>
+    <div class="htab" id="ht-schedule" onclick="switchTab('schedule')">Playlists</div>
     <div class="htab" id="ht-review" onclick="switchTab('review')">Ad Management <span class="sb-badge" style="vertical-align:middle;margin-left:4px;">2</span></div>
     <div class="htab" id="ht-finance" onclick="switchTab('finance')">Booking Configuration</div>
   </div>
@@ -402,6 +406,31 @@ function campInPl(c,plId){
   return Array.isArray(c.assignedPlaylists) && c.assignedPlaylists.includes(plId);
 }
 function plLockers(plId){ return window.LOCKERS.filter(l=>l.confirmedPlaylistId===plId); }
+function campLockers(c){
+  const locs=(c.assignedPlaylists||[]).flatMap(plId=>plLockers(plId));
+  return locs.filter(l=>
+    (!c.bookedLocTypes?.length||c.bookedLocTypes.includes(l.locType))&&
+    (!c.bookedRegions?.length||c.bookedRegions.includes(l.region))
+  );
+}
+function buildLockerCellContent(c){
+  const locs=campLockers(c);
+  if(!locs.length) return '—';
+  const exp=window._campLockersExpanded;
+  let html=`${locs.length} lockers <button class="btn-link-b" style="font-size:11px;" onclick="toggleCampLockers('${c.name}')">${exp?'Hide':'Details'}</button>`;
+  if(exp){
+    html+=`<div style="margin-top:7px;border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;max-height:160px;overflow-y:auto;">
+      ${locs.map(l=>`<div style="padding:5px 8px;border-bottom:1px solid #f5f5f5;font-size:11px;"><span style="font-weight:500;">${l.name}</span> <span style="color:#aaa;">${l.id}</span><div style="color:#aaa;font-size:10px;">${l.locType} · ${l.region}</div></div>`).join('')}
+    </div>`;
+  }
+  return html;
+}
+function toggleCampLockers(name){
+  window._campLockersExpanded=!window._campLockersExpanded;
+  const c=[...window.CAMPS,...window.CANCELLED].find(x=>x.name===name);
+  const el=document.getElementById('camp-locker-cell');
+  if(el&&c) el.innerHTML=buildLockerCellContent(c);
+}
 
 // ══════════════ NAV ══════════════
 let curTab='overview', finSub='payments', activePl='pl-1', expandedLockers=false, editingAcctId=null;
@@ -505,6 +534,7 @@ function renderOverview(){
 // ══════════════ SCHEDULE ══════════════
 // schedule sub-views: 'gantt' | 'playlists' | 'coverage' | 'order'
 let schedView = 'home';
+let editingOrder = false;
 
 function renderSchedule(){
   if(schedView==='home') return`<div style="display:flex;min-height:500px;">${buildSchedLeft()}<div style="flex:1;display:flex;align-items:center;justify-content:center;background:#fff;"><div style="text-align:center;color:#aaa;"><div style="font-size:32px;margin-bottom:12px;">📋</div><div style="font-size:14px;font-weight:500;color:#bbb;margin-bottom:6px;">Nothing selected</div><div style="font-size:12px;color:#ccc;line-height:1.6;">Select a playlist on the left to view its schedule,<br>or use Manage playlists / Locker coverage below.</div></div></div></div>`;
@@ -523,9 +553,10 @@ function renderSchedule(){
 
   gantt+=`<div style="background:#fafafa;border:1px solid #e8e8e8;border-radius:3px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:18px;font-size:12px;flex-wrap:wrap;">
     <div><span style="color:#888;">Playlist: </span><span style="font-weight:500;">${pl.name}</span></div>
-    <button class="btn-sm" style="margin-left:auto;" onclick="schedView='playlists';renderTab()">Manage playlists</button>
-    <button class="btn-sm" onclick="schedView='coverage';renderTab()">Locker coverage</button>
-    <button class="btn-sm" onclick="openOrderPanel()">Edit playback order</button>
+    ${editingOrder
+      ? `<button class="btn-r" style="margin-left:auto;" onclick="editingOrder=false;renderTab()">Save playback order</button>`
+      : `<button class="btn-sm" style="margin-left:auto;" onclick="editingOrder=true;renderTab()">Edit playback order</button>`
+    }
   </div>`;
 
   gantt+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
@@ -533,28 +564,29 @@ function renderSchedule(){
     <div style="display:flex;align-items:center;gap:12px;font-size:11px;color:#888;">
       <span><span style="display:inline-block;width:10px;height:10px;background:#bfdbfe;border-left:3px solid #1677ff;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>Internal (SPX)</span>
       <span><span style="display:inline-block;width:10px;height:10px;background:#fde68a;border-left:3px solid #d46b08;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>External (seller)</span>
-      <span><span style="display:inline-block;width:24px;height:10px;background:rgba(253,230,138,0.4);border:1px dashed #d46b08;border-left:3px solid #d46b08;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>Faded + dashed = spots-based (estimated end)</span>
+      <span><span style="display:inline-block;width:24px;height:10px;background:rgba(253,230,138,0.4);border:1px dashed #d46b08;border-left:3px solid #d46b08;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>Faded + dashed = estimated end date</span>
     </div>
   </div>`;
 
   gantt+=`<div class="g-wrap"><div style="min-width:${LBL+DAYS*COL}px;border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">`;
-  gantt+=`<div class="g-hdr-row"><div style="width:${LBL}px;flex-shrink:0;padding:6px 10px;font-size:11px;font-weight:600;color:#888;border-right:1px solid #e8e8e8;display:flex;align-items:center;gap:5px;">Campaign <span style="background:#ee4d2d;color:#fff;font-size:9px;padding:1px 4px;border-radius:2px;">PLAY ORDER</span></div>`;
+  gantt+=`<div class="g-hdr-row"><div style="width:${LBL}px;flex-shrink:0;padding:6px 10px;font-size:11px;font-weight:600;color:#888;border-right:1px solid #e8e8e8;display:flex;align-items:center;gap:5px;">Campaign</div>`;
   for(let d=1;d<=DAYS;d++) gantt+=`<div style="width:${COL}px;flex-shrink:0;font-size:10px;color:\${d===20?'#ee4d2d':'#aaa'};text-align:center;padding:4px 0;border-left:1px solid #f5f5f5;background:'transparent';font-weight:\${d===20?700:400};">${d}</div>`;
   gantt+=`</div>`;
   ordered.forEach(c=>{
     const isInt=c.type==='int',periodLabel=c.startDate?`${c.startDate} to ${c.endDate}`:'—';
-    gantt+=`<div class="g-row" style="background:'#fff';">`;
-    gantt+=`<div style="width:${LBL}px;flex-shrink:0;padding:7px 10px;border-right:1px solid #e8e8e8;display:flex;align-items:center;gap:7px;background:'#fff';">
+    gantt+=`<div class="g-row" ${editingOrder?`draggable="true" ondragstart="dS(event,${c.order})" ondragover="dO(event)" ondrop="dD(event,${c.order})" ondragleave="dL(event)" style="background:#fff;cursor:grab;"`:`style="background:#fff;"`}>`;
+    gantt+=`<div style="width:${LBL}px;flex-shrink:0;padding:7px 10px;border-right:1px solid #e8e8e8;display:flex;align-items:center;gap:5px;background:#fff;">
+      ${editingOrder?`<span style="color:#ccc;font-size:14px;cursor:grab;flex-shrink:0;">⠿</span>`:''}
       <div style="width:18px;height:18px;border-radius:50%;background:#ee4d2d;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${c.order}</div>
-      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.name}</div><div style="font-size:10px;color:#aaa;">${c.buyer}</div></div>
-      <button class="btn-sm" style="font-size:10px;padding:2px 6px;flex-shrink:0;" onclick="openCampPanel('${c.name}')">View</button>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.name}</div><div style="font-size:10px;color:#aaa;">${c.company}</div></div>
+      ${editingOrder?'':`<button class="btn-link-b" style="flex-shrink:0;" onclick="openCampPanel('${c.name}')">View</button>`}
     </div>`;
     gantt+=`<div style="flex:1;position:relative;min-height:44px;">`;
     for(let d=0;d<DAYS;d++) gantt+=`<div style="position:absolute;left:${d*COL}px;top:0;bottom:0;width:${COL}px;background:\${d===19?'rgba(238,77,45,.04)':'transparent'};border-right:1px solid #f8f8f8;"></div>`;
     gantt+=`<div style="position:absolute;left:${19*COL+COL/2-1}px;top:0;bottom:0;width:1px;background:#ee4d2d;opacity:.35;"></div>`;
     const dispEnd=Math.min(c.end,DAYS);const bL=(c.start-1)*COL+2,bW=(dispEnd-c.start+1)*COL-4;
     const isSpots=c.spotsBased;
-    const spotLabel=isSpots?` · ~${c.spotsBooked?.toLocaleString()} spots`:'';
+    const spotLabel=isSpots?' (estimated)':'';
     const solidBg=isInt?'#bfdbfe':'#fde68a';
     const spotsBg=isInt?'rgba(191,219,254,0.4)':'rgba(253,230,138,0.4)';
     const bdrColor=isInt?'#1677ff':'#d46b08';
@@ -573,7 +605,7 @@ function renderSchedule(){
   gantt+=`<div class="card" style="margin-top:12px;">
     <div class="card-hd"><div class="card-title">Lockers on this playlist (${locs.length})</div></div>
     ${locs.length?`<div style="overflow-x:auto;"><table class="tbl"><thead><tr><th>Locker ID</th><th>Locker name</th><th>Location type</th><th>Region</th><th>Action</th></tr></thead><tbody>
-      ${locs.map(l=>`<tr><td style="font-size:12px;color:#888;">${l.id}</td><td style="font-weight:500;">${l.name}</td><td>${l.locType}</td><td>${l.region}</td><td><button class="btn-sm" style="font-size:11px;padding:2px 8px;" onclick="openLockerAssign('${l.id}')">Change playlist</button></td></tr>`).join('')}
+      ${locs.map(l=>`<tr><td style="font-size:12px;color:#888;">${l.id}</td><td style="font-weight:500;">${l.name}</td><td>${l.locType}</td><td>${l.region}</td><td><button class="btn-link-b" onclick="openLockerAssign('${l.id}')">Change playlist</button></td></tr>`).join('')}
     </tbody></table></div>`:`<div style="padding:12px 14px;font-size:12px;color:#aaa;">No lockers assigned. Go to Locker coverage to assign lockers.</div>`}
   </div>`;
 
@@ -617,7 +649,7 @@ function renderPlaylists(){
               <td style="font-weight:500;">${l.name}</td>
               <td>${l.locType}</td>
               <td>${l.region}</td>
-              <td><button class="btn-sm" style="font-size:11px;padding:2px 8px;" onclick="openLockerAssign('${l.id}')">Change playlist</button></td>
+              <td><button class="btn-link-b" onclick="openLockerAssign('${l.id}')">Change playlist</button></td>
             </tr>`).join('')}</tbody>
           </table>
         </div>`:`<div style="font-size:12px;color:#aaa;padding:4px 0;">No lockers assigned yet. Use Locker coverage to assign lockers to this playlist.</div>`}
@@ -713,7 +745,7 @@ function renderLockerCoverage(){
           <td>${l.locType}</td>
           <td>${l.region}</td>
           <td style="font-size:13px;">${pl?pl.name:'<span style="color:#cf1322;font-size:12px;">Unassigned</span>'}</td>
-          <td>${pl?`<button class="btn-sm" style="font-size:11px;padding:2px 8px;" onclick="openLockerAssign('${l.id}')">Change playlist</button>`:`<button class="btn-sm-r" style="font-size:11px;padding:2px 8px;" onclick="openLockerAssign('${l.id}')">Assign playlist</button>`}</td>
+          <td>${pl?`<button class="btn-link-b" onclick="openLockerAssign('${l.id}')">Change playlist</button>`:`<button class="btn-sm-r" style="font-size:11px;padding:2px 8px;" onclick="openLockerAssign('${l.id}')">Assign playlist</button>`}</td>
         </tr>`;
       }).join('')}
       ${rows.length===0?`<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No lockers match these filters.</td></tr>`:''}
@@ -728,7 +760,7 @@ function buildSchedLeft(){
   const isGantt=schedView==='gantt', isPl=schedView==='playlists', isCov=schedView==='coverage', isHome=schedView==='home';
   return`<div style="width:220px;flex-shrink:0;background:#fff;border-right:1px solid #e8e8e8;display:flex;flex-direction:column;min-height:500px;">
     <div style="padding:12px 16px;font-size:13px;font-weight:600;border-bottom:1px solid #f0f0f0;">Playlists</div>
-    ${window.PLAYLISTS.map(p=>{const cnt=plLockers(p.id).length;return`<div onclick="activePl='${p.id}';schedView='gantt';expandedLockers=false;renderTab()" style="padding:12px 16px;font-size:13px;cursor:pointer;border-bottom:1px solid #f5f5f5;color:${activePl===p.id&&isGantt?'#ee4d2d':'#333'};font-weight:${activePl===p.id&&isGantt?500:400};background:${activePl===p.id&&isGantt?'#fef5f5':'#fff'};">${p.name}
+    ${window.PLAYLISTS.map(p=>{const cnt=plLockers(p.id).length;return`<div onclick="activePl='${p.id}';schedView='gantt';editingOrder=false;expandedLockers=false;renderTab()" style="padding:12px 16px;font-size:13px;cursor:pointer;border-bottom:1px solid #f5f5f5;color:${activePl===p.id&&isGantt?'#ee4d2d':'#333'};font-weight:${activePl===p.id&&isGantt?500:400};background:${activePl===p.id&&isGantt?'#fef5f5':'#fff'};">${p.name}
       <div style="font-size:11px;color:#aaa;margin-top:2px;font-weight:400;">${cnt} lockers</div></div>`;}).join('')}
     <div style="padding:12px 16px;border-bottom:1px solid #f5f5f5;">
       <button class="btn-sm" style="width:100%;padding:7px 0;font-size:12px;${isPl?'background:#fef5f5;border-color:#ee4d2d;color:#ee4d2d;':''}" onclick="schedView='playlists';renderTab()">Manage playlists</button>
@@ -957,13 +989,13 @@ function openOrderPanel(){
 let adMgmtSub = 'all'; // 'all' | 'pending'
 
 function renderReview(){
-  const allAds = window.CAMPS;
+  const allAds = [...window.CAMPS, ...window.CANCELLED];
   // Init filter state FIRST before using af
   if(!window._adFilter) window._adFilter={name:'',campaignId:'',company:'',exposure:'',status:''};
   const af=window._adFilter;
   // sub-filter
   const filtered = allAds.filter(c=>{
-    const st_label=c.rejected?'Rejected':!c.approvedDate?'Pending review':c.assignedPlaylists.length===0?'Approved':c.status==='Live'?'Live':c.status==='Scheduled'?'Scheduled':c.status==='Cancelled'?'Cancelled':'Completed';
+    const st_label=c.rejected?'Rejected':c.status==='Cancelled'?'Cancelled':!c.approvedDate?'Pending review':(c.assignedPlaylists||[]).length===0?'Approved':c.status==='Live'?'Live':c.status==='Scheduled'?'Scheduled':'Completed';
     const exposureLabel=c.spotsBased?'By Spots':'By Duration';
     const subMatch = adMgmtSub==='pending' ? !c.approvedDate : true;
     return subMatch
@@ -980,11 +1012,11 @@ function renderReview(){
   // status helper
   function adStatus(c){
     if(c.rejected) return {label:'Rejected',cls:'pr'};
+    if(c.status==='Cancelled') return {label:'Cancelled',cls:'pr'};
     if(!c.approvedDate) return {label:'Pending review',cls:'po'};
-    if(c.assignedPlaylists.length===0) return {label:'Approved',cls:'pb'};
+    if((c.assignedPlaylists||[]).length===0) return {label:'Approved',cls:'pb'};
     if(c.status==='Live') return {label:'Live',cls:'pg'};
     if(c.status==='Scheduled') return {label:'Scheduled',cls:'pb'};
-    if(c.status==='Cancelled') return {label:'Cancelled',cls:'pr'};
     return {label:'Completed',cls:'pk'};
   }
 
@@ -1030,6 +1062,7 @@ function renderReview(){
           const period=(c.startDate&&c.endDate)?`${c.startDate} to ${c.endDate}`:'—';
           const exposure=c.spotsBased?`By Spots · ${c.spotsBooked?.toLocaleString()}`:'By Duration';
           const isPending=!c.approvedDate;
+          const isCancelled=c.status==='Cancelled';
           return`<tr>
             <td><div style="font-weight:500;">${c.name}</div></td>
             <td style="font-size:12px;color:#888;">${c.ref}</td>
@@ -1039,7 +1072,7 @@ function renderReview(){
             <td style="font-size:12px;color:#888;white-space:nowrap;">${period}</td>
             <td><div style="display:flex;flex-wrap:wrap;gap:3px;">${plNames.length?plNames.map(n=>`<span style="background:#f5f5f5;border:1px solid #e8e8e8;border-radius:2px;padding:1px 6px;font-size:11px;color:#555;">${n}</span>`).join(''):'<span style="font-size:12px;color:#aaa;">—</span>'}</div></td>
             <td style="font-size:12px;color:#555;">${st.label}</td>
-            <td>${isPending?`<button class="btn-sm-r" style="font-size:11px;padding:2px 8px;" onclick="openAdPanel('${c.ref}')">Review</button>`:`<span style="color:#1890ff;cursor:pointer;font-size:13px;" onclick="openAdPanel('${c.ref}')">View</span>`}</td>
+            <td>${!isCancelled&&isPending?`<button class="btn-sm-r" style="font-size:11px;padding:2px 8px;" onclick="openAdPanel('${c.ref}')">Review</button>`:`<span style="color:#1890ff;cursor:pointer;font-size:13px;" onclick="openAdPanel('${c.ref}')">View</span>`}</td>
           </tr>`;
         }).join('')}
         ${filtered.length===0?`<tr><td colspan="9" style="text-align:center;color:#aaa;padding:20px;">No ads match this filter.</td></tr>`:''}
@@ -1051,20 +1084,22 @@ function renderReview(){
 
 // ── AD DETAIL PANEL ──────────────────────────────────────────────────
 function openAdPanel(ref){
-  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  const c=[...window.CAMPS,...window.CANCELLED].find(x=>x.ref===ref); if(!c) return;
   function adStatus(c){
     if(c.rejected) return {label:'Rejected',cls:'pr'};
+    if(c.status==='Cancelled') return {label:'Cancelled',cls:'pr'};
     if(!c.approvedDate) return {label:'Pending review',cls:'po'};
-    if(c.assignedPlaylists.length===0) return {label:'Approved',cls:'pb'};
+    if((c.assignedPlaylists||[]).length===0) return {label:'Approved',cls:'pb'};
     if(c.status==='Live') return {label:'Live',cls:'pg'};
     if(c.status==='Scheduled') return {label:'Scheduled',cls:'pb'};
-    if(c.status==='Cancelled') return {label:'Cancelled',cls:'pr'};
     return {label:'Completed',cls:'pk'};
   }
   const st=adStatus(c);
-  const isApproved = !!c.approvedDate && c.assignedPlaylists.length === 0 && !c.rejected;
+  window._campLockersExpanded=false;
+  const isCancelled = c.status === 'Cancelled';
+  const isApproved = !!c.approvedDate && (c.assignedPlaylists||[]).length === 0 && !c.rejected;
   const isPending = !c.approvedDate && !c.rejected;
-  const showCreativeStep = isPending || _panelForcedBack;
+  const showCreativeStep = !isCancelled && (isPending || _panelForcedBack);
   _panelForcedBack = false;
 
   // Playlist suggestion based on booking
@@ -1085,18 +1120,20 @@ function openAdPanel(ref){
         + '<div style="font-size:11px;margin-top:3px;">1080×1920 px · 9:16</div></div></div>';
 
   // Details table
-  const bookedScope = (c.bookedLocTypes||[]).join(', ')+'<br><span style="color:#888;">'+(c.bookedRegions||[]).join(', ')+'</span>';
+  const adPlNames=(c.assignedPlaylists||[]).map(id=>window.PLAYLISTS.find(p=>p.id===id)?.name||id);
   body += '<table class="kv">'
         + '<tr><td>Company</td><td>'+c.company+'</td></tr>'
         + '<tr><td>Uploaded by</td><td>'+c.buyer+'</td></tr>'
         + '<tr><td>Review date</td><td>'+(c.approvedDate||'—')+'</td></tr>'
         + '<tr><td>Campaign period</td><td>'+(c.startDate||'—')+' to '+(c.endDate||'—')+(c.spotsBased?' · ~'+(c.spotsBooked||0).toLocaleString()+' spots (est. end)':'')+'</td></tr>'
-        + '<tr><td>Booked scope</td><td>'+bookedScope+'</td></tr>'
+        + '<tr><td>Lockers</td><td id="camp-locker-cell">'+buildLockerCellContent(c)+'</td></tr>'
+        + '<tr><td>Playlists</td><td>'+(adPlNames.length?adPlNames.join(', '):'—')+'</td></tr>'
+        + '<tr><td>Playback order</td><td>'+(c.order?'<span style="background:#ee4d2d;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;font-weight:700;">#'+c.order+'</span>':'—')+'</td></tr>'
         + '<tr><td>Status</td><td>'+st.label+'</td></tr>'
-        + '<tr><td>Ad type</td><td>'+(c.type==='int'?'Internal':'Seller campaign')+'</td></tr>'
+        + '<tr><td>Ad type</td><td>'+(c.type==='int'?'Internal (SPX)':'Seller campaign')+'</td></tr>'
         + '</table>';
 
-  if(showCreativeStep){
+  if(!isCancelled && showCreativeStep){
     // AI screening
     body += '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:7px;">AI screening</div>';
     window.AI_CRITERIA.filter(x=>x.enabled).forEach((cr,i)=>{
@@ -1112,7 +1149,7 @@ function openAdPanel(ref){
     body += '<div style="margin-top:12px;"><div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">Feedback to seller (if changes requested)</div>'
           + '<textarea class="finput" id="cr-feedback" rows="3" placeholder="Describe what needs to change." style="resize:vertical;" oninput="checkFeedback()"></textarea>'
           + '<div style="font-size:11px;color:#aaa;margin-top:4px;" id="fb-hint">Minimum 15 characters required.</div></div>';
-  } else {
+  } else if(!isCancelled) {
     // Playlist assignment
     body += '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:4px;">Playlist assignment</div>'
           + '<div style="font-size:12px;color:#888;margin-bottom:8px;">Playlists have been auto-assigned based on the seller\'s booked location types and regions. Each locker only plays this ad if it matches the booking — no over-delivery. De-select any before saving if needed.</div>';
@@ -1157,12 +1194,14 @@ function openAdPanel(ref){
   document.getElementById('p-body').innerHTML=body;
   document.getElementById('p-body').innerHTML += renderReviewLog(c.reviewLog, false, c.buyer);
   const nextLabel = isPending ? 'Approve' : 'Next →';
-  document.getElementById('p-footer').innerHTML=showCreativeStep
-    ? '<button id="btn-req-changes" class="btn-sm" disabled style="opacity:0.4;cursor:not-allowed;" onclick="requestChanges(\''+c.ref+'\')">Request changes</button>'
-      + '<button class="btn-sm-r" onclick="approveCreative(\''+c.ref+'\')">' + nextLabel + '</button>'
-    : '<button class="btn-sm" onclick="closePanel()">Cancel</button>'
-      + '<button class="btn-sm" onclick="backToReview(\''+c.ref+'\')">← Back</button>'
-      + '<button class="btn-sm-r" onclick="assignPlaylist(\''+c.ref+'\')">Assign playlist</button>';
+  document.getElementById('p-footer').innerHTML=isCancelled
+    ? '<button class="btn-sm" onclick="closePanel()">Close</button>'
+    : showCreativeStep
+      ? '<button id="btn-req-changes" class="btn-sm" disabled style="opacity:0.4;cursor:not-allowed;" onclick="requestChanges(\''+c.ref+'\')">Request changes</button>'
+        + '<button class="btn-sm-r" onclick="approveCreative(\''+c.ref+'\')">' + nextLabel + '</button>'
+      : '<button class="btn-sm" onclick="closePanel()">Cancel</button>'
+        + '<button class="btn-sm" onclick="backToReview(\''+c.ref+'\')">← Back</button>'
+        + '<button class="btn-sm-r" onclick="assignPlaylist(\''+c.ref+'\')">Assign playlist</button>';
   openPanel();
 }
 
@@ -1361,23 +1400,32 @@ function closePanel(){document.getElementById('p-overlay').classList.remove('ope
 
 function openCampPanel(name){
   const c=window.CAMPS.find(x=>x.name===name); if(!c) return;
-  const stMap={live:'pg',scheduled:'pb',cancelled:'pr'};
+  window._campLockersExpanded=false;
+  const statusLabel=c.status==='Live'?'Live':c.status==='Scheduled'?'Scheduled':c.status==='Cancelled'?'Cancelled':'Completed';
+  const typeLabel=c.type==='int'?'Internal (SPX)':'External (seller)';
+  const periodLabel=(c.startDate||'—')+' to '+(c.endDate||'—')+(c.spotsBased?' · ~'+(c.spotsBooked||0).toLocaleString()+' spots (est. end)':'');
+  const plNames=window.PLAYLISTS.filter(p=>campInPl(c,p.id)).map(p=>p.name);
   document.getElementById('p-title').textContent=c.name;
   document.getElementById('p-ref').textContent=c.ref;
   document.getElementById('p-body').innerHTML=`
-    <div style="margin-bottom:12px;"><span class="pill ${stMap[c.status]||'pk'}">${c.status.charAt(0).toUpperCase()+c.status.slice(1)}</span> <span class="pill ${c.type==='int'?'pb':'po'}">${c.type==='int'?'Internal':'External'}</span></div>
+    <div style="background:#f0f0f0;border-radius:3px;height:140px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;margin-bottom:12px;">
+      <div style="text-align:center;"><div style="font-size:24px;margin-bottom:5px;">🖼️</div>
+      <div>[${c.creative||'no creative uploaded'}]</div>
+      <div style="font-size:11px;margin-top:3px;">1080×1920 px · 9:16 portrait</div></div>
+    </div>
     <table class="kv">
-      <tr><td>Advertiser</td><td>${c.company}</td></tr>
-      <tr><td>Seller</td><td>${c.buyer}</td></tr>
-      <tr><td>Period</td><td>${c.startDate||'—'} to ${c.endDate||'—'}</td></tr>
-      <tr><td>Lockers</td><td>100 island-wide</td></tr>
-      <tr><td>Playlist</td><td>${window.PLAYLISTS.filter(p=>campInPl(c,p.id)).map(p=>p.name).join(', ')||'—'}</td></tr>
+      <tr><td>Company</td><td>${c.company}</td></tr>
+      <tr><td>Uploaded by</td><td>${c.buyer}</td></tr>
+      <tr><td>Review date</td><td>${c.approvedDate||'—'}</td></tr>
+      <tr><td>Campaign period</td><td>${periodLabel}</td></tr>
+      <tr><td>Lockers</td><td id="camp-locker-cell">${buildLockerCellContent(c)}</td></tr>
+      <tr><td>Playlists</td><td>${plNames.length?plNames.join(', '):'—'}</td></tr>
       <tr><td>Playback order</td><td><span style="background:#ee4d2d;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;font-weight:700;">#${c.order}</span></td></tr>
-    </table>
-    <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:7px;">Creative</div>
-    <div style="background:#f0f0f0;border-radius:3px;height:180px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;margin-bottom:4px;"><div style="text-align:center;"><div style="font-size:26px;margin-bottom:6px;">🖼️</div><div>[${c.creative||'no creative uploaded'}]</div><div style="font-size:11px;margin-top:3px;">1080×1920 px · 9:16 portrait</div></div></div>`;
-  const campLog = c.reviewLog || [{date: c.approvedDate || '—', event: 'Approved by SPX', by: 'spx'}];
-  document.getElementById('p-body').innerHTML += renderReviewLog(campLog, false, c.buyer);
+      <tr><td>Status</td><td>${statusLabel}</td></tr>
+      <tr><td>Ad type</td><td>${typeLabel}</td></tr>
+    </table>`;
+  const campLog=c.reviewLog||[{date:c.approvedDate||'—',event:'Approved by SPX',by:'spx'}];
+  document.getElementById('p-body').innerHTML+=renderReviewLog(campLog,false,c.buyer);
   document.getElementById('p-footer').innerHTML=c.status!=='Cancelled'?`<button class="btn-sm-d" onclick="cancelCamp('${c.name}')">Cancel campaign</button><button class="btn-sm" onclick="closePanel()">Close</button>`:`<button class="btn-sm" onclick="closePanel()">Close</button>`;
   openPanel();
 }
@@ -1506,7 +1554,47 @@ function saveAiModal(){
 }
 
 // ══════════════ HELPERS ══════════════
-function cancelCamp(name){if(!confirm(`Cancel "${name}"?\n\nThis will stop the campaign and notify the seller.`))return;const i=window.CAMPS.findIndex(c=>c.name===name);if(i>-1){const c=window.CAMPS.splice(i,1)[0];c.status='Cancelled';window.CANCELLED.push(c);window.CAMPS.forEach((x,j)=>x.order=j+1);}closePanel();renderTab();}
+function cancelCamp(name){
+  document.getElementById('p-footer').innerHTML=`
+    <div style="width:100%;display:flex;flex-direction:column;gap:7px;">
+      <div style="font-size:12px;font-weight:600;color:#cf1322;">Reason for cancellation</div>
+      <textarea id="cancel-reason" class="finput" rows="3" placeholder="Explain why this campaign is being cancelled…" style="resize:none;font-size:12px;" oninput="updateCancelBtn('${name}')"></textarea>
+      <div id="cancel-hint" style="font-size:11px;color:#aaa;">Minimum 15 characters</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn-sm" onclick="openCampPanel('${name}')">Back</button>
+        <button class="btn-sm-d" id="cancel-confirm-btn" disabled style="opacity:0.4;cursor:not-allowed;" onclick="confirmCancelCamp('${name}')">Confirm cancellation</button>
+      </div>
+    </div>`;
+}
+function updateCancelBtn(name){
+  const val=document.getElementById('cancel-reason')?.value||'';
+  const btn=document.getElementById('cancel-confirm-btn');
+  const hint=document.getElementById('cancel-hint');
+  if(!btn) return;
+  const ready=val.length>=15;
+  btn.disabled=!ready;
+  btn.style.opacity=ready?'1':'0.4';
+  btn.style.cursor=ready?'pointer':'not-allowed';
+  const rem=Math.max(0,15-val.length);
+  hint.textContent=rem>0?`${rem} more character${rem!==1?'s':''} needed`:'';
+}
+function confirmCancelCamp(name){
+  const reason=document.getElementById('cancel-reason')?.value||'';
+  if(reason.length<15) return;
+  const i=window.CAMPS.findIndex(c=>c.name===name);
+  if(i>-1){
+    const c=window.CAMPS.splice(i,1)[0];
+    c.status='Cancelled';
+    c.cancelReason=reason;
+    if(!c.reviewLog) c.reviewLog=[];
+    const now=new Date();
+    const dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    c.reviewLog.push({date:dateStr,event:'Campaign cancelled',note:reason,by:'spx'});
+    window.CANCELLED.push(c);
+    window.CAMPS.forEach((x,j)=>x.order=j+1);
+  }
+  closePanel();renderTab();
+}
 
 function toggleSuspend(acctId,invId,btn){
   const a=ACCTS[acctId]; if(!a) return;
@@ -1543,7 +1631,7 @@ function closeModal(id){document.getElementById('modal-'+id).classList.remove('o
 function renderReviewLog(log, sellerView, buyerName) {
   if (!log || log.length === 0) return '';
   let html = '<div style="margin-top:16px;border-top:1px solid #f0f0f0;padding-top:12px;">';
-  html += '<div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">Review history</div>';
+  html += '<div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">Ad Tracking History</div>';
   log.forEach((entry, i) => {
     const isLast = i === log.length - 1;
     const byLabel = sellerView
