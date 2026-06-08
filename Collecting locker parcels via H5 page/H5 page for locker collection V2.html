@@ -96,6 +96,7 @@
         <button id="tabRecurring" onclick="switchFlow('recurring')" class="whitespace-nowrap px-4 py-2 rounded-full text-[9px] font-black tracking-widest transition-all bg-slate-900 text-white shadow-lg">RECURRING</button>
         <button id="tabCOD" onclick="switchFlow('cod')" class="whitespace-nowrap px-4 py-2 rounded-full text-[9px] font-black tracking-widest transition-all bg-slate-100 text-slate-400">COD FLOW</button>
         <button id="tabNoParcels" onclick="switchFlow('none')" class="whitespace-nowrap px-4 py-2 rounded-full text-[9px] font-black tracking-widest transition-all bg-slate-100 text-slate-400">NO PARCELS</button>
+        <button id="tabLockout" onclick="switchFlow('lockout')" class="whitespace-nowrap px-4 py-2 rounded-full text-[9px] font-black tracking-widest transition-all bg-slate-100 text-slate-400">OTP LOCKOUT</button>
     </div>
 
     <div class="w-full max-w-md bg-white shadow-2xl overflow-hidden relative sm:rounded-[3rem] border-[10px] border-slate-900 flex flex-col" style="height: 844px; max-height: 94vh;">
@@ -254,6 +255,24 @@
                 <p class="text-[10px] font-black text-orange-600 uppercase tracking-widest">Verifying Code...</p>
             </div>
 
+            <div id="otpLockout" class="hidden flex flex-col items-center text-center px-4 mt-4">
+                <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="12" stroke="#ee4d2d" stroke-width="2"/>
+                        <path d="M14 8v6" stroke="#ee4d2d" stroke-width="2.5" stroke-linecap="round"/>
+                        <circle cx="14" cy="19" r="1.5" fill="#ee4d2d"/>
+                    </svg>
+                </div>
+                <p class="text-sm font-black text-slate-800 mb-1">Too many attempts</p>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    You've entered the wrong OTP too many times.<br>Please try again in <span id="lockoutCountdown" class="font-bold text-slate-600">5:00</span>.
+                </p>
+            </div>
+
+            <div id="otpAttemptsWarning" class="hidden mt-3 text-center">
+                <p class="text-xs text-red-500 font-semibold" id="attemptsWarningText"></p>
+            </div>
+
             <p class="text-xs font-bold text-slate-300">
                 Didn't get it? <span class="shopee-orange-text cursor-pointer">Resend in 24s</span>
             </p>
@@ -379,13 +398,16 @@
     <script>
         let currentFlow = 'recurring';
         let selectedRating = 0;
+        let otpAttempts = 0;
+        const OTP_MAX_ATTEMPTS = 30;
+        const OTP_LOCKOUT_SECONDS = 300;
 
         const positiveTags = ["Fast Service", "Easy to Find", "Safe Locker", "Clean Site", "User Friendly"];
         const negativeTags = ["Door Stuck", "Locker Dirty", "Hard to Find", "OTP Delay", "QR Problem"];
 
         function switchFlow(flow) {
             currentFlow = flow;
-            const tabIds = { first: 'tabFirst', recurring: 'tabRecurring', cod: 'tabCOD', none: 'tabNoParcels' };
+            const tabIds = { first: 'tabFirst', recurring: 'tabRecurring', cod: 'tabCOD', none: 'tabNoParcels', lockout: 'tabLockout' };
             Object.entries(tabIds).forEach(([key, id]) => {
                 const el = document.getElementById(id);
                 el.className = "whitespace-nowrap px-4 py-2 rounded-full text-[9px] font-black tracking-widest transition-all " + 
@@ -417,11 +439,20 @@
             btn.classList.remove('shopee-orange', 'text-white');
             btn.innerText = "Submit Review";
 
-            // Clear OTP fields
+            // Clear OTP fields and reset lockout state
+            otpAttempts = 0;
             const otpInputs = document.querySelectorAll('.otp-input');
             otpInputs.forEach(i => i.value = '');
             document.getElementById('otpLoader').classList.add('hidden');
             document.getElementById('otp-container').classList.remove('hidden');
+            document.getElementById('otpLockout').classList.add('hidden');
+            document.getElementById('otpAttemptsWarning').classList.add('hidden');
+
+            if (currentFlow === 'lockout') {
+                showPage('stepOTP');
+                otpAttempts = OTP_MAX_ATTEMPTS + 1;
+                showOTPLockout();
+            }
 
             const codPriceTags = document.querySelectorAll('.cod-price-tag');
             codPriceTags.forEach(tag => tag.classList.toggle('hidden', currentFlow !== 'cod'));
@@ -447,7 +478,7 @@
             if (input.value.length > 1) input.value = input.value.slice(0, 1);
             if (input.value && index < 3) inputs[index + 1].focus();
             const code = Array.from(inputs).map(i => i.value).join('');
-            if (code.length === 4) otpSuccess();
+            if (code.length === 4) handleOTPSubmit();
         }
 
         // Backspace handling
@@ -512,6 +543,59 @@
             } else {
                 showPage('stepMap');
             }
+        }
+
+        function handleOTPSubmit() {
+            const code = Array.from(document.querySelectorAll('.otp-input'))
+                .map(i => i.value).join('');
+            if (code.length < 4) return;
+            otpAttempts++;
+            if (otpAttempts > OTP_MAX_ATTEMPTS) {
+                showOTPLockout();
+                return;
+            }
+            const remaining = OTP_MAX_ATTEMPTS - otpAttempts;
+            if (remaining <= 5) {
+                showAttemptsWarning(remaining);
+            }
+            otpSuccess();
+        }
+
+        function showOTPLockout() {
+            document.getElementById('otp-container').classList.add('hidden');
+            document.getElementById('otpLoader').classList.add('hidden');
+            document.getElementById('otpLockout').classList.remove('hidden');
+            const resendBtn = document.getElementById('btnResendOTP');
+            if (resendBtn) resendBtn.disabled = true;
+            let seconds = OTP_LOCKOUT_SECONDS;
+            const countdownEl = document.getElementById('lockoutCountdown');
+            const interval = setInterval(() => {
+                seconds--;
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                countdownEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    resetOTPLockout();
+                }
+            }, 1000);
+        }
+
+        function resetOTPLockout() {
+            otpAttempts = 0;
+            document.getElementById('otpLockout').classList.add('hidden');
+            document.getElementById('otpAttemptsWarning').classList.add('hidden');
+            document.getElementById('otp-container').classList.remove('hidden');
+            document.querySelectorAll('.otp-input').forEach(i => i.value = '');
+            document.querySelectorAll('.otp-input')[0].focus();
+        }
+
+        function showAttemptsWarning(remaining) {
+            const el = document.getElementById('otpAttemptsWarning');
+            const text = document.getElementById('attemptsWarningText');
+            if (!el || !text) return;
+            text.textContent = `Incorrect OTP. ${remaining} attempt${remaining > 1 ? 's' : ''} remaining.`;
+            el.classList.remove('hidden');
         }
 
         function otpSuccess() {

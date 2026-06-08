@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPX Express | Payment Required</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; margin: 0; }
+        .shopee-header-bg {
+            background: linear-gradient(135deg, #ee4d2d 0%, #ff7800 100%);
+            flex-shrink: 0;
+        }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-ring {
+            animation: pulseRing 2.4s ease-out infinite;
+        }
+        @keyframes pulseRing {
+            0%   { opacity: 0.6; transform: scale(1); }
+            70%  { opacity: 0;   transform: scale(1.35); }
+            100% { opacity: 0;   transform: scale(1.35); }
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen">
+
+    <!-- Phone frame -->
+    <div class="w-full max-w-md bg-white shadow-2xl overflow-hidden relative sm:rounded-[3rem] border-[10px] border-slate-900 flex flex-col" style="height: 844px; max-height: 94vh;">
+
+        <!-- Orange header -->
+        <div class="shopee-header-bg h-36 relative text-white flex-shrink-0">
+            <div class="p-6 pt-10">
+                <div class="flex justify-between text-[10px] font-black tracking-widest opacity-80 mb-2">
+                    <span>QM52000027</span>
+                    <span>SPX Collection Point</span>
+                </div>
+                <div class="text-center">
+                    <h1 class="text-6xl font-black italic tracking-tighter">SPX</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- White content area -->
+        <div class="flex-1 bg-white rounded-t-[2.5rem] -mt-6 relative z-20 flex flex-col items-center px-8 pt-10 pb-8 fade-in no-scrollbar overflow-y-auto">
+
+            <!-- Icon -->
+            <div class="relative flex items-center justify-center mb-8">
+                <div class="pulse-ring absolute w-36 h-36 rounded-full bg-orange-100"></div>
+                <div class="absolute w-28 h-28 rounded-full bg-orange-50 border-2 border-orange-100"></div>
+                <div class="relative w-24 h-24 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #ee4d2d 0%, #ff7800 100%); box-shadow: 0 8px 24px rgba(238,77,45,0.35);">
+                    <!-- Payment machine / cash icon -->
+                    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Machine body -->
+                        <rect x="8" y="10" width="28" height="24" rx="3" stroke="white" stroke-width="2.2"/>
+                        <!-- Screen -->
+                        <rect x="12" y="14" width="20" height="8" rx="1.5" stroke="white" stroke-width="1.8"/>
+                        <!-- Keypad dots -->
+                        <circle cx="15" cy="27" r="1.5" fill="white"/>
+                        <circle cx="22" cy="27" r="1.5" fill="white"/>
+                        <circle cx="29" cy="27" r="1.5" fill="white"/>
+                        <circle cx="15" cy="32" r="1.5" fill="white"/>
+                        <circle cx="22" cy="32" r="1.5" fill="white"/>
+                        <circle cx="29" cy="32" r="1.5" fill="white"/>
+                        <!-- Dollar sign on screen -->
+                        <path d="M22 16.5v5M20.5 17.5h2a1 1 0 010 2h-1a1 1 0 000 2h2" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Heading -->
+            <h2 class="text-2xl font-black text-slate-800 text-center mb-3 tracking-tight">Payment Required</h2>
+
+            <!-- Message -->
+            <p class="text-sm text-slate-400 font-medium text-center leading-relaxed mb-10">
+                You have COD parcels at this store. Please proceed to the payment machine to complete payment and collect all your parcels.
+            </p>
+
+
+        </div>
+    </div>
+
+</body>
+</html>
