@@ -242,20 +242,34 @@
         <div id="stepOTP" class="hidden absolute inset-0 z-30 flex flex-col bg-white fade-in p-8 pt-20 text-center">
             <h1 class="text-3xl font-black mb-2">Verification</h1>
             <p class="text-slate-400 text-sm mb-10">Enter the 4-digit code sent to your mobile</p>
-            
-            <div class="flex justify-center gap-3 mb-10" id="otp-container">
-                <input type="number" maxlength="1" class="otp-input" oninput="handleOTP(this, 0)">
-                <input type="number" maxlength="1" class="otp-input" oninput="handleOTP(this, 1)">
-                <input type="number" maxlength="1" class="otp-input" oninput="handleOTP(this, 2)">
-                <input type="number" maxlength="1" class="otp-input" oninput="handleOTP(this, 3)">
+
+            <div id="otpNormalContent" class="flex flex-col flex-1">
+                <div class="flex justify-center gap-3 mb-10" id="otp-container">
+                    <input type="number" maxlength="1" class="otp-input" oninput="handleOTP(this, 0)">
+                    <input type="number" maxlength="1" class="otp-input" oninput="handleOTP(this, 1)">
+                    <input type="number" maxlength="1" class="otp-input" oninput="handleOTP(this, 2)">
+                    <input type="number" maxlength="1" class="otp-input" oninput="handleOTP(this, 3)">
+                </div>
+
+                <div id="otpLoader" class="hidden flex flex-col items-center gap-4 mb-8">
+                    <div class="w-8 h-8 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+                    <p class="text-[10px] font-black text-orange-600 uppercase tracking-widest">Verifying Code...</p>
+                </div>
+
+                <div id="otpAttemptsWarning" class="hidden mt-3 text-center">
+                    <p class="text-xs text-red-500 font-semibold" id="attemptsWarningText"></p>
+                </div>
+
+                <p class="text-xs font-bold text-slate-300">
+                    Didn't get it? <span class="shopee-orange-text cursor-pointer">Resend in 24s</span>
+                </p>
+
+                <button onclick="showPage('stepPhone')" class="mt-auto py-5 border-2 border-slate-100 rounded-2xl text-slate-500 font-black text-[11px] uppercase tracking-widest active:bg-slate-50">
+                    Back to Phone Input
+                </button>
             </div>
 
-            <div id="otpLoader" class="hidden flex flex-col items-center gap-4 mb-8">
-                <div class="w-8 h-8 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
-                <p class="text-[10px] font-black text-orange-600 uppercase tracking-widest">Verifying Code...</p>
-            </div>
-
-            <div id="otpLockout" class="hidden flex flex-col items-center text-center px-4 mt-4">
+            <div id="otpLockout" class="hidden flex flex-col items-center justify-center text-center px-4 flex-1">
                 <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mb-4">
                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
                         <circle cx="14" cy="14" r="12" stroke="#ee4d2d" stroke-width="2"/>
@@ -268,18 +282,6 @@
                     You've entered the wrong OTP too many times.<br>Please try again in <span id="lockoutCountdown" class="font-bold text-slate-600">5:00</span>.
                 </p>
             </div>
-
-            <div id="otpAttemptsWarning" class="hidden mt-3 text-center">
-                <p class="text-xs text-red-500 font-semibold" id="attemptsWarningText"></p>
-            </div>
-
-            <p id="otpResendLine" class="text-xs font-bold text-slate-300">
-                Didn't get it? <span class="shopee-orange-text cursor-pointer">Resend in 24s</span>
-            </p>
-
-            <button id="otpBackBtn" onclick="showPage('stepPhone')" class="mt-auto py-5 border-2 border-slate-100 rounded-2xl text-slate-500 font-black text-[11px] uppercase tracking-widest active:bg-slate-50">
-                Back to Phone Input
-            </button>
         </div>
 
         <div id="stepPaymentMethod" class="hidden absolute inset-0 z-40 flex flex-col bg-white fade-in p-8 pt-16">
@@ -445,7 +447,8 @@
             otpInputs.forEach(i => i.value = '');
             document.getElementById('otpLoader').classList.add('hidden');
             document.getElementById('otp-container').classList.remove('hidden');
-            document.getElementById('otpLockout').classList.add('hidden');
+            document.getElementById('otpNormalContent').style.display = '';
+            document.getElementById('otpLockout').style.display = 'none';
             document.getElementById('otpAttemptsWarning').classList.add('hidden');
 
             if (currentFlow === 'lockout') {
@@ -562,13 +565,8 @@
         }
 
         function showOTPLockout() {
-            document.getElementById('otp-container').classList.add('hidden');
-            document.getElementById('otpLoader').classList.add('hidden');
-            document.getElementById('otpLockout').classList.remove('hidden');
-            document.getElementById('otpResendLine').style.display = 'none';
-            document.getElementById('otpBackBtn').style.display = 'none';
-            const resendBtn = document.getElementById('btnResendOTP');
-            if (resendBtn) resendBtn.disabled = true;
+            document.getElementById('otpNormalContent').style.display = 'none';
+            document.getElementById('otpLockout').style.display = 'flex';
             let seconds = OTP_LOCKOUT_SECONDS;
             const countdownEl = document.getElementById('lockoutCountdown');
             const interval = setInterval(() => {
@@ -585,11 +583,10 @@
 
         function resetOTPLockout() {
             otpAttempts = 0;
-            document.getElementById('otpLockout').classList.add('hidden');
+            document.getElementById('otpLockout').style.display = 'none';
+            document.getElementById('otpNormalContent').style.display = '';
             document.getElementById('otpAttemptsWarning').classList.add('hidden');
             document.getElementById('otp-container').classList.remove('hidden');
-            document.getElementById('otpResendLine').style.display = '';
-            document.getElementById('otpBackBtn').style.display = '';
             document.querySelectorAll('.otp-input').forEach(i => i.value = '');
             document.querySelectorAll('.otp-input')[0].focus();
         }
