@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPX Express | Session Expired</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; margin: 0; }
+        .shopee-orange { background-color: #ee4d2d; }
+        .shopee-orange-text { color: #ee4d2d; }
+        .shopee-header-bg {
+            background: linear-gradient(135deg, #ee4d2d 0%, #ff7800 100%);
+            flex-shrink: 0;
+        }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .pulse-ring {
+            animation: pulseRing 2.4s ease-out infinite;
+        }
+        @keyframes pulseRing {
+            0%   { opacity: 0.6; transform: scale(1); }
+            70%  { opacity: 0;   transform: scale(1.35); }
+            100% { opacity: 0;   transform: scale(1.35); }
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen">
+
+    <!-- Phone frame -->
+    <div class="w-full max-w-md bg-white shadow-2xl overflow-hidden relative sm:rounded-[3rem] border-[10px] border-slate-900 flex flex-col" style="height: 844px; max-height: 94vh;">
+
+        <!-- Orange header -->
+        <div class="shopee-header-bg h-36 relative text-white flex-shrink-0">
+            <div class="p-6 pt-10">
+                <div class="flex justify-between text-[10px] font-black tracking-widest opacity-80 mb-2">
+                    <span>QM52000027</span>
+                    <span>SPX Collection Point</span>
+                </div>
+                <div class="text-center">
+                    <h1 class="text-6xl font-black italic tracking-tighter">SPX</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- White content area -->
+        <div class="flex-1 bg-white rounded-t-[2.5rem] -mt-6 relative z-20 flex flex-col items-center px-8 pt-10 pb-8 fade-in no-scrollbar overflow-y-auto">
+
+            <!-- Icon -->
+            <div class="relative flex items-center justify-center mb-8">
+                <!-- Pulse ring -->
+                <div class="pulse-ring absolute w-36 h-36 rounded-full bg-orange-100"></div>
+                <!-- Outer ring -->
+                <div class="absolute w-28 h-28 rounded-full bg-orange-50 border-2 border-orange-100"></div>
+                <!-- Icon circle -->
+                <div class="relative w-24 h-24 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #ee4d2d 0%, #ff7800 100%); box-shadow: 0 8px 24px rgba(238,77,45,0.35);">
+                    <!-- Clock SVG -->
+                    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="22" cy="22" r="18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M22 12V22L27 27" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <!-- X mark at bottom right -->
+                        <circle cx="33" cy="33" r="7" fill="#ff7800" stroke="white" stroke-width="2"/>
+                        <path d="M30.5 30.5L35.5 35.5M35.5 30.5L30.5 35.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Heading -->
+            <h2 class="text-2xl font-black text-slate-800 text-center mb-3 tracking-tight">Session Expired</h2>
+
+            <!-- Subtext -->
+            <p class="text-sm text-slate-400 font-medium text-center leading-relaxed">
+                Your session has expired. Scan the QR code on the locker to try again.
+            </p>
+
+        </div>
+    </div>
+
+</body>
+</html>
