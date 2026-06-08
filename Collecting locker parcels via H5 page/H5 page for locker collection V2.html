@@ -277,7 +277,7 @@
                 Didn't get it? <span class="shopee-orange-text cursor-pointer">Resend in 24s</span>
             </p>
 
-            <button onclick="showPage('stepPhone')" class="mt-auto py-5 border-2 border-slate-100 rounded-2xl text-slate-500 font-black text-[11px] uppercase tracking-widest active:bg-slate-50">
+            <button id="otpBackBtn" onclick="showPage('stepPhone')" class="mt-auto py-5 border-2 border-slate-100 rounded-2xl text-slate-500 font-black text-[11px] uppercase tracking-widest active:bg-slate-50">
                 Back to Phone Input
             </button>
         </div>
@@ -565,7 +565,8 @@
             document.getElementById('otp-container').classList.add('hidden');
             document.getElementById('otpLoader').classList.add('hidden');
             document.getElementById('otpLockout').classList.remove('hidden');
-            document.getElementById('otpResendLine').classList.add('hidden');
+            document.getElementById('otpResendLine').style.display = 'none';
+            document.getElementById('otpBackBtn').style.display = 'none';
             const resendBtn = document.getElementById('btnResendOTP');
             if (resendBtn) resendBtn.disabled = true;
             let seconds = OTP_LOCKOUT_SECONDS;
@@ -587,7 +588,8 @@
             document.getElementById('otpLockout').classList.add('hidden');
             document.getElementById('otpAttemptsWarning').classList.add('hidden');
             document.getElementById('otp-container').classList.remove('hidden');
-            document.getElementById('otpResendLine').classList.remove('hidden');
+            document.getElementById('otpResendLine').style.display = '';
+            document.getElementById('otpBackBtn').style.display = '';
             document.querySelectorAll('.otp-input').forEach(i => i.value = '');
             document.querySelectorAll('.otp-input')[0].focus();
         }
