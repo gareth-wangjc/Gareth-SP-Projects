@@ -273,7 +273,7 @@
                 <p class="text-xs text-red-500 font-semibold" id="attemptsWarningText"></p>
             </div>
 
-            <p class="text-xs font-bold text-slate-300">
+            <p id="otpResendLine" class="text-xs font-bold text-slate-300">
                 Didn't get it? <span class="shopee-orange-text cursor-pointer">Resend in 24s</span>
             </p>
 
@@ -565,6 +565,7 @@
             document.getElementById('otp-container').classList.add('hidden');
             document.getElementById('otpLoader').classList.add('hidden');
             document.getElementById('otpLockout').classList.remove('hidden');
+            document.getElementById('otpResendLine').classList.add('hidden');
             const resendBtn = document.getElementById('btnResendOTP');
             if (resendBtn) resendBtn.disabled = true;
             let seconds = OTP_LOCKOUT_SECONDS;
@@ -586,6 +587,7 @@
             document.getElementById('otpLockout').classList.add('hidden');
             document.getElementById('otpAttemptsWarning').classList.add('hidden');
             document.getElementById('otp-container').classList.remove('hidden');
+            document.getElementById('otpResendLine').classList.remove('hidden');
             document.querySelectorAll('.otp-input').forEach(i => i.value = '');
             document.querySelectorAll('.otp-input')[0].focus();
         }
