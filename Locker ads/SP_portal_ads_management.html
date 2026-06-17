@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -215,10 +215,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:3px;padding:8px 11px;font-size:12px;color:#096dd9;margin-bottom:14px;">Internal ads skip the review queue. They are auto-assigned to all playlists that allow internal ads.</div>
       <div class="frow"><div class="flbl req" style="padding-top:7px;">Ad name</div><input class="finput" placeholder="e.g. SPX Brand May 2026"/></div>
 
-      <div class="frow" style="margin-top:9px;"><div class="flbl req" style="padding-top:7px;">Run period</div><div><div style="display:flex;align-items:center;gap:8px;"><input type="date" class="finput" style="width:140px;"/><span style="color:#aaa;">→</span><input type="date" class="finput" style="width:140px;"/></div></div></div>
-      <div class="frow" style="margin-top:9px;"><div class="flbl" style="padding-top:7px;">Priority</div><label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;padding-top:8px;"><input type="checkbox" style="accent-color:#ee4d2d;"/> Plays before seller ads in rotation</label></div>
-      <div style="margin-top:14px;"><div style="font-size:12px;font-weight:500;color:#555;margin-bottom:8px;">Creative file</div>
-        <div class="uzone" onclick="alert('File picker')"><div style="font-size:22px;color:#ccc;margin-bottom:6px;">☁️</div><div style="font-size:13px;font-weight:500;margin-bottom:2px;">Drop file here or click to browse</div><div style="font-size:12px;color:#bbb;">JPG or PNG · 1080×1920 px · Max 10 MB</div></div>
+      <div class="frow" style="margin-top:9px;"><div class="flbl req" style="padding-top:7px;">Campaign period</div><div><div style="display:flex;align-items:center;gap:8px;"><input type="date" class="finput" style="width:140px;"/><span style="color:#aaa;">→</span><input type="date" class="finput" style="width:140px;"/></div></div></div>
+      <div style="margin-top:14px;">
+        <div style="font-size:12px;font-weight:500;color:#555;margin-bottom:8px;">Creative file <span style="color:#ee4d2d;">*</span></div>
+        <div class="uzone" id="uzone-idle" onclick="document.getElementById('ufile-input').click()">
+          <div style="font-size:22px;color:#ccc;margin-bottom:6px;">☁️</div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:2px;">Drop file here or click to browse</div>
+          <div style="font-size:12px;color:#bbb;">JPG or PNG · 1080×1720 px · Max 10 MB</div>
+        </div>
+        <div id="uzone-uploading" style="display:none;border:1px solid #d9d9d9;border-radius:4px;padding:14px 16px;background:#fafafa;">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:8px;">
+            <span id="uzone-filename" style="font-weight:500;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;"></span>
+            <span id="uzone-pct" style="color:#888;flex-shrink:0;margin-left:8px;">0%</span>
+          </div>
+          <div style="background:#e8e8e8;border-radius:100px;height:5px;overflow:hidden;">
+            <div id="uzone-bar" style="height:100%;background:#ee4d2d;border-radius:100px;width:0%;"></div>
+          </div>
+          <div style="font-size:11px;color:#aaa;margin-top:6px;">Uploading...</div>
+        </div>
+        <div id="uzone-failed" style="display:none;border:1px solid #ffccc7;border-radius:4px;padding:12px 16px;background:#fff2f0;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:#ff4d4f;font-size:15px;line-height:1;">✕</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:600;color:#cf1322;">Upload failed</div>
+              <div style="font-size:11px;color:#888;margin-top:1px;">Something went wrong. Please try again.</div>
+            </div>
+            <button onclick="retryUpload()" style="background:none;border:none;color:#ee4d2d;cursor:pointer;font-size:12px;white-space:nowrap;padding:0 2px;flex-shrink:0;">Retry upload</button>
+          </div>
+        </div>
+        <div id="uzone-success" style="display:none;border:1px solid #b7eb8f;border-radius:4px;padding:12px 16px;background:#f6ffed;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:#52c41a;font-size:15px;">✓</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:500;color:#389e0d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="uzone-success-name"></div>
+              <div style="font-size:11px;color:#888;margin-top:1px;">Ready to schedule</div>
+            </div>
+            <button onclick="removeUpload()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:16px;line-height:1;padding:0 2px;" title="Remove">✕</button>
+          </div>
+        </div>
+        <input type="file" id="ufile-input" accept=".jpg,.jpeg,.png" style="display:none" onchange="handleFileSelect(this)">
       </div>
     </div>
     <div class="modal-ft"><button class="btn-w" onclick="closeModal('upload')">Cancel</button><button class="btn-r" onclick="closeModal('upload');alert('Internal ad scheduled')">Schedule ad</button></div>
@@ -257,53 +292,57 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 const MARKET = {name:'Singapore', regionField:'Postal sector (derived)', regionLabel:'Region/Town'};
 
 if(!window.CAMPS) window.CAMPS=[
-  {name:'SPF Advisory',     type:'int',buyer:'SPX Internal',   company:'SPX',         ref:'SPXSGAD260000000001',
+  {name:'SPF Advisory',     type:'int',buyer:'SPX Internal',   company:'SPX',         ref:'SGAD000001',
    start:1,end:30,startDate:'2026-04-01',endDate:'2026-04-30',order:1,status:'Live',creative:'spf_advisory.jpg',
    spotsBased:false,bookedLocTypes:['HDB Residential','MRT Stations'],bookedRegions:['North','East','Central','West','North East'],
    approvedDate:'2026-04-01 09:00:00',assignedPlaylists:['pl-1','pl-2'], reviewLog:[
-    {date:'01 Apr 2026, 09:00', event:'Submitted for review', by:'seller'},
-    {date:'01 Apr 2026, 09:00', event:'Approved by SPX', by:'spx'},
+    {date:'01 Apr 2026, 09:00', event:'Scheduled', by:'system'},
+    {date:'01 Apr 2026, 09:00', event:'Live', by:'system'},
   ]},
-  {name:'Lazada Returns',   type:'ext',buyer:'Priya Nair',      company:'Lazada SG',   ref:'SPXSGAD260000000398',
+  {name:'Lazada Returns',   type:'ext',buyer:'Priya Nair',      company:'Lazada SG',   ref:'SGAD000398',
    start:6,end:30,startDate:'2026-04-06',endDate:'2026-04-30',order:2,status:'Live',creative:'lazada_returns_v2.jpg',
    spotsBased:false,bookedLocTypes:['MRT Stations','HDB Residential'],bookedRegions:['East','Central'],
    approvedDate:'2026-04-05 14:22:11',assignedPlaylists:['pl-1'], reviewLog:[
-    {date:'04 Apr 2026, 10:15', event:'Submitted for review', by:'seller'},
-    {date:'05 Apr 2026, 14:22', event:'Approved by SPX', by:'spx'},
+    {date:'04 Apr 2026, 10:15', event:'Pending review', by:'seller'},
+    {date:'05 Apr 2026, 14:22', event:'Approved', by:'spx'},
+    {date:'05 Apr 2026, 14:22', event:'Scheduled', by:'system'},
+    {date:'06 Apr 2026, 00:00', event:'Live', by:'system'},
   ]},
-  {name:'Senoko Energy',    type:'ext',buyer:'K. Lim',           company:'Senoko Energy',ref:'SPXSGAD260000000380',
+  {name:'Senoko Energy',    type:'ext',buyer:'K. Lim',           company:'Senoko Energy',ref:'SGAD000380',
    start:10,end:28,startDate:'2026-04-10',endDate:'2026-04-28',order:3,status:'Live',creative:'senoko_livesmart.jpg',
    spotsBased:true,spotsBooked:6000,bookedLocTypes:['HDB Residential'],bookedRegions:['North','North East'],
    approvedDate:'2026-04-09 11:05:44',assignedPlaylists:['pl-1'], reviewLog:[
-    {date:'08 Apr 2026, 16:20', event:'Submitted for review', by:'seller'},
-    {date:'09 Apr 2026, 11:05', event:'Approved by SPX', by:'spx'},
+    {date:'08 Apr 2026, 16:20', event:'Pending review', by:'seller'},
+    {date:'09 Apr 2026, 11:05', event:'Approved', by:'spx'},
+    {date:'09 Apr 2026, 11:05', event:'Scheduled', by:'system'},
+    {date:'10 Apr 2026, 00:00', event:'Live', by:'system'},
   ]},
-  {name:'SPX Brand May',    type:'int',buyer:'SPX Internal',     company:'SPX',         ref:'SPXSGAD260000000002',
+  {name:'SPX Brand May',    type:'int',buyer:'SPX Internal',     company:'SPX',         ref:'SGAD000002',
    start:22,end:30,startDate:'2026-04-22',endDate:'2026-05-31',order:4,status:'Scheduled',creative:'spx_brand_may.jpg',
    spotsBased:false,bookedLocTypes:['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs','Condominiums','Offices'],bookedRegions:['North','North East','East','Central','West'],
    approvedDate:'2026-04-18 10:00:00',assignedPlaylists:['pl-1','pl-2'], reviewLog:[
-    {date:'18 Apr 2026, 10:00', event:'Internal ad activated', by:'system'},
+    {date:'18 Apr 2026, 10:00', event:'Scheduled', by:'system'},
   ]},
-  {name:'Panasonic TOUGHBOOK',type:'ext',buyer:'K. Watanabe',  company:'Panasonic SG',ref:'SPXSGAD260000000390',
+  {name:'Panasonic TOUGHBOOK',type:'ext',buyer:'K. Watanabe',  company:'Panasonic SG',ref:'SGAD000390',
    start:22,end:30,startDate:'2026-07-01',endDate:'2026-07-31',order:5,status:'Scheduled',creative:'panasonic_tb.jpg',
    reviewLog:[
-    {date:'18 Apr 2026, 14:30', event:'Submitted for review', by:'seller'},
+    {date:'18 Apr 2026, 14:30', event:'Pending review', by:'seller'},
    ],
    spotsBased:true,spotsBooked:9000,bookedLocTypes:['MRT Stations','Shopping Malls'],bookedRegions:['Central','East','West'],
    approvedDate:null,assignedPlaylists:[]},
   // Pending review — not yet approved or assigned
-  {name:'FairPrice Q2',     type:'ext',buyer:'Maya Tan',         company:'FairPrice Group',ref:'SPXSGAD260000000441',
+  {name:'FairPrice Q2',     type:'ext',buyer:'Maya Tan',         company:'FairPrice Group',ref:'SGAD000441',
    start:1,end:30,startDate:'2026-09-01',endDate:'2026-10-31',order:6,status:'Scheduled',creative:'fairprice_q2.jpg',
    reviewLog:[
-    {date:'19 Apr 2026, 09:15', event:'Submitted for review', by:'seller'},
-    {date:'20 Apr 2026, 11:30', event:'Approved by SPX', by:'spx'},
+    {date:'19 Apr 2026, 09:15', event:'Pending review', by:'seller'},
+    {date:'20 Apr 2026, 11:30', event:'Approved', by:'spx'},
    ],
    spotsBased:false,bookedLocTypes:['HDB Residential','Shopping Malls'],bookedRegions:['North','East','West','Central','North East'],
    approvedDate:'2026-04-20 11:30:00',assignedPlaylists:[]},
 ];
 if(!window.DONE) window.DONE=[
-  {name:'FairPrice CNY',company:'FairPrice Group',buyer:'Maya Tan',ref:'SPXSGAD260000000388',start:'1 Mar',end:'28 Apr',days:58,lockers:100,impressions:1740000,hours:4350,status:'Completed'},
-  {name:'Singtel Broadband',company:'Singtel',buyer:'J. Ong',ref:'SPXSGAD250000000412',start:'10 Jan',end:'21 Apr',days:101,lockers:100,impressions:3030000,hours:7575,status:'Completed'},
+  {name:'FairPrice CNY',company:'FairPrice Group',buyer:'Maya Tan',ref:'SGAD000388',start:'1 Mar',end:'28 Apr',days:58,lockers:100,impressions:1740000,hours:4350,status:'Completed'},
+  {name:'Singtel Broadband',company:'Singtel',buyer:'J. Ong',ref:'SGAD000412',start:'10 Jan',end:'21 Apr',days:101,lockers:100,impressions:3030000,hours:7575,status:'Completed'},
 ];
 if(!window.CANCELLED) window.CANCELLED=[];
 
@@ -356,7 +395,7 @@ const ALL_LOC_TYPES=['HDB Residential','MRT Stations','Shopping Malls','Bus Inte
 
 // AI criteria — ops-configurable named categories
 if(!window.AI_CRITERIA) window.AI_CRITERIA=[
-  {id:'c1',label:'Technical compliance',desc:'Check file format, dimensions, colour mode and file size meet spec.',example:'Reject if not 1080×1920px, not JPG/PNG, or over 10MB.',enabled:true},
+  {id:'c1',label:'Technical compliance',desc:'Check file format, dimensions, colour mode and file size meet spec.',example:'Reject if not 1080×1720px, not JPG/PNG, or over 10MB.',enabled:true},
   {id:'c2',label:'Prohibited content',desc:'Check for tobacco, alcohol, gambling, adult content, or political material.',example:'Flag if creative shows cigarette packaging or casino imagery.',enabled:true},
   {id:'c3',label:'Site-specific restrictions',desc:'Check for competitor logistics/e-commerce brand logos or names.',example:'Flag if Ninja Van, J&T, Lazada (when restricted by HDB rules) logos are visible.',enabled:true},
   {id:'c4',label:'Brand safety',desc:'Check that content is suitable for all ages including children.',example:'Flag if creative contains violent imagery or sexually suggestive content.',enabled:true},
@@ -378,6 +417,7 @@ const RC={
   price_per_spot: 0.00003,   // SGD per spot (e.g. 0.00003 = SGD 3 per 100,000 spots)
   cycle_interval: 10,        // seconds per ad slot
   inactivity_timeout: 30,    // seconds of locker inactivity before showing ad
+  est_daily_plays: 200,      // estimated ad plays per locker per day (used for duration campaign estimates shown to sellers)
   tiers:[
     {name:'Starter',  spots:150000},
     {name:'Standard', spots:300000},
@@ -1099,6 +1139,7 @@ function openAdPanel(ref){
   const isCancelled = c.status === 'Cancelled';
   const isApproved = !!c.approvedDate && (c.assignedPlaylists||[]).length === 0 && !c.rejected;
   const isPending = !c.approvedDate && !c.rejected;
+  const canCancel = !isCancelled && !c.rejected && (c.status==='Live'||c.status==='Scheduled') && (c.assignedPlaylists||[]).length>0;
   const showCreativeStep = !isCancelled && (isPending || _panelForcedBack);
   _panelForcedBack = false;
 
@@ -1117,7 +1158,7 @@ function openAdPanel(ref){
   body += '<div style="background:#f0f0f0;border-radius:3px;height:140px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;margin-bottom:12px;">'
         + '<div style="text-align:center;"><div style="font-size:24px;margin-bottom:5px;">🖼️</div>'
         + '['+(c.creative||'no creative')+']'
-        + '<div style="font-size:11px;margin-top:3px;">1080×1920 px · 9:16</div></div></div>';
+        + '<div style="font-size:11px;margin-top:3px;">1080×1720 px</div></div></div>';
 
   // Details table
   const adPlNames=(c.assignedPlaylists||[]).map(id=>window.PLAYLISTS.find(p=>p.id===id)?.name||id);
@@ -1128,7 +1169,6 @@ function openAdPanel(ref){
         + '<tr><td>Campaign period</td><td>'+(c.startDate||'—')+' to '+(c.endDate||'—')+(c.spotsBased?' · ~'+(c.spotsBooked||0).toLocaleString()+' spots (est. end)':'')+'</td></tr>'
         + '<tr><td>Lockers</td><td id="camp-locker-cell">'+buildLockerCellContent(c)+'</td></tr>'
         + '<tr><td>Playlists</td><td>'+(adPlNames.length?adPlNames.join(', '):'—')+'</td></tr>'
-        + '<tr><td>Playback order</td><td>'+(c.order?'<span style="background:#ee4d2d;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;font-weight:700;">#'+c.order+'</span>':'—')+'</td></tr>'
         + '<tr><td>Status</td><td>'+st.label+'</td></tr>'
         + '<tr><td>Ad type</td><td>'+(c.type==='int'?'Internal (SPX)':'Seller campaign')+'</td></tr>'
         + '</table>';
@@ -1149,7 +1189,7 @@ function openAdPanel(ref){
     body += '<div style="margin-top:12px;"><div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">Feedback to seller (if changes requested)</div>'
           + '<textarea class="finput" id="cr-feedback" rows="3" placeholder="Describe what needs to change." style="resize:vertical;" oninput="checkFeedback()"></textarea>'
           + '<div style="font-size:11px;color:#aaa;margin-top:4px;" id="fb-hint">Minimum 15 characters required.</div></div>';
-  } else if(!isCancelled) {
+  } else if(isApproved) {
     // Playlist assignment
     body += '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:4px;">Playlist assignment</div>'
           + '<div style="font-size:12px;color:#888;margin-bottom:8px;">Playlists have been auto-assigned based on the seller\'s booked location types and regions. Each locker only plays this ad if it matches the booking — no over-delivery. De-select any before saving if needed.</div>';
@@ -1199,9 +1239,15 @@ function openAdPanel(ref){
     : showCreativeStep
       ? '<button id="btn-req-changes" class="btn-sm" disabled style="opacity:0.4;cursor:not-allowed;" onclick="requestChanges(\''+c.ref+'\')">Request changes</button>'
         + '<button class="btn-sm-r" onclick="approveCreative(\''+c.ref+'\')">' + nextLabel + '</button>'
-      : '<button class="btn-sm" onclick="closePanel()">Cancel</button>'
-        + '<button class="btn-sm" onclick="backToReview(\''+c.ref+'\')">← Back</button>'
-        + '<button class="btn-sm-r" onclick="assignPlaylist(\''+c.ref+'\')">Assign playlist</button>';
+      : isApproved
+        ? '<button class="btn-sm" onclick="closePanel()">Cancel</button>'
+          + '<button class="btn-sm" onclick="backToReview(\''+c.ref+'\')">← Back</button>'
+          + '<button class="btn-sm-r" onclick="assignPlaylist(\''+c.ref+'\')">Assign playlist</button>'
+        : canCancel
+          ? '<button class="btn-sm" onclick="closePanel()">Close</button>'
+            + (c.type==='int'&&c.status==='Scheduled'?'<button class="btn-sm" onclick="editInternalAd(\''+c.ref+'\')">Edit</button>':'')
+            + '<button class="btn-sm-d" onclick="cancelAdPanel(\''+c.ref+'\')">Cancel campaign</button>'
+          : '<button class="btn-sm" onclick="closePanel()">Close</button>';
   openPanel();
 }
 
@@ -1217,7 +1263,7 @@ function requestChanges(ref){
   c.rejected=true;
   c.approvedDate=null;
   c.reviewLog=c.reviewLog||[];
-  c.reviewLog.push({date:new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',',''), event:'Changes requested by SPX', by:'spx', note:feedback});
+  c.reviewLog.push({date:new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',',''), event:'Changes requested', by:'spx', note:feedback});
   closePanel();
   renderTab();
 }
@@ -1325,6 +1371,17 @@ function renderBookingConfig(){
       </div>
     </div>
 
+    <div class="frow">
+      <div class="flbl">Est. daily plays<br>per locker</div>
+      <div class="fbody">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input class="finput" value="${RC.est_daily_plays}" style="width:70px;" type="number" min="1" onchange="RC.est_daily_plays=+this.value"/>
+          <span style="font-size:13px;color:#666;">plays / locker / day</span>
+        </div>
+        <div class="fhint">Used to calculate estimated spots shown to sellers when booking by duration. Based on typical play frequency after accounting for locker opening hours and transactional downtime. Update periodically as delivery data becomes available.</div>
+      </div>
+    </div>
+
     <!-- SECTION: SELLER BOOKING OPTIONS -->
     <div style="display:flex;align-items:center;gap:10px;margin:28px 0 18px;">
       <div style="width:4px;height:18px;background:#ee4d2d;border-radius:1px;flex-shrink:0;"></div>
@@ -1411,7 +1468,7 @@ function openCampPanel(name){
     <div style="background:#f0f0f0;border-radius:3px;height:140px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;margin-bottom:12px;">
       <div style="text-align:center;"><div style="font-size:24px;margin-bottom:5px;">🖼️</div>
       <div>[${c.creative||'no creative uploaded'}]</div>
-      <div style="font-size:11px;margin-top:3px;">1080×1920 px · 9:16 portrait</div></div>
+      <div style="font-size:11px;margin-top:3px;">1080×1720 px · portrait</div></div>
     </div>
     <table class="kv">
       <tr><td>Company</td><td>${c.company}</td></tr>
@@ -1420,11 +1477,10 @@ function openCampPanel(name){
       <tr><td>Campaign period</td><td>${periodLabel}</td></tr>
       <tr><td>Lockers</td><td id="camp-locker-cell">${buildLockerCellContent(c)}</td></tr>
       <tr><td>Playlists</td><td>${plNames.length?plNames.join(', '):'—'}</td></tr>
-      <tr><td>Playback order</td><td><span style="background:#ee4d2d;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;font-weight:700;">#${c.order}</span></td></tr>
       <tr><td>Status</td><td>${statusLabel}</td></tr>
       <tr><td>Ad type</td><td>${typeLabel}</td></tr>
     </table>`;
-  const campLog=c.reviewLog||[{date:c.approvedDate||'—',event:'Approved by SPX',by:'spx'}];
+  const campLog=c.reviewLog||[{date:c.approvedDate||'—',event:'Approved',by:'spx'}];
   document.getElementById('p-body').innerHTML+=renderReviewLog(campLog,false,c.buyer);
   document.getElementById('p-footer').innerHTML=c.status!=='Cancelled'?`<button class="btn-sm-d" onclick="cancelCamp('${c.name}')">Cancel campaign</button><button class="btn-sm" onclick="closePanel()">Close</button>`:`<button class="btn-sm" onclick="closePanel()">Close</button>`;
   openPanel();
@@ -1432,9 +1488,9 @@ function openCampPanel(name){
 
 function openCreativePanel(){
   document.getElementById('p-title').textContent='Reviewing: Lazada — Returns campaign';
-  document.getElementById('p-ref').textContent='SPX-SG-2026-00398';
+  document.getElementById('p-ref').textContent='SGAD000398';
   document.getElementById('p-body').innerHTML=`
-    <div style="background:#f0f0f0;border-radius:3px;height:160px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;margin-bottom:12px;"><div style="text-align:center;"><div style="font-size:24px;margin-bottom:5px;">🖼️</div>[lazada_returns_v2.jpg · 1080×1920px]</div></div>
+    <div style="background:#f0f0f0;border-radius:3px;height:160px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;margin-bottom:12px;"><div style="text-align:center;"><div style="font-size:24px;margin-bottom:5px;">🖼️</div>[lazada_returns_v2.jpg · 1080×1720px]</div></div>
     <table class="kv">
       <tr><td>Goes live</td><td style="color:#d46b08;font-weight:600;">22 Apr 2026 (2 days)</td></tr>
       <tr><td>Advertiser</td><td>Lazada Singapore</td></tr>
@@ -1589,11 +1645,90 @@ function confirmCancelCamp(name){
     if(!c.reviewLog) c.reviewLog=[];
     const now=new Date();
     const dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    c.reviewLog.push({date:dateStr,event:'Campaign cancelled',note:reason,by:'spx'});
+    c.reviewLog.push({date:dateStr,event:'Cancelled',note:reason,by:'spx'});
     window.CANCELLED.push(c);
     window.CAMPS.forEach((x,j)=>x.order=j+1);
   }
   closePanel();renderTab();
+}
+
+function editInternalAd(ref){
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  document.getElementById('p-body').innerHTML=
+    '<div style="display:flex;flex-direction:column;gap:14px;padding-top:4px;">'
+    +'<div><div style="font-size:12px;font-weight:500;color:#555;margin-bottom:5px;">Campaign name</div>'
+    +'<input id="eia-name" class="finput" value="'+c.name+'"/></div>'
+    +'<div><div style="font-size:12px;font-weight:500;color:#555;margin-bottom:5px;">Campaign period</div>'
+    +'<div style="display:flex;align-items:center;gap:8px;">'
+    +'<input id="eia-start" type="date" class="finput" style="width:140px;" value="'+(c.startDate||'')+'"/>'
+    +'<span style="color:#aaa;">→</span>'
+    +'<input id="eia-end" type="date" class="finput" style="width:140px;" value="'+(c.endDate||'')+'"/>'
+    +'</div></div>'
+    +'<div><div style="font-size:12px;font-weight:500;color:#555;margin-bottom:5px;">Creative</div>'
+    +'<div style="font-size:12px;color:#888;margin-bottom:6px;">Current: '+(c.creative||'none')+'</div>'
+    +'<div class="uzone" onclick="alert(\'File picker\')" style="padding:12px;text-align:center;">'
+    +'<div style="font-size:13px;font-weight:500;margin-bottom:2px;">Click to replace creative</div>'
+    +'<div style="font-size:11px;color:#bbb;">JPG or PNG · 1080×1720 px · Max 10 MB</div>'
+    +'</div></div>'
+    +'</div>';
+  document.getElementById('p-footer').innerHTML=
+    '<button class="btn-sm" onclick="openAdPanel(\''+ref+'\')">Cancel</button>'
+    +'<button class="btn-sm-r" onclick="saveInternalAdEdit(\''+ref+'\')">Save changes</button>';
+}
+function saveInternalAdEdit(ref){
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  const newName=(document.getElementById('eia-name')?.value||'').trim();
+  const newStart=document.getElementById('eia-start')?.value||'';
+  const newEnd=document.getElementById('eia-end')?.value||'';
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  if(!c.reviewLog) c.reviewLog=[];
+  const changes=[];
+  if(newName && newName!==c.name){changes.push({field:'Name',before:c.name,after:newName});c.name=newName;}
+  const oldStart=c.startDate||'', oldEnd=c.endDate||'';
+  if(newStart && newStart!==oldStart){changes.push({field:'Start date',before:oldStart,after:newStart});c.startDate=newStart;}
+  if(newEnd && newEnd!==oldEnd){changes.push({field:'End date',before:oldEnd,after:newEnd});c.endDate=newEnd;}
+  if(changes.length) c.reviewLog.push({date:dateStr,event:'Edited information',by:'spx',changes});
+  openAdPanel(ref); renderTab();
+}
+
+function cancelAdPanel(ref){
+  document.getElementById('p-footer').innerHTML=`
+    <div style="width:100%;display:flex;flex-direction:column;gap:7px;">
+      <div style="font-size:12px;font-weight:600;color:#cf1322;">Reason for cancellation</div>
+      <textarea id="cancel-reason-ad" class="finput" rows="3" placeholder="Explain why this campaign is being cancelled…" style="resize:none;font-size:12px;" oninput="updateCancelAdBtn('${ref}')"></textarea>
+      <div id="cancel-ad-hint" style="font-size:11px;color:#aaa;">Minimum 15 characters</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn-sm" onclick="openAdPanel('${ref}')">Back</button>
+        <button class="btn-sm-d" id="cancel-ad-confirm-btn" disabled style="opacity:0.4;cursor:not-allowed;" onclick="confirmCancelAd('${ref}')">Confirm cancellation</button>
+      </div>
+    </div>`;
+}
+function updateCancelAdBtn(ref){
+  const val=document.getElementById('cancel-reason-ad')?.value||'';
+  const btn=document.getElementById('cancel-ad-confirm-btn');
+  const hint=document.getElementById('cancel-ad-hint');
+  if(!btn) return;
+  const ready=val.length>=15;
+  btn.disabled=!ready; btn.style.opacity=ready?'1':'0.4'; btn.style.cursor=ready?'pointer':'not-allowed';
+  const rem=Math.max(0,15-val.length);
+  hint.textContent=rem>0?`${rem} more character${rem!==1?'s':''} needed`:'';
+}
+function confirmCancelAd(ref){
+  const reason=document.getElementById('cancel-reason-ad')?.value||'';
+  if(reason.length<15) return;
+  const i=window.CAMPS.findIndex(c=>c.ref===ref);
+  if(i>-1){
+    const c=window.CAMPS.splice(i,1)[0];
+    c.status='Cancelled'; c.cancelReason=reason;
+    if(!c.reviewLog) c.reviewLog=[];
+    const now=new Date();
+    const dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    c.reviewLog.push({date:dateStr,event:'Cancelled',note:reason,by:'spx'});
+    window.CANCELLED.push(c);
+    window.CAMPS.forEach((x,j)=>x.order=j+1);
+  }
+  closePanel(); renderTab();
 }
 
 function toggleSuspend(acctId,invId,btn){
@@ -1625,7 +1760,31 @@ function dD(e,t){e.preventDefault();e.currentTarget.style.background='#fff';e.cu
 function mUp(o){const s=getOrdered(),i=s.findIndex(c=>c.order===o);if(i<=0)return;const t=s[i].order;s[i].order=s[i-1].order;s[i-1].order=t;renderTab();}
 function mDown(o){const s=getOrdered(),i=s.findIndex(c=>c.order===o);if(i>=s.length-1)return;const t=s[i].order;s[i].order=s[i+1].order;s[i+1].order=t;renderTab();}
 function openModal(id){document.getElementById('modal-'+id).classList.add('open');}
-function closeModal(id){document.getElementById('modal-'+id).classList.remove('open');}
+function closeModal(id){document.getElementById('modal-'+id).classList.remove('open');if(id==='upload')resetUploadZone();}
+
+// ── UPLOAD CREATIVE (internal ad modal) ──
+var _uploadAttempts=0,_uploadFileName='',_uploadTimer=null;
+function handleFileSelect(inp){if(!inp.files||!inp.files[0])return;_uploadFileName=inp.files[0].name;inp.value='';startUploadSim();}
+function retryUpload(){document.getElementById('uzone-failed').style.display='none';document.getElementById('uzone-idle').style.display='';document.getElementById('ufile-input').click();}
+function startUploadSim(){
+  var idle=document.getElementById('uzone-idle'),up=document.getElementById('uzone-uploading'),fail=document.getElementById('uzone-failed'),suc=document.getElementById('uzone-success');
+  idle.style.display='none';fail.style.display='none';suc.style.display='none';up.style.display='block';
+  document.getElementById('uzone-filename').textContent=_uploadFileName;
+  var bar=document.getElementById('uzone-bar'),pct=document.getElementById('uzone-pct');
+  bar.style.width='0%';pct.textContent='0%';
+  _uploadAttempts++;var attempt=_uploadAttempts,p=0;
+  clearInterval(_uploadTimer);
+  _uploadTimer=setInterval(function(){
+    p=Math.min(p+(p<70?5:attempt===1?1:3),attempt===1?92:100);
+    bar.style.width=p+'%';pct.textContent=Math.round(p)+'%';
+    if(p>=(attempt===1?92:100)){clearInterval(_uploadTimer);setTimeout(function(){up.style.display='none';
+      if(attempt===1){fail.style.display='block';}
+      else{document.getElementById('uzone-success-name').textContent=_uploadFileName;suc.style.display='block';}
+    },500);}
+  },80);
+}
+function removeUpload(){_uploadAttempts=0;_uploadFileName='';document.getElementById('uzone-success').style.display='none';document.getElementById('uzone-idle').style.display='';}
+function resetUploadZone(){clearInterval(_uploadTimer);_uploadAttempts=0;_uploadFileName='';['uzone-uploading','uzone-failed','uzone-success'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var idle=document.getElementById('uzone-idle');if(idle)idle.style.display='';}
 
 // ── REVIEW LOG (ops view) ──
 function renderReviewLog(log, sellerView, buyerName) {
@@ -1655,6 +1814,14 @@ function renderReviewLog(log, sellerView, buyerName) {
     html += `<div style="padding-bottom:${isLast?'0':'14px'};flex:1;">`;
     html += `<div style="font-size:13px;font-weight:500;color:#333;">${entry.event}</div>`;
     html += `<div style="font-size:11px;color:#aaa;margin-top:2px;">operator: ${byLabel}</div>`;
+    if (entry.changes && entry.changes.length) {
+      html += `<div style="margin-top:6px;border:1px solid #ebebeb;border-radius:3px;font-size:12px;overflow:hidden;">`;
+      html += `<div style="background:#f5f5f5;padding:3px 8px;font-size:11px;font-weight:600;color:#888;">Before</div>`;
+      entry.changes.forEach(ch => { html += `<div style="padding:3px 8px;color:#888;">${ch.field}: <span style="color:#333;">${ch.before}</span></div>`; });
+      html += `<div style="background:#f5f5f5;padding:3px 8px;font-size:11px;font-weight:600;color:#888;border-top:1px solid #ebebeb;">After</div>`;
+      entry.changes.forEach(ch => { html += `<div style="padding:3px 8px;color:#888;">${ch.field}: <span style="color:#333;font-weight:500;">${ch.after}</span></div>`; });
+      html += `</div>`;
+    }
     if (entry.note) html += `<div style="font-size:11px;color:#555;margin-top:5px;padding:6px 9px;background:#fafafa;border:1px solid #f0f0f0;border-radius:3px;line-height:1.5;">message: ${entry.note}</div>`;
     html += `</div></div>`;
   });
