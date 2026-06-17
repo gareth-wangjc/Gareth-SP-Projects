@@ -187,7 +187,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="bc"><a href="#">Inhouse Locker Management</a><span class="sep">›</span><span class="cur">Locker Ads</span></div>
   <div class="page-hdr">
     <div><div class="page-title">Locker Ads</div><div class="page-sub" id="page-sub">Monday, 20 Apr 2026 · Singapore</div></div>
-    <div class="page-acts"><button class="btn-w" onclick="openModal('upload')">+ Upload internal ad</button></div>
+    <div class="page-acts"><button class="btn-w" onclick="openUploadModal()">+ Upload internal ad</button></div>
   </div>
   <div class="htab-bar">
     <div class="htab on" id="ht-overview" onclick="switchTab('overview')">Overview</div>
@@ -212,7 +212,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="modal">
     <div class="modal-hdr"><div class="modal-title">Upload internal ad</div><button class="modal-close" onclick="closeModal('upload')">✕</button></div>
     <div class="modal-body">
-      <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:3px;padding:8px 11px;font-size:12px;color:#096dd9;margin-bottom:14px;">Internal ads skip the review queue. They are auto-assigned to all playlists that allow internal ads.</div>
+      <div style="background:#e6f4ff;border:1px solid #91caff;border-radius:3px;padding:8px 11px;font-size:12px;color:#096dd9;margin-bottom:14px;">Internal ads skip the review queue.They are auto-assigned to all playlists that allow internal ads.</div>
       <div class="frow"><div class="flbl req" style="padding-top:7px;">Ad name</div><input class="finput" placeholder="e.g. SPX Brand May 2026"/></div>
 
       <div class="frow" style="margin-top:9px;"><div class="flbl req" style="padding-top:7px;">Campaign period</div><div><div style="display:flex;align-items:center;gap:8px;"><input type="date" class="finput" style="width:140px;"/><span style="color:#aaa;">→</span><input type="date" class="finput" style="width:140px;"/></div></div></div>
@@ -254,6 +254,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
         </div>
         <input type="file" id="ufile-input" accept=".jpg,.jpeg,.png" style="display:none" onchange="handleFileSelect(this)">
+      </div>
+      <div style="margin-top:16px;">
+        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">Assign to playlists <span style="color:#ee4d2d;">*</span></div>
+        <div id="upload-pl-list"></div>
       </div>
     </div>
     <div class="modal-ft"><button class="btn-w" onclick="closeModal('upload')">Cancel</button><button class="btn-r" onclick="closeModal('upload');alert('Internal ad scheduled')">Schedule ad</button></div>
@@ -496,7 +500,7 @@ function renderOverview(){
       <div class="metric">
         <div class="m-lbl">Creative approvals needed</div>
         <div class="m-val red">${pendingCreatives.length}</div>
-        <div class="m-sub">${pendingCreatives.length === 1 ? '1 creative pending' : pendingCreatives.length + ' creatives pending'}</div>
+        <div class="m-sub">Needs review</div>
       </div>
       <div class="metric">
         <div class="m-lbl">Active campaigns</div>
@@ -517,26 +521,47 @@ function renderOverview(){
         <div class="card-hd"><div class="card-title">Priority actions</div></div>
         <div class="card-bd" style="padding:8px 12px;">`;
 
+  // Pending schedule = approved but not yet assigned to any playlist
+  const pendingSchedule = window.CAMPS.filter(c => c.approvedDate && (c.assignedPlaylists||[]).length===0 && !c.rejected && c.status!=='Cancelled');
+
   // Filter bar
   if(!window._paFilter) window._paFilter = 'all';
   body += `<div style="display:flex;gap:6px;margin-bottom:10px;">
     <button style="padding:3px 12px;font-size:12px;border-radius:3px;border:1px solid ${window._paFilter==='all'?'#ee4d2d':'#d0d0d0'};background:${window._paFilter==='all'?'#ee4d2d':'#fff'};color:${window._paFilter==='all'?'#fff':'#555'};cursor:pointer;" onclick="window._paFilter='all';renderTab()">All</button>
     <button style="padding:3px 12px;font-size:12px;border-radius:3px;border:1px solid ${window._paFilter==='creative'?'#ee4d2d':'#d0d0d0'};background:${window._paFilter==='creative'?'#ee4d2d':'#fff'};color:${window._paFilter==='creative'?'#fff':'#555'};cursor:pointer;" onclick="window._paFilter='creative';renderTab()">Ad reviews</button>
+    <button style="padding:3px 12px;font-size:12px;border-radius:3px;border:1px solid ${window._paFilter==='schedule'?'#ee4d2d':'#d0d0d0'};background:${window._paFilter==='schedule'?'#ee4d2d':'#fff'};color:${window._paFilter==='schedule'?'#fff':'#555'};cursor:pointer;" onclick="window._paFilter='schedule';renderTab()">Pending schedule</button>
   </div>`;
 
-  // Creative approvals
-  if(window._paFilter==='all'||window._paFilter==='creative') pendingCreatives.forEach(c => {
+  // Combine and sort — most recently added (highest order) first
+  const reviewItems = pendingCreatives.map(c=>({type:'review',c}));
+  const scheduleItems = pendingSchedule.map(c=>({type:'schedule',c}));
+  let actionItems = [];
+  if(window._paFilter==='all') actionItems=[...reviewItems,...scheduleItems].sort((a,b)=>(b.c.order||0)-(a.c.order||0));
+  else if(window._paFilter==='creative') actionItems=reviewItems;
+  else if(window._paFilter==='schedule') actionItems=scheduleItems;
+
+  actionItems.forEach(({type,c}) => {
     const goLive = c.startDate ? `Goes live: ${c.startDate}` : 'Go-live date TBC';
-    body += `<div style="background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:9px 13px;display:flex;align-items:center;gap:11px;margin-bottom:7px;border-left:3px solid #ee4d2d;">
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:500;margin-bottom:2px;">${c.buyer}'s creative needs approval</div>
-        <div style="font-size:11px;color:#888;">${goLive} · ${c.name}</div>
-      </div>
-      <button class="btn-sm" style="flex-shrink:0;" onclick="switchTab('review');setTimeout(()=>openAdPanel('${c.ref}'),80)">Review</button>
-    </div>`;
+    if(type==='review'){
+      body += `<div style="background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:9px 13px;display:flex;align-items:center;gap:11px;margin-bottom:7px;border-left:3px solid #ee4d2d;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;margin-bottom:2px;">${c.company}'s ad campaign needs approval</div>
+          <div style="font-size:11px;color:#888;">${goLive} · ${c.name}</div>
+        </div>
+        <button class="btn-sm" style="flex-shrink:0;" onclick="openAdPanel('${c.ref}')">Review</button>
+      </div>`;
+    } else {
+      body += `<div style="background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:9px 13px;display:flex;align-items:center;gap:11px;margin-bottom:7px;border-left:3px solid #1677ff;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;margin-bottom:2px;">${c.company}'s ad campaign is ready to schedule</div>
+          <div style="font-size:11px;color:#888;">${goLive} · ${c.name}</div>
+        </div>
+        <button class="btn-sm" style="flex-shrink:0;" onclick="openAdPanel('${c.ref}')">Schedule</button>
+      </div>`;
+    }
   });
 
-  if(pendingCreatives.length === 0){
+  if(actionItems.length===0){
     body += `<div style="font-size:13px;color:#aaa;padding:8px 0;">No actions needed right now.</div>`;
   }
 
@@ -546,7 +571,6 @@ function renderOverview(){
       <div class="card">
         <div class="card-hd">
           <div class="card-title">Upcoming campaigns</div>
-          <button class="btn-sm" onclick="switchTab('schedule')">View schedule →</button>
         </div>
         <div class="card-bd" style="padding:6px 12px;">`;
 
@@ -555,11 +579,11 @@ function renderOverview(){
   } else {
     upcoming.forEach(c => {
       const dot = c.status==='Live' ? '#389e0d' : '#d46b08';
-      body += `<div style="display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid #f5f5f5;">
+      body += `<div onclick="openAdPanel('${c.ref}')" style="display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid #f5f5f5;cursor:pointer;" onmouseenter="this.style.background='#fafafa'" onmouseleave="this.style.background=''">
         <span style="width:7px;height:7px;border-radius:50%;background:${dot};flex-shrink:0;margin-top:4px;"></span>
         <div>
           <div style="font-size:13px;font-weight:500;">${c.name}</div>
-          <div style="font-size:11px;color:#888;">${c.startDate} to ${c.endDate} · ${c.buyer}</div>
+          <div style="font-size:11px;color:#888;">${c.startDate} to ${c.endDate} · ${c.company}</div>
         </div>
       </div>`;
     });
@@ -1571,6 +1595,12 @@ function openPlModal(editId){
         ${window.REGIONS.map(r=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px 10px;border:1px solid #e8e8e8;border-radius:3px;"><input type="checkbox" class="pl-region" style="accent-color:#ee4d2d;" data-region="${r}" ${pl&&pl.regions&&pl.regions.includes(r)?'checked':''}/> ${r}</label>`).join('')}
       </div>
     </div>
+    <div style="margin-top:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Internal ads</div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:9px 11px;border:1px solid #e8e8e8;border-radius:3px;background:#fff;">
+        <input type="checkbox" id="pl-allow-internal" style="accent-color:#ee4d2d;" ${pl?.rules?.int!==false?'checked':''}/>
+        Allow SPX internal ads to play on this playlist
+      </label>
+    </div>
     <div style="margin-top:14px;background:#f8f8f8;border-radius:4px;padding:10px 12px;font-size:12px;color:#666;line-height:1.6;">
       ℹ️ Include every location type and region where this playlist's lockers are placed. Any locker not covered by these selections won't receive seller campaigns — it will only show SPX internal content.
     </div>`;
@@ -1582,7 +1612,8 @@ function savePlModal(){
   const name=document.getElementById('pl-name-in').value.trim(); if(!name){alert('Please enter a playlist name.');return;}
   const autoTypes=[...document.querySelectorAll('.pl-lt:checked')].map(el=>el.dataset.lt);
   const autoRegions=[...document.querySelectorAll('.pl-region:checked')].map(el=>el.dataset.region);
-  const plName=name;const slug=plSlug(plName);const data={name:plName,slug,desc:document.getElementById('pl-desc-in').value,locTypes:autoTypes,regions:autoRegions};
+  const allowInt=document.getElementById('pl-allow-internal').checked;
+  const plName=name;const slug=plSlug(plName);const data={name:plName,slug,desc:document.getElementById('pl-desc-in').value,locTypes:autoTypes,regions:autoRegions,rules:{ext:autoTypes.length>0,int:allowInt}};
   if(window._editPlId){Object.assign(window.PLAYLISTS.find(p=>p.id===window._editPlId),data);}
   else{window.PLAYLISTS.push({id:'pl-'+Date.now(),...data});}
   closeModal('playlist'); renderTab();
@@ -1763,6 +1794,41 @@ function mUp(o){const s=getOrdered(),i=s.findIndex(c=>c.order===o);if(i<=0)retur
 function mDown(o){const s=getOrdered(),i=s.findIndex(c=>c.order===o);if(i>=s.length-1)return;const t=s[i].order;s[i].order=s[i+1].order;s[i+1].order=t;renderTab();}
 function openModal(id){document.getElementById('modal-'+id).classList.add('open');}
 function closeModal(id){document.getElementById('modal-'+id).classList.remove('open');if(id==='upload')resetUploadZone();}
+function openUploadModal(){
+  const intPls=window.PLAYLISTS.filter(p=>p.rules?.int!==false);
+  const n=intPls.length;
+  const listEl=document.getElementById('upload-pl-list');
+  if(listEl){
+    if(n===0){
+      listEl.innerHTML='<div style="font-size:12px;color:#aaa;padding:4px 0;">No playlists currently allow internal ads.</div>';
+    } else {
+      const rows=intPls.map(p=>`<label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;padding:9px 11px;border:1px solid #e8e8e8;border-radius:3px;margin-bottom:5px;background:#fff;">
+        <input type="checkbox" class="upload-pl-cb" data-plid="${p.id}" checked style="accent-color:#ee4d2d;flex-shrink:0;" onchange="updateUploadPlSummary()"/>
+        <div><div style="font-size:13px;font-weight:500;">${p.name}</div><div style="font-size:11px;color:#888;margin-top:1px;">${p.locTypes?.length?p.locTypes.join(', '):'All location types'} · ${p.regions?.length?p.regions.join(', '):'All regions'}</div></div>
+      </label>`).join('');
+      listEl.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid #e8e8e8;border-radius:3px;background:#fafafa;">
+        <span id="upload-pl-summary-text" style="font-size:13px;color:#333;">All ${n} playlist${n!==1?'s':''} selected</span>
+        <button id="upload-pl-toggle-btn" onclick="toggleUploadPlDetail()" style="background:none;border:none;color:#1677ff;cursor:pointer;font-size:12px;padding:0;flex-shrink:0;">Customize →</button>
+      </div>
+      <div id="upload-pl-detail" style="display:none;margin-top:6px;">${rows}</div>`;
+    }
+  }
+  openModal('upload');
+}
+function toggleUploadPlDetail(){
+  const detail=document.getElementById('upload-pl-detail');
+  const btn=document.getElementById('upload-pl-toggle-btn');
+  if(!detail||!btn) return;
+  const isOpen=detail.style.display!=='none';
+  detail.style.display=isOpen?'none':'';
+  btn.textContent=isOpen?'Customize →':'↑ Collapse';
+}
+function updateUploadPlSummary(){
+  const total=document.querySelectorAll('.upload-pl-cb').length;
+  const checked=document.querySelectorAll('.upload-pl-cb:checked').length;
+  const el=document.getElementById('upload-pl-summary-text');
+  if(el) el.textContent=checked===total?`All ${total} playlist${total!==1?'s':''} selected`:`${checked} of ${total} playlist${total!==1?'s':''} selected`;
+}
 
 // ── UPLOAD CREATIVE (internal ad modal) ──
 var _uploadAttempts=0,_uploadFileName='',_uploadTimer=null;
