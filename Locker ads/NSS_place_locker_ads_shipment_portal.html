@@ -573,6 +573,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
                 <input type="date" class="dinput" id="ed" onchange="calcDur()"/>
                 <span class="dur-lbl" id="dur-lbl"></span>
               </div>
+              <div id="sd-err" style="display:none;font-size:12px;color:#e63c3c;margin-top:6px;"></div>
             </div>
           </div>
         </div>
@@ -826,6 +827,9 @@ function calcDur(){
   } else {
     document.getElementById('dur-lbl').textContent = '';
   }
+  const sdVal=document.getElementById('sd').value;
+  const errEl=document.getElementById('sd-err');
+  if(errEl){ if(sdVal){ const minStart=new Date(); minStart.setDate(minStart.getDate()+7); minStart.setHours(0,0,0,0); errEl.style.display=new Date(sdVal)<minStart?'':'none'; errEl.textContent='Start date must be at least 7 days from today to allow time for review and scheduling.'; } else{ errEl.style.display='none'; } }
   if(curExpType === 'dur') calcDurCost();
 }
 function calcDurCost(){
@@ -910,6 +914,7 @@ function rmUpload(){
 
 // ── PUBLISH ──
 function doPublish(){
+  { const sv=document.getElementById('sd')?.value||''; if(sv){ const minStart=new Date(); minStart.setDate(minStart.getDate()+7); minStart.setHours(0,0,0,0); if(new Date(sv)<minStart){ const errEl=document.getElementById('sd-err'); if(errEl){errEl.style.display='';errEl.textContent='Start date must be at least 7 days from today to allow time for review and scheduling.';} return; } } }
   alert('Campaign submitted for SPX review.\n\nYou will be notified within 2 business days once your creative and campaign details have been approved.');
   goLockerAds();
 }
@@ -937,7 +942,7 @@ window.addEventListener('DOMContentLoaded', function(){
     <button onclick="closePanel()" style="background:transparent;border:none;font-size:20px;cursor:pointer;color:#aaa;padding:2px;">✕</button>
   </div>
   <div style="flex:1;overflow-y:auto;padding:18px 20px;" id="panel-body"></div>
-  <div id="panel-footer" style="display:none;padding:14px 20px;border-top:1px solid #e8e8e8;flex-shrink:0;background:#fff;display:none;gap:8px;"></div>
+  <div id="panel-footer" style="display:none;padding:14px 20px;border-top:1px solid #e8e8e8;flex-shrink:0;background:#fff;gap:8px;justify-content:flex-end;"></div>
 </div>
 <div id="panel-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:499;" onclick="closePanel()"></div>
 <script>
@@ -945,7 +950,7 @@ window.addEventListener('DOMContentLoaded', function(){
 const CAMPAIGNS = {
   'spring-nss':  {name:'Brand Campaign — Spring', ref:'SGAD000101', period:'2026-03-01 to 2026-05-31', exposure:'By Spots · 3,000', location:'NE + Central · MRT + HDB', locType:'MRT Stations, HDB Residential', region:'North East, Central', status:'Live',  statusClass:'stag-green', spend:'SGD 441', impressions:'2,820', cpm:'SGD 50.0', creative:'banner_spring.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2026-02-28 10:30', lockers:'18 lockers', playlists:'Playlist 1', playbackOrder:'#2', adType:'Seller campaign', reviewLog:[{date:'28 Feb 2026, 09:00',event:'Pending review',by:'seller'},{date:'28 Feb 2026, 10:30',event:'Approved',by:'spx'},{date:'01 Mar 2026, 00:00',event:'Live',by:'system'}]},
   'q2-nss':      {name:'Q2 Brand Awareness',       ref:'SGAD000118', period:'2026-05-01 to 2026-06-30', exposure:'By Spots · 6,000', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Pending review', statusClass:'stag-amber', spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'q2_brand.jpg',     flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', reviewLog:[{date:'29 Apr 2026, 11:00',event:'Pending review',by:'seller'}]},
-  'summer-nss':  {name:'Summer Launch 2026',        ref:'SGAD000124', period:'2026-05-15 to 2026-06-15', exposure:'By Spots · 6,000', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Rejected',statusClass:'stag-red',   spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'summer_v1.jpg',     flag:'SPX reviewed your creative and found an issue. Please upload a revised banner ASAP to meet your start date.', remarks:'Competitor brand logo detected in the bottom-right corner of the banner. Please remove any references to competing logistics or delivery brands before resubmitting.', company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', reviewLog:[{date:'05 May 2026, 10:22',event:'Pending review',by:'seller'},{date:'06 May 2026, 15:47',event:'Changes requested',by:'spx',note:'Competitor brand logo detected in the bottom-right corner. Please remove any references to competing logistics or delivery brands.'}]},
+  'summer-nss':  {name:'Summer Launch 2026',        ref:'SGAD000124', period:'2026-05-15 to 2026-06-15', exposure:'By Spots · 6,000', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Rejected',statusClass:'stag-red',   spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'summer_v1.jpg',     flag:'SPX reviewed your creative and found an issue. Please upload a revised banner ASAP to meet your start date.', remarks:'Competitor brand logo detected in the bottom-right corner of the banner. Please remove any references to competing logistics or delivery brands before resubmitting.', company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', reviewLog:[{date:'05 May 2026, 10:22',event:'Pending review',by:'seller'},{date:'06 May 2026, 15:47',event:'Rejected',by:'spx',note:'Competitor brand logo detected in the bottom-right corner. Please remove any references to competing logistics or delivery brands.',archivedCreative:'summer_v1.jpg'}]},
   'yearend-nss': {name:'Year-End Promo 2025',       ref:'SGAD000088', period:'2025-12-01 to 2025-12-31',       exposure:'By Duration · 28 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Completed',          statusClass:'stag-gray',  spend:'SGD 800 (invoiced on completion)', impressions:'6,000', cpm:'SGD 66.7', creative:'yearend.jpg',      flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2025-11-29 14:22', lockers:'42 lockers', playlists:'Playlist 1, Playlist 2', playbackOrder:'#3', adType:'Seller campaign', reviewLog:[{date:'28 Nov 2025, 09:01',event:'Pending review',by:'seller'},{date:'29 Nov 2025, 14:22',event:'Approved',by:'spx'},{date:'01 Dec 2025, 00:00',event:'Live',by:'system'},{date:'31 Dec 2025, 23:59',event:'Completed',by:'system'}]},
   'upcoming-nss': {name:'Q3 Brand Campaign', ref:'SGAD000156', period:'2026-06-17 to 2026-08-17', exposure:'By Spots · 4,500', location:'Island-wide · All types', locType:'All types', region:'Island-wide', status:'Scheduled', statusClass:'stag-blue', spend:'SGD 0 of SGD 600 (committed)', impressions:'—', cpm:'—', creative:'q3_brand.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2026-06-12 09:30', lockers:'42 lockers', playlists:'Playlist 1', adType:'Seller campaign', reviewLog:[{date:'10 Jun 2026, 14:00',event:'Pending review',by:'seller'},{date:'12 Jun 2026, 09:30',event:'Approved',by:'spx'},{date:'12 Jun 2026, 09:30',event:'Scheduled',by:'system'}]},
   'q1-nss': {name:'Q1 Trade Show 2026', ref:'SGAD000095', period:'2026-01-15 to 2026-01-28', exposure:'By Duration · 14 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Cancelled', statusClass:'stag-gray', spend:'SGD 600', impressions:'—', cpm:'—', creative:'q1_tradeshow.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2026-01-10 09:15', lockers:'42 lockers', playlists:'Playlist 1', playbackOrder:'#5', adType:'Seller campaign', reviewLog:[{date:'10 Jan 2026, 09:00',event:'Pending review',by:'seller'},{date:'10 Jan 2026, 09:15',event:'Approved',by:'spx'},{date:'15 Jan 2026, 00:00',event:'Live',by:'system'},{date:'05 Jun 2026, 16:04',event:'Cancelled',note:'Promotional content no longer compliant with updated SPX advertising guidelines effective June 2026.',by:'spx'}]},
@@ -986,7 +991,8 @@ function openPanel(mode, id){
     body+='<div style="display:flex;flex-direction:column;gap:14px;">'
       +'<div><div style="font-size:12px;font-weight:500;color:#555;margin-bottom:5px;">Campaign name</div><input id="enss-name" class="finput" value="'+c.name+'"/></div>'
       +'<div><div style="font-size:12px;font-weight:500;color:#555;margin-bottom:5px;">Campaign period</div>'
-      +'<div style="display:flex;align-items:center;gap:8px;"><input id="enss-start" type="date" class="finput" style="width:140px;" value="'+startDate+'"/><span style="color:#aaa;">→</span><input id="enss-end" type="date" class="finput" style="width:140px;" value="'+endDate+'"/></div></div>'
+      +'<div style="display:flex;align-items:center;gap:8px;"><input id="enss-start" type="date" class="finput" style="width:140px;" value="'+startDate+'" onchange="checkNSSEditStart()"/><span style="color:#aaa;">→</span><input id="enss-end" type="date" class="finput" style="width:140px;" value="'+endDate+'"/></div>'
+      +'<div id="enss-start-err" style="display:none;font-size:12px;color:#e63c3c;margin-top:5px;"></div></div>'
       +'<div><div style="font-size:12px;font-weight:500;color:#555;margin-bottom:5px;">Location type</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;">'+makeEditChips(LOC_TYPE_OPTIONS,c.locType||c.location||'','edit-loctype')+'</div></div>'
       +'<div><div style="font-size:12px;font-weight:500;color:#555;margin-bottom:5px;">Region</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;">'+makeEditChips(REGION_OPTIONS,c.region||'','edit-region')+'</div></div>'
       +'<div><div style="font-size:12px;font-weight:500;color:#555;margin-bottom:5px;">Creative</div>'
@@ -1007,6 +1013,16 @@ function openPanel(mode, id){
       +'<li>No flashing or strobing visuals</li>'
       +'</ul></div>'
       +'</div></div>';
+  } else if(mode==='cancel'){
+    body += `<div style="padding:8px 0 16px;">
+      <div style="background:#fff1f0;border:1px solid #ffa39e;border-radius:6px;padding:20px 16px;text-align:center;margin-bottom:20px;">
+        <div style="font-size:28px;margin-bottom:10px;">⚠️</div>
+        <div style="font-size:14px;font-weight:600;color:#cf1322;margin-bottom:6px;">Cancel this campaign?</div>
+        <div style="font-size:12px;color:#888;line-height:1.6;">This cannot be undone. To advertise again, you'll need to submit a new campaign.</div>
+      </div>
+      <div style="font-size:12px;font-weight:500;color:#555;margin-bottom:6px;">Reason <span style="color:#aaa;font-weight:400;">(optional)</span></div>
+      <textarea id="nss-cancel-reason" style="width:100%;box-sizing:border-box;border:1px solid #d0d0d0;border-radius:4px;padding:8px 10px;font-size:13px;resize:none;height:80px;font-family:inherit;color:#333;" placeholder="e.g. Campaign postponed, product launch delayed..."></textarea>
+    </div>`;
   } else {
     // Review mode — show issue + upload action
     body += `<div style="background:#fff1f0;border:1px solid #ffa39e;border-radius:6px;padding:12px 14px;margin-bottom:16px;display:flex;gap:8px;"><span style="font-size:16px;flex-shrink:0;">⚠️</span><div><div style="font-size:13px;font-weight:600;color:#cf1322;margin-bottom:4px;">Creative rejected by SPX</div><div style="font-size:12px;color:#555;line-height:1.6;">${c.flag}</div></div></div>`;
@@ -1025,15 +1041,22 @@ function openPanel(mode, id){
     body += `<div style="font-size:22px;color:#bbb;margin-bottom:6px;">☁️</div><div style="font-size:13px;font-weight:500;margin-bottom:3px;">Upload revised banner</div>`;
     body += `<div style="font-size:12px;color:#bbb;">JPG or PNG · 1080×1920 px · Max 10 MB</div></div>`;
     body += `<div style="border:1px solid #e8e8e8;border-radius:5px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#555;line-height:1.8;background:#fafafa;"><div style="font-weight:600;color:#555;margin-bottom:4px;">Creative guidelines</div>• Dimensions: 1080×1920 px (9:16 portrait)<br>• Format: JPG or PNG · RGB colour mode · Max 10 MB<br>• Keep text 80px from all edges (bezel safe zone)<br>• Minimum font size 24px<br>• Suitable for all ages including children<br>• No misleading claims or unverifiable statistics<br>• QR codes must be min 200×200 px and scannable from 0.5m</div>`;
-    body += `<div style="display:flex;gap:8px;"><button onclick="closePanel()" style="background:#fff;border:1px solid #d0d0d0;border-radius:4px;padding:7px 16px;font-size:13px;cursor:pointer;">Cancel</button><button onclick="alert('Creative submitted for re-review');closePanel();" style="background:#e63c3c;color:#fff;border:none;border-radius:4px;padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer;flex:1;">Submit for re-review</button></div>`;
+    body += `<div style="display:flex;gap:8px;"><button onclick="closePanel()" style="background:#fff;border:1px solid #d0d0d0;border-radius:4px;padding:7px 16px;font-size:13px;cursor:pointer;">Close</button><button onclick="alert('Creative submitted for re-review');closePanel();" style="background:#e63c3c;color:#fff;border:none;border-radius:4px;padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer;flex:1;">Submit for re-review</button></div>`;
     body += renderNSSReviewLog(c.reviewLog, true);
   }
   document.getElementById('panel-body').innerHTML = body;
   const footer = document.getElementById('panel-footer');
+  const CANCELLABLE = ['Pending review','Rejected','Approved','Scheduled'];
   if(mode==='edit'){
     footer.style.display = 'flex';
     footer.innerHTML = '<button onclick="openPanel(\'view\',\''+id+'\')" style="background:#fff;border:1px solid #d0d0d0;border-radius:5px;padding:9px 16px;font-size:13px;cursor:pointer;">Cancel</button>'
-      +'<button onclick="saveNSSEdit(\''+id+'\')" style="background:#e63c3c;color:#fff;border:none;border-radius:5px;padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;flex:1;">Save changes</button>';
+      +'<button onclick="saveNSSEdit(\''+id+'\')" style="background:#e63c3c;color:#fff;border:none;border-radius:5px;padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;">Save changes</button>';
+  } else if((mode==='view'||mode==='review')&&CANCELLABLE.includes(c.status)){
+    footer.style.display = 'flex';
+    footer.innerHTML = `<button onclick="closePanel()" style="background:#fff;border:1px solid #d0d0d0;border-radius:5px;padding:9px 16px;font-size:13px;cursor:pointer;">Close</button><button onclick="openPanel('cancel','${id}')" style="background:#fff;border:1px solid #e63c3c;color:#e63c3c;border-radius:5px;padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;">Cancel campaign</button>`;
+  } else if(mode==='cancel'){
+    footer.style.display = 'flex';
+    footer.innerHTML = `<button onclick="openPanel('view','${id}')" style="background:#fff;border:1px solid #d0d0d0;border-radius:5px;padding:9px 16px;font-size:13px;cursor:pointer;">← Back</button><button onclick="confirmNSSCancel('${id}')" style="background:#e63c3c;color:#fff;border:none;border-radius:5px;padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;">Confirm cancellation</button>`;
   } else {
     footer.style.display = 'none';
     footer.innerHTML = '';
@@ -1072,18 +1095,69 @@ function renderNSSReviewLog(log, sellerView) {
       html += `</div>`;
     }
     if (entry.note) html += `<div style="font-size:11px;color:#555;margin-top:5px;padding:6px 9px;background:#fafafa;border:1px solid #f0f0f0;border-radius:3px;line-height:1.5;">message: ${entry.note}</div>`;
+    if (entry.archivedCreative) html += `<div style="margin-top:8px;background:#f7f7f7;border:1px solid #e8e8e8;border-radius:4px;padding:8px 10px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="expandArchivedCreative('${entry.archivedCreative}')"><div style="width:28px;height:44px;background:#e0e0e0;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;">🖼️</div><div style="flex:1;min-width:0;"><div style="font-size:10px;color:#aaa;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em;">Archived creative</div><div style="font-size:12px;color:#333;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${entry.archivedCreative}</div><div style="font-size:10px;color:#aaa;margin-top:1px;">1080 × 1920 px</div></div><div style="font-size:11px;color:#1677ff;white-space:nowrap;flex-shrink:0;">⤢ Expand</div></div>`;
     html += `</div></div>`;
   });
   html += '</div>';
   return html;
 }
 
+function confirmNSSCancel(id) {
+  const c = CAMPAIGNS[id];
+  if (!c) return;
+  const reason = (document.getElementById('nss-cancel-reason')?.value || '').trim();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  if (!c.reviewLog) c.reviewLog = [];
+  const entry = {date:dateStr, event:'Cancelled by seller', by:'seller'};
+  if (reason) entry.note = reason;
+  c.reviewLog.push(entry);
+  c.status = 'Cancelled';
+  c.statusClass = 'stag-gray';
+  document.querySelectorAll('.ads-tbl tbody tr').forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells[2] && cells[2].textContent.trim() === c.ref) {
+      row.dataset.status = 'Cancelled';
+      row.style.background = '';
+      if (cells[8]) cells[8].textContent = 'Cancelled';
+      if (cells[9]) {
+        const btn = cells[9].querySelector('button');
+        if (btn) {
+          btn.style.cssText = 'background:none;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;';
+          btn.textContent = 'View';
+          btn.onclick = () => openPanel('view', id);
+        }
+      }
+    }
+  });
+  closePanel();
+}
+
+function expandArchivedCreative(filename) {
+  const existing = document.getElementById('archived-overlay');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'archived-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  overlay.onclick = () => overlay.remove();
+  overlay.innerHTML = `<div style="background:#f0f0f0;width:270px;height:480px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;box-shadow:0 8px 32px rgba(0,0,0,0.3);" onclick="event.stopPropagation()"><div style="font-size:56px;margin-bottom:14px;">🖼️</div><div style="font-size:13px;color:#555;font-weight:500;padding:0 20px;text-align:center;">${filename}</div><div style="font-size:11px;color:#aaa;margin-top:6px;">1080 × 1920 px · 9:16 portrait</div><div style="margin-top:6px;background:#e63c3c;color:#fff;font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px;letter-spacing:.04em;">ARCHIVED</div><button onclick="document.getElementById('archived-overlay').remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;font-size:18px;color:#888;cursor:pointer;line-height:1;">✕</button></div>`;
+  document.body.appendChild(overlay);
+}
+
 function closePanel(){
   document.getElementById('side-panel').style.display = 'none';
   document.getElementById('panel-overlay').style.display = 'none';
 }
+function checkNSSEditStart(){
+  const sv=document.getElementById('enss-start')?.value||'';
+  const errEl=document.getElementById('enss-start-err');
+  if(!errEl) return;
+  if(sv){ const minStart=new Date(); minStart.setDate(minStart.getDate()+7); minStart.setHours(0,0,0,0); errEl.style.display=new Date(sv)<minStart?'':'none'; errEl.textContent='Start date must be at least 7 days from today to allow time for review and scheduling.'; }
+  else{ errEl.style.display='none'; }
+}
 function saveNSSEdit(id){
   const c=CAMPAIGNS[id]; if(!c) return;
+  { const sv=document.getElementById('enss-start')?.value||''; if(sv){ const minStart=new Date(); minStart.setDate(minStart.getDate()+7); minStart.setHours(0,0,0,0); if(new Date(sv)<minStart){ const errEl=document.getElementById('enss-start-err'); if(errEl){errEl.style.display='';errEl.textContent='Start date must be at least 7 days from today to allow time for review and scheduling.';} return; } } }
   const newName=(document.getElementById('enss-name')?.value||'').trim();
   const newStart=document.getElementById('enss-start')?.value||'';
   const newEnd=document.getElementById('enss-end')?.value||'';

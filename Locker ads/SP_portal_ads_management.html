@@ -312,6 +312,8 @@ if(!window.CAMPS) window.CAMPS=[
    start:10,end:28,startDate:'2026-04-10',endDate:'2026-04-28',order:3,status:'Live',creative:'senoko_livesmart.jpg',
    spotsBased:true,spotsBooked:6000,bookedLocTypes:['HDB Residential'],bookedRegions:['North','North East'],
    approvedDate:'2026-04-09 11:05:44',assignedPlaylists:['pl-1'], reviewLog:[
+    {date:'05 Apr 2026, 11:20', event:'Pending review', by:'seller'},
+    {date:'07 Apr 2026, 14:30', event:'Rejected', by:'spx', note:'Banner text is too small and does not meet minimum readability standards. Please increase font size and ensure key message is legible at 2m distance.', archivedCreative:'senoko_v1.jpg'},
     {date:'08 Apr 2026, 16:20', event:'Pending review', by:'seller'},
     {date:'09 Apr 2026, 11:05', event:'Approved', by:'spx'},
     {date:'09 Apr 2026, 11:05', event:'Scheduled', by:'system'},
@@ -1263,7 +1265,7 @@ function requestChanges(ref){
   c.rejected=true;
   c.approvedDate=null;
   c.reviewLog=c.reviewLog||[];
-  c.reviewLog.push({date:new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',',''), event:'Changes requested', by:'spx', note:feedback});
+  c.reviewLog.push({date:new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',',''), event:'Rejected', by:'spx', note:feedback, archivedCreative:c.creative});
   closePanel();
   renderTab();
 }
@@ -1400,7 +1402,7 @@ function renderBookingConfig(){
           </div>
         </div>
         <button class="btn-sm" style="margin-top:8px;" onclick="RC.tiers.push({name:'New package',spots:0});renderTab()">+ Add package</button>
-        <div class="fhint">Define the preset spot counts sellers can choose from when booking by spot. Spots are distributed across all matched lockers proportionally by their operating hours. Pricing is calculated at checkout based on the seller's merchant type rate in Finance Portal.</div>
+        <div class="fhint">Define the preset spot counts sellers can choose from when booking by spot. Total spots in the package are the total number of ad plays committed across all eligible lockers combined. Each play on any eligible locker counts as 1 spotPricing is calculated at checkout based on the seller's merchant type rate in Finance Portal.</div>
       </div>
     </div>
 
@@ -1823,10 +1825,22 @@ function renderReviewLog(log, sellerView, buyerName) {
       html += `</div>`;
     }
     if (entry.note) html += `<div style="font-size:11px;color:#555;margin-top:5px;padding:6px 9px;background:#fafafa;border:1px solid #f0f0f0;border-radius:3px;line-height:1.5;">message: ${entry.note}</div>`;
+    if (entry.archivedCreative) html += `<div style="margin-top:8px;background:#f7f7f7;border:1px solid #e8e8e8;border-radius:4px;padding:8px 10px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="expandArchivedCreative('${entry.archivedCreative}')"><div style="width:28px;height:44px;background:#e0e0e0;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;">🖼️</div><div style="flex:1;min-width:0;"><div style="font-size:10px;color:#aaa;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em;">Archived creative</div><div style="font-size:12px;color:#333;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${entry.archivedCreative}</div><div style="font-size:10px;color:#aaa;margin-top:1px;">1080 × 1920 px</div></div><div style="font-size:11px;color:#1677ff;white-space:nowrap;flex-shrink:0;">⤢ Expand</div></div>`;
     html += `</div></div>`;
   });
   html += '</div>';
   return html;
+}
+
+function expandArchivedCreative(filename) {
+  const existing = document.getElementById('archived-overlay');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'archived-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  overlay.onclick = () => overlay.remove();
+  overlay.innerHTML = `<div style="background:#f0f0f0;width:270px;height:480px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;box-shadow:0 8px 32px rgba(0,0,0,0.3);" onclick="event.stopPropagation()"><div style="font-size:56px;margin-bottom:14px;">🖼️</div><div style="font-size:13px;color:#555;font-weight:500;padding:0 20px;text-align:center;">${filename}</div><div style="font-size:11px;color:#aaa;margin-top:6px;">1080 × 1920 px · 9:16 portrait</div><div style="margin-top:6px;background:#ee4d2d;color:#fff;font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px;letter-spacing:.04em;">ARCHIVED</div><button onclick="document.getElementById('archived-overlay').remove()" style="position:absolute;top:10px;right:10px;background:transparent;border:none;font-size:18px;color:#888;cursor:pointer;line-height:1;">✕</button></div>`;
+  document.body.appendChild(overlay);
 }
 </script>
 </body>
