@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Council — BRD Logic Gaps & TW Design</title>
+<style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; color: #1e293b; margin: 0; padding: 40px 20px; line-height: 1.6; }
+    .wrap { max-width: 880px; margin: 0 auto; }
+    .question-box { background: white; border: 1px solid #e2e8f0; border-left: 4px solid #ee4d2d; border-radius: 12px; padding: 24px 28px; margin-bottom: 28px; }
+    .question-box h2 { margin: 0 0 8px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; font-weight: 700; }
+    .question-box p { margin: 0 0 6px 0; font-size: 15px; color: #334155; }
+    .verdict { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; margin-bottom: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .verdict h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #ee4d2d; font-weight: 800; margin: 28px 0 10px 0; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+    .verdict h3:first-child { margin-top: 0; border-top: none; padding-top: 0; }
+    .verdict p, .verdict li { color: #334155; font-size: 15px; }
+    .verdict strong { color: #0f172a; }
+    .verdict code { background: #f1f5f9; padding: 1px 6px; border-radius: 5px; font-size: 13px; color: #be3413; font-weight: 700; }
+    .badge { display: inline-block; background: #fef2f2; color: #dc2626; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 14px; border-radius: 999px; margin-bottom: 8px; }
+    .spectrum { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 28px; margin-bottom: 28px; }
+    .spectrum h3 { margin: 0 0 18px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 12px; }
+    .advisor-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; }
+    .advisor-card .name { font-weight: 800; font-size: 13px; margin-bottom: 6px; }
+    .advisor-card .stance { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; }
+    .stance.build { background: #eff6ff; color: #2563eb; }
+    .stance.reframe { background: #f0fdf4; color: #16a34a; }
+    .stance.upside { background: #fefce8; color: #ca8a04; }
+    .stance.outside { background: #faf5ff; color: #9333ea; }
+    details { background: white; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+    summary { cursor: pointer; padding: 16px 20px; font-weight: 700; font-size: 14px; color: #0f172a; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; font-size: 18px; color: #94a3b8; font-weight: 400; }
+    details[open] summary::after { content: "\2212"; }
+    details .body { padding: 0 20px 20px 20px; font-size: 14px; color: #475569; white-space: pre-wrap; }
+    .section-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; font-weight: 700; margin: 32px 0 12px 0; }
+    footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+    <div class="question-box">
+        <h2>The Question</h2>
+        <p><strong>1.</strong> Identify the logic gaps in the BRD "Collecting locker parcels via H5 page" — contradictions, undefined states, ordering/numbering errors, missing branches, unbuildable requirements.</p>
+        <p><strong>2.</strong> Scrutinize the Taiwan (TW) "collect parcels" design: TW shows only cell IDs + tracking numbers, with no visual locker-compartment layout.</p>
+    </div>
+
+    <div class="verdict">
+        <span class="badge">Verdict: Harden the spec, don't add scope</span>
+
+        <h3>Where the Council Agrees</h3>
+        <p>Five advisors converged on a hard core of defects — treat these as fixes, not opinions:</p>
+        <ul>
+            <li><strong>The timer system is incoherent.</strong> <code>3.2.2</code> session token = 10 min collides with <code>3.5</code> PIN validity = 15 min and cell-release = 15 min. Three clocks, no anchor time, and no definition of what a re-scan does. A spec-level contradiction, not a wording nit.</li>
+            <li><strong>Duplicate section <code>3.2.1</code></strong> ("Set up token" and "Detect remote opening" share the number) plus a garbled/incomplete geofence sentence.</li>
+            <li><strong>Identifier soup.</strong> "Collection PIN" (6-digit) vs "phone verification" vs "4-digit OTP" vs "session token." A buyer who gets a 6-digit SMS then sees a 4-digit prompt assumes the system is broken.</li>
+            <li><strong>The "Cell Busy" driver-conflict race (<code>3.1.1</code>) has no owner</strong> — firmware vs backend undefined, and partial-success (some cells open, one busy) undefined.</li>
+            <li><strong>Security criteria are unbuildable</strong> — <code>3.2</code> defines no PIN attempt limit, no lockout, no lockout scope. Can't pass security review.</li>
+            <li><strong>Stripping TW's visual layout is a defect, not localization.</strong> The highest-error market (multi-cell, PIN every visit) gets the weakest UI — directly contradicting the BRD's own "check all parcels before closing" reminder. Cash-at-machine payment and the compartment diagram are orthogonal.</li>
+        </ul>
+
+        <h3>Where the Council Clashes</h3>
+        <p><strong>Is TW a toggle set or its own product?</strong> First Principles &amp; Expansionist: the blank TW signoff row is the tell — for many cash-COD TW buyers the H5 delivers nothing the third-party machine doesn't; it relocates TW's constraint rather than removing it. Executor: buildable-but-risky, focus on the missing vendor API contract. <em>Both are right and they stack</em> — TW needs a product decision AND a vendor integration spec. Not a toggle.</p>
+        <p><strong>Is delegation (shared helper PIN) a threat or a feature?</strong> <code>3.2.1</code> rejects PIN-as-OTP <em>because</em> shared helper PINs could mint permanent tokens (theft). But TW/TH demand PIN <em>because</em> buyers use helpers. The BRD argues both sides in different sections. The policy question is real and must be decided; monetizing delegation is premature.</p>
+        <p><strong>What to do with the token.</strong> The Expansionist's identity-graph + gamification agenda was unanimously flagged by peer review as the council's biggest blind spot — building loyalty mechanics on a spec that isn't yet buildable or safe. Shelve until the contradictions are closed.</p>
+
+        <h3>Blind Spots the Council Caught</h3>
+        <p>Peer review surfaced five gaps that <strong>all five advisors missed</strong> — arguably more dangerous than the timer bug because nobody owns them yet:</p>
+        <ul>
+            <li><strong>Liability / dispute ownership.</strong> When the wrong parcel is collected, or a remote-open exposes a parcel — who owns the refund/dispute (buyer, SPX, or the TW vendor)? No dispute-resolution section exists.</li>
+            <li><strong>No-smartphone / no-data fallback.</strong> Every flow assumes phone + browser + live backend; COD lockers serve exactly the population most likely to lack this. (The "offline paradox" — a BE-dependent H5 can't render "go use the screen" when the locker's internet is down — is a subset.)</li>
+            <li><strong>Privacy/consent legal basis.</strong> A persistent cross-locker identity token needs a PDPA/GDPR-grade lawful basis and a documented un-link/revoke path. The missing revoke flow is both an adoption killer and a compliance gap.</li>
+            <li><strong>No baseline data.</strong> Section <code>4.0</code> metrics can't prove improvement without today's mis-collection rate and current SMS cost.</li>
+            <li><strong>Accessibility / language</strong> — unaddressed across a multi-market rollout.</li>
+        </ul>
+
+        <h3>The Recommendation</h3>
+        <p>Do not add scope. Harden the spec, in priority order:</p>
+        <ol>
+            <li><strong>Fix the contradictions (blocking).</strong> Resolve <code>3.2</code>/<code>3.5</code> timers into ONE anchored clock with defined re-scan behavior; renumber the duplicate <code>3.2.1</code> and rewrite the garbled geofence sentence; collapse the four identifiers into one buyer-facing term; define PIN/OTP attempt limits + lockout scope; assign the <code>3.1.1</code> "Cell Busy" race to one owner and specify partial-success behavior.</li>
+            <li><strong>Write the four missing sections</strong> the whole council missed: (a) dispute/liability ownership; (b) no-data/no-smartphone + offline-locker fallback; (c) consent legal basis + explicit token revoke flow; (d) baseline metrics for <code>4.0</code>.</li>
+            <li><strong>Decide the delegation policy explicitly</strong> — is a shared/helper PIN authorized access or a theft vector? Everything about tokens, remote-open, and TW PIN-every-visit hangs off this one ruling.</li>
+            <li><strong>Reframe TW as its own decision, not a toggle.</strong> Restore the visual compartment layout for TW (keep the diagram, add highlight-in-sequence); define the vendor QR integration (API contract, error format, offline fallback — <code>3.9</code> assumes an SPX screen TW doesn't have); specify a leave-a-parcel recovery path for TW, since <code>3.5</code>'s 15-min reopen is written only for the visual variant.</li>
+            <li><strong>Park the Expansionist agenda</strong> — no identity graph, gamification, or monetization until 1–3 are closed.</li>
+        </ol>
+
+        <h3>The One Thing to Do First</h3>
+        <p><strong>Resolve the timer model</strong> — collapse the 10-min session token (<code>3.2.2</code>), the 15-min PIN validity, and the 15-min cell-release (<code>3.5</code>) into one anchored clock, and define exactly what a re-scan does. It's the single contradiction every advisor independently hit, it blocks the build, it silently governs TW's missing leave-a-parcel recovery, and only you can make the call — not UX or copy. Fix it before circulating the BRD again.</p>
+    </div>
+
+    <div class="spectrum">
+        <h3>Advisor Lenses</h3>
+        <div class="grid">
+            <div class="advisor-card"><div class="name">The Contrarian</div><span class="stance build">Contradictions &amp; missing branches</span></div>
+            <div class="advisor-card"><div class="name">First Principles</div><span class="stance reframe">TW isn't a toggle</span></div>
+            <div class="advisor-card"><div class="name">The Expansionist</div><span class="stance upside">Under-used token (flagged premature)</span></div>
+            <div class="advisor-card"><div class="name">The Outsider</div><span class="stance outside">Buyer confusion &amp; jargon</span></div>
+            <div class="advisor-card"><div class="name">The Executor</div><span class="stance build">Unbuildable-as-written</span></div>
+        </div>
+        <p style="font-size:13px;color:#64748b;margin-top:16px;margin-bottom:0;">Peer review: 4 of 5 named <strong>the Executor</strong> strongest (build-blocking rigor); 1 named <strong>First Principles</strong> (TW reframe + delegation policy). Unanimous: <strong>the Expansionist</strong> had the biggest blind spot — monetizing on top of an unsafe, not-yet-buildable spec.</p>
+    </div>
+
+    <div class="section-label">Full Advisor Responses</div>
+
+    <details>
+        <summary>The Contrarian — contradictions &amp; missing branches</summary>
+        <div class="body">Logic gaps: Numbering collision — two sections labeled 3.2.1. Ordering contradiction: remote detection fires "on scan" but 3.2.2 says session token generated on scan required for all actions — which runs first? Does a recurring token-holder bypass the geofence check? 3.1.1 driver conflict under-specified: if "Cell Busy" for A01, do the buyer's OTHER cells open? 3.5 fifteen-minute windows conflict: PIN valid 15 min, cells released after 15 min, but session token is 10 min — three clocks, no anchor time. 3.3.2 vs 3.4 COD collision: nothing forbids the non-TW payment flow rendering if the TW toggle is misconfigured. Missing branches: partial payment failure; report-issue while a door is open; TW has no signoff yet carries the most custom logic. TW collect design: stripping the visual layout is the real defect — the highest mis-collection-risk market gets the weakest UI; it contradicts the BRD's own "many parcels in 1 locker, check before closing" risk.</div>
+    </details>
+
+    <details>
+        <summary>The First Principles Thinker — TW isn't a toggle; delegation undecided</summary>
+        <div class="body">Purpose splits in two: (a) skip the driver-occupied screen; (b) help buyers find cells at wide sites. TW uses a third-party machine, PIN every visit, blocks remote, and forces cash-COD buyers to the machine to pay AND collect ALL — so for many TW buyers the H5 delivers nothing the machine doesn't; it relocates TW's constraint, doesn't remove it. The blank TW signoff is the tell; reframe TW as its own decision, not a toggle set. Gaps: (1) PIN-vs-token contradiction — 3.2.1 rejects PIN-as-OTP because shared helper PINs mint permanent tokens (theft), but TH demands PIN precisely because buyers use helpers; delegation is undecided (feature or threat?). (2) Timer mismatch 10 vs 15 min. (3) Remote opening breaks the "you scanned on-site so you're present" security premise. (4) Offline paradox: if the locker internet is down, the H5 (needs BE) can't even render "go use the screen."</div>
+    </details>
+
+    <details>
+        <summary>The Expansionist — under-used token (peer-flagged as premature)</summary>
+        <div class="body">Metrics (4.0) are a scoreboard not a growth engine — you don't track token opt-in rate or repeat-token collection rate, the most valuable number; every token user becomes a zero-SMS, re-identifiable cross-locker user = a loyalty ID. Token is under-monetized identity — a persistent key at "any SPX Locker" is a cross-locker user graph; enable pre-authenticated arrival, gamification firing only for token users to drive opt-in. Remote-open is logged as an ops flag, not a product — this is the helper economy TH flagged; formalize delegated collection (scoped one-parcel token to a helper). No multi-locker wayfinding. TW design: the cell-ID + TN list is a downgrade disguised as market-fit; cash-only doesn't require dropping the visual layout (payment at the machine, collection still physical door-finding); keep the diagram, add highlight-in-sequence; the blank TW signoff is permission to pilot the layout, not strip it.</div>
+    </details>
+
+    <details>
+        <summary>The Outsider — buyer confusion &amp; jargon</summary>
+        <div class="body">"Collection PIN" (6-digit) vs "phone verification" vs "4-digit one-time code" = three number-things in one flow; a customer who got a 6-digit text then sees a 4-digit ask assumes an error. The T&C line "this phone can open your lockers without a PIN" is alarming — reads as "a thief opens my parcels if I lose my phone"; no un-link/revoke mentioned = kills adoption; "your lockers" plural is confusing when I have one parcel. The 50m geofence popup is backwards — if I'm standing there and GPS drifts (common indoors/by lockers) the app accuses me of lying and offers a scary "remote" option I never asked for. "COD / tracking number / cell ID" is jargon; lead with what the item is or the shop name. The 10/15-min rules are invisible until tripped — customers panic at "expired." TW wall-of-lockers with a text list: it fails — cell IDs mean nothing without a map; at minimum the opened doors should physically pop/light up.</div>
+    </details>
+
+    <details>
+        <summary>The Executor — unbuildable-as-written</summary>
+        <div class="body">3.2 vs 3.5 timing contradiction — 10-min session vs 15-min re-scan/PIN; does a re-scan mint a fresh token or does the 10-min token block the reopen at min 10–15? 3.2 has no OTP/PIN attempt limit — the PIN path has no lockout and no lockout scope (per-session? per-phone? per-locker?) = an unbuildable security criterion. 3.1.1 "Cell Busy" race — who owns conflict resolution, firmware or backend; partial-success state undefined. Duplicate 3.2.1 + garbled geofence sentence; GPS-vs-WiFi-IP disagreement has no tiebreak. 3.4/3.6 have no failure states — no payment timeout/failed branch, no handling if Device Dashboard is down. TW collect screen: buildable but risky; no visual layout = high error for multi-cell; worse, TW COD forces "pay AND collect ALL at the machine" but 3.5's 15-min reopen is described only for the visual variant, so a TW buyer who leaves a parcel has NO defined recovery; the TW QR comes from a third-party vendor machine with no API contract/error format/offline fallback (3.9 assumes an SPX screen TW doesn't have) — an ownership gap.</div>
+    </details>
+
+    <div class="section-label">Peer Review Highlights</div>
+    <details>
+        <summary>What the reviewers flagged</summary>
+        <div class="body"><strong>Strongest response:</strong> 4 of 5 reviewers named the Executor — the only advisor operating at build-blocking altitude (unbuildable PIN lockout, "Cell Busy" ownership, TW no-recovery + missing vendor API contract). 1 named First Principles for reframing TW as a product decision and surfacing the undecided delegation policy.
+
+<strong>Biggest blind spot (unanimous):</strong> the Expansionist — monetizing a cross-locker identity graph and gamification on top of a spec that isn't yet buildable or safe, and treating the shared-PIN/helper theft vector as a feature to ship without asking whether delegated access is even authorized.
+
+<strong>What all five advisors missed (recurring across reviews):</strong>
+1. Liability / dispute ownership when the wrong parcel is collected or a remote-open exposes a parcel — treated as UI risk, never a legal/CS process.
+2. No-smartphone / no-data fallback — every flow assumes a working phone + browser + backend, but COD lockers serve exactly the population that may lack this.
+3. Privacy/consent legal basis (PDPA/GDPR-style) for a persistent cross-locker identity token — the T&C was called "scary" but never framed as a compliance obligation.
+4. No baseline data (today's mis-collection rate, current SMS cost) — so the 4.0 metrics can't prove improvement.
+5. Accessibility / language across a multi-market rollout.</div>
+    </details>
+
+    <footer>
+        LLM Council session — 2026-07-03 · Topic: BRD logic gaps + TW collect-screen design<br>
+        5 advisors, 5 peer reviews, 1 chairman synthesis
+    </footer>
+</div>
+</body>
+</html>
