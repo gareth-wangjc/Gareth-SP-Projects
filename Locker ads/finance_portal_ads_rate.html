@@ -98,6 +98,8 @@
   }
   .tab:hover { color: #333; }
   .tab.active { color: #e31837; border-bottom-color: #e31837; font-weight: 500; }
+  .tab.disabled { color: #ccc; cursor: not-allowed; }
+  .tab.disabled:hover { color: #ccc; }
 
   /* filter bar */
   .filter-bar {
@@ -116,7 +118,7 @@
   }
   .filter-input:focus, .filter-select:focus { border-color: #e31837; }
   .filter-actions { display: flex; gap: 8px; align-items: flex-end; }
-  .btn { 
+  .btn {
     height: 30px; padding: 0 14px; border-radius: 4px; border: none;
     cursor: pointer; font-size: 12px; font-weight: 500; transition: opacity .15s;
   }
@@ -124,6 +126,7 @@
   .btn-primary { background: #e31837; color: #fff; }
   .btn-default { background: #fff; color: #333; border: 1px solid #d9d9d9; }
   .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
 
   /* action bar */
   .action-bar {
@@ -161,9 +164,16 @@
   .status-active { color: #52c41a; font-weight: 500; }
   .status-past { color: #aaa; }
   .status-disabled { color: #f5222d; }
+  .status-scheduled { color: #1890ff; font-weight: 500; }
   .action-link { color: #1890ff; cursor: pointer; font-size: 12px; }
   .action-link:hover { text-decoration: underline; }
   .action-sep { color: #ddd; margin: 0 2px; }
+
+  .region-chip {
+    display: inline-block; background: #eef5ff; border: 1px solid #cfe3ff;
+    color: #1890ff; border-radius: 3px; padding: 1px 7px; font-size: 11px;
+    margin-right: 4px;
+  }
 
   /* ── MODAL OVERLAY ── */
   .modal-overlay {
@@ -184,6 +194,7 @@
     box-shadow: 0 8px 32px rgba(0,0,0,.18);
     overflow: hidden;
   }
+  .modal.modal-wide { width: 760px; }
   .modal-header {
     padding: 14px 20px;
     border-bottom: 1px solid #e8e8e8;
@@ -249,29 +260,6 @@
   .error-msg { font-size: 11px; color: #f5222d; margin-top: 2px; display: none; }
   .error-msg.show { display: block; }
 
-  .input-prefix {
-    display: flex; align-items: center;
-    border: 1px solid #d9d9d9; border-radius: 4px; overflow: hidden;
-    height: 34px;
-    transition: border-color .15s;
-  }
-  .input-prefix:focus-within { border-color: #e31837; }
-  .input-prefix span {
-    padding: 0 10px; background: #fafafa; color: #888;
-    font-size: 12px; border-right: 1px solid #d9d9d9;
-    height: 100%; display: flex; align-items: center;
-    white-space: nowrap;
-  }
-  .input-prefix input {
-    border: none; outline: none; padding: 7px 10px;
-    font-size: 13px; flex: 1; color: #333;
-  }
-
-  .radio-group { display: flex; gap: 20px; margin-top: 4px; }
-  .radio-item { display: flex; align-items: center; gap: 6px; cursor: pointer; }
-  .radio-item input[type="radio"] { accent-color: #e31837; cursor: pointer; }
-  .radio-item label { font-size: 13px; color: #333; cursor: pointer; }
-
   .hint { font-size: 11px; color: #999; margin-top: 4px; }
 
   .checkbox-item { display: flex; align-items: center; gap: 6px; cursor: pointer; margin-top: 6px; }
@@ -297,17 +285,57 @@
   .summary-key { color: #888; }
   .summary-val { color: #333; font-weight: 500; }
 
-  /* merchant type tag-like display */
-  .merchant-tag {
-    display: inline-block; background: #f0f0f0; border-radius: 3px;
-    padding: 1px 6px; font-size: 11px; color: #555; margin-right: 4px;
-  }
-
   /* tooltip-like info */
   .info-note {
     background: #fffbe6; border: 1px solid #ffe58f; border-radius: 4px;
     padding: 8px 12px; font-size: 12px; color: #8a6d00; margin-top: 12px;
   }
+  .info-note.blue {
+    background: #eef5ff; border-color: #cfe3ff; color: #1a5fa8;
+  }
+
+  /* source-pulled note */
+  .pulled-note {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: #888; margin-top: 6px;
+  }
+  .pulled-note .dot { width: 6px; height: 6px; border-radius: 50%; background: #52c41a; flex-shrink: 0; }
+
+  /* coverage tabs (inside modal) */
+  .coverage-tabs {
+    display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #eee;
+  }
+  .coverage-tab {
+    padding: 8px 14px; font-size: 12px; color: #666; cursor: pointer;
+    border-bottom: 2px solid transparent; font-weight: 500;
+  }
+  .coverage-tab:hover:not(.disabled) { color: #333; }
+  .coverage-tab.active { color: #e31837; border-bottom-color: #e31837; }
+  .coverage-tab.disabled { color: #ccc; cursor: not-allowed; }
+  .coverage-tab .soon { font-size: 10px; color: #bbb; margin-left: 4px; }
+
+  /* pricing grid */
+  .grid-table-wrap { border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
+  .grid-table { width: 100%; border-collapse: collapse; margin: 0; }
+  .grid-table th, .grid-table td { padding: 7px 10px; font-size: 12px; border: 1px solid #f0f0f0; white-space: nowrap; }
+  .grid-table th { background: #fafafa; color: #555; font-weight: 600; text-align: center; }
+  .grid-table td:first-child, .grid-table th:first-child { text-align: left; background: #fafafa; font-weight: 500; color: #333; width: 90px; }
+  .grid-input {
+    width: 100%; border: 1px solid #d9d9d9; border-radius: 3px;
+    padding: 4px 4px 4px 20px; font-size: 12px; text-align: right;
+    outline: none; position: relative;
+  }
+  .grid-cell { position: relative; }
+  .grid-cell::before {
+    content: '$'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: #999; pointer-events: none;
+  }
+  .grid-input:focus { border-color: #e31837; }
+  .grid-input.error { border-color: #f5222d; }
+  .grid-caption { font-size: 11px; color: #999; margin-top: 8px; }
+
+  .view-section-title { font-size: 12px; font-weight: 600; color: #555; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: .5px; }
+  .view-section-title:first-child { margin-top: 0; }
 </style>
 </head>
 <body>
@@ -403,7 +431,7 @@
     <!-- ═══ LOCKER ADS tab ═══ -->
     <div id="panel-locker-ads" style="display:none;">
       <div class="filter-bar">
-        <div class="filter-group"><div class="filter-label">Rate ID</div><input class="filter-input" placeholder="Please Input"/></div>
+        <div class="filter-group"><div class="filter-label">Version ID</div><input class="filter-input" placeholder="Please Input"/></div>
         <div class="filter-group"><div class="filter-label">Seller Type</div>
           <select class="filter-select">
             <option value="">Please Select</option>
@@ -412,7 +440,7 @@
           </select>
         </div>
         <div class="filter-group"><div class="filter-label">Merchant Type</div>
-          <select class="filter-select" id="filter-merchant-type">
+          <select class="filter-select">
             <option value="">Please Select</option>
             <option value="1">1 - Personal</option>
             <option value="2">2 - Small Enterprise</option>
@@ -427,81 +455,31 @@
           <select class="filter-select">
             <option value="">Please Select</option>
             <option>Active</option>
+            <option>Scheduled</option>
             <option>Past</option>
-            <option>Disabled</option>
           </select>
         </div>
         <div class="filter-actions"><button class="btn btn-primary">Search</button><button class="btn btn-default">Reset</button></div>
       </div>
       <div class="action-bar">
-        <button class="btn btn-primary btn-sm" onclick="openModal()">Create</button>
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal()">Create Rate Card Version</button>
         <button class="btn btn-default btn-sm">Export</button>
-        <div class="action-bar-right">0 Rate(s) Selected</div>
+        <div class="action-bar-right">Each version is a full rate card snapshot — active campaigns keep following the version live at their booking date</div>
       </div>
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th><input type="checkbox"/></th>
-            <th>Rate ID</th>
+            <th>Version ID</th>
             <th>Seller Type</th>
             <th>Merchant Type</th>
-            <th>Price per Spot (SGD)</th>
-            <th>Effective Start Time</th>
-            <th>Create Time</th>
-            <th>Update Time</th>
+            <th>Regions</th>
+            <th>Coverage Types</th>
+            <th>Effective Start</th>
+            <th>Created</th>
             <th>Status</th>
             <th>Action</th>
           </tr></thead>
-          <tbody>
-            <tr>
-              <td><input type="checkbox"/></td>
-              <td>700000001</td>
-              <td>NSS</td>
-              <td>7 - Samsung Dedicated Fleet</td>
-              <td>0.0080</td>
-              <td>2026-01-01 00:00:00</td>
-              <td>2025-12-10 10:00:00</td>
-              <td>2025-12-10 10:00:00</td>
-              <td class="status-active">Active</td>
-              <td><span class="action-link">View</span><span class="action-sep">|</span><span class="action-link">Deactivate</span></td>
-            </tr>
-            <tr>
-              <td><input type="checkbox"/></td>
-              <td>700000002</td>
-              <td>NSS</td>
-              <td>2 - Small Enterprise</td>
-              <td>0.0060</td>
-              <td>2026-01-01 00:00:00</td>
-              <td>2025-12-10 10:05:00</td>
-              <td>2025-12-10 10:05:00</td>
-              <td class="status-active">Active</td>
-              <td><span class="action-link">View</span><span class="action-sep">|</span><span class="action-link">Deactivate</span></td>
-            </tr>
-            <tr>
-              <td><input type="checkbox"/></td>
-              <td>700000003</td>
-              <td>Shopee</td>
-              <td>—</td>
-              <td>0.0050</td>
-              <td>2026-01-01 00:00:00</td>
-              <td>2025-12-10 10:10:00</td>
-              <td>2025-12-10 10:10:00</td>
-              <td class="status-active">Active</td>
-              <td><span class="action-link">View</span><span class="action-sep">|</span><span class="action-link">Deactivate</span></td>
-            </tr>
-            <tr>
-              <td><input type="checkbox"/></td>
-              <td>700000000</td>
-              <td>NSS</td>
-              <td>2 - Small Enterprise</td>
-              <td>0.0055</td>
-              <td>2025-06-01 00:00:00</td>
-              <td>2025-05-20 09:00:00</td>
-              <td>2025-05-20 09:00:00</td>
-              <td class="status-past">Past</td>
-              <td><span class="action-link">View</span><span class="action-sep">|</span><span class="action-link">Disable</span></td>
-            </tr>
-          </tbody>
+          <tbody id="rate-version-tbody"></tbody>
         </table>
       </div>
     </div>
@@ -513,13 +491,13 @@
 </div>
 
 <!-- ═══════════════════════════════════════════
-     CREATE RATE CARD MODAL
+     CREATE RATE CARD VERSION MODAL
 ════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-overlay">
-  <div class="modal">
+  <div class="modal modal-wide">
     <div class="modal-header">
-      <h3>Create Locker Advertisement Rate Card</h3>
-      <span class="modal-close" onclick="closeModal()">×</span>
+      <h3>Create Rate Card Version</h3>
+      <span class="modal-close" onclick="closeCreateModal()">×</span>
     </div>
 
     <!-- Stepper -->
@@ -531,7 +509,7 @@
       <div class="step-line" id="step-line-1"></div>
       <div class="step" id="step-indicator-2">
         <div class="step-circle" id="step-circle-2">2</div>
-        <div class="step-label">Pricing Rule</div>
+        <div class="step-label">Pricing Grid</div>
       </div>
       <div class="step-line" id="step-line-2"></div>
       <div class="step" id="step-indicator-3">
@@ -581,21 +559,20 @@
         </div>
       </div>
 
-      <!-- STEP 2 — Pricing Rule -->
+      <!-- STEP 2 — Pricing Grid -->
       <div class="step-panel" id="panel-step-2">
-        <div class="summary-box" id="step2-summary"></div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <div class="form-label"><span class="req">* </span>Price per Spot (SGD)</div>
-            <div class="input-prefix">
-              <span>SGD</span>
-              <input type="number" id="price-per-spot" min="0" step="0.0001" placeholder="e.g. 0.0060"/>
-            </div>
-            <div class="error-msg" id="err-price">Please enter a valid price per spot</div>
-            <div class="hint">Price is locked at the time of booking and applies per ad spot delivered.</div>
-          </div>
+        <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:6px;">Enter the weekly rate per locker (SGD) for each enabled combination below</div>
+        <div class="pulled-note" style="margin-top:0; margin-bottom:10px;"><span class="dot"></span>Regions for this Finance Portal (<span id="grid-market-label">Singapore</span>): <span id="grid-region-chips"></span> — Location Types and which combinations are enabled are also pulled from SP Portal Booking Configuration. Nothing here is editable — go to SP Portal to change what's offered.</div>
+        <div class="coverage-tabs" id="coverage-tabs">
+          <div class="coverage-tab active" data-coverage="half" onclick="switchCoverageTab('half')">Half Network</div>
+          <div class="coverage-tab" data-coverage="full" onclick="switchCoverageTab('full')">Full Network</div>
+          <div class="coverage-tab disabled" title="Individual locker pricing lands next phase">Individual Locker <span class="soon">(next phase)</span></div>
         </div>
+        <div class="grid-table-wrap">
+          <table class="grid-table" id="grid-table"></table>
+        </div>
+        <div class="error-msg" id="err-grid">Please enter a rate for every enabled cell in both Half Network and Full Network</div>
+        <div class="grid-caption">Rate = SGD per locker per week. Cells shown as "—" are disabled in SP Portal Booking Configuration and need no rate. Same axes apply to Full Network — fill both tabs before continuing.</div>
       </div>
 
       <!-- STEP 3 — Effective Time -->
@@ -613,15 +590,33 @@
           <input type="checkbox" id="start-immediately" onchange="onStartImmediately(this.checked)"/>
           <label for="start-immediately">Start Immediately</label>
         </div>
+        <div class="info-note">
+          This creates a new rate card version, not an edit to the current one. Campaigns already booked keep following the version that was active on their booking date — this version only applies to campaigns booked from the effective date onward. The version it supersedes moves to <strong>Past</strong> (or <strong>Scheduled</strong> stays queued if its own start date hasn't arrived yet).
+        </div>
       </div>
 
     </div><!-- end modal-body -->
 
     <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-default" onclick="closeCreateModal()">Cancel</button>
       <button class="btn btn-default" id="btn-prev" style="display:none;" onclick="prevStep()">Previous</button>
-      <button class="btn btn-default" id="btn-save-draft" onclick="saveDraft()">Save as Draft</button>
       <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Save &amp; Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW RATE CARD VERSION MODAL (read-only)
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="view-modal-overlay">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h3 id="view-modal-title">Rate Card Version</h3>
+      <span class="modal-close" onclick="closeViewModal()">×</span>
+    </div>
+    <div class="modal-body" id="view-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeViewModal()">Close</button>
     </div>
   </div>
 </div>
@@ -652,17 +647,202 @@
   document.getElementById('panel-global').style.display = 'none';
   document.getElementById('panel-recalc').style.display = 'none';
 
-  /* ── MODAL STATE ── */
+  /* ═══════════════════════════════════════════
+     RATE CARD DATA MODEL
+     Each version is a full immutable snapshot: the region list pulled
+     from SP Portal at save time + every Location Type × Region rate,
+     per Coverage type, scoped to one Seller Type (+ Merchant Type for
+     NSS). Campaigns reference a version by id, never a "live" pointer
+     — so changing/adding a version never reprices an already-booked
+     campaign.
+
+     This Finance Portal instance belongs to one market only (see
+     sidebar: "Finance SG") — ops never picks a market here. The region
+     list for that fixed market is still pulled from SP Portal (rather
+     than hardcoded), so a market that later reconfigures its regions
+     (e.g. CCR/RCR/OCR → North/South) just changes what this portal
+     pulls, with no Finance Portal code change.
+  ════════════════════════════════════════════ */
+
+  const CURRENT_MARKET = 'SG';
+  const CURRENT_MARKET_LABEL = 'Singapore';
+  // Mock of what SP Portal's Booking Configuration would return for this
+  // portal's market — Finance Portal never hardcodes these, it only renders
+  // whatever comes back. In production these three are a live pull; here
+  // they're a static snapshot matching SP_portal_ads_management.html's
+  // current Booking Configuration state.
+  const CURRENT_REGIONS = ['CCR', 'RCR', 'OCR'];
+  // Mirrors SP Portal's ALL_LOC_TYPES master list (Location Types are master
+  // data owned there, e.g. Point List — Finance Portal never invents its own).
+  const LOCATION_TYPES = ['HDB Residential', 'MRT Stations', 'Shopping Malls', 'Bus Interchanges', 'Community Clubs', 'Condominiums', 'Offices'];
+  const COVERAGE_LABELS = { half: 'Half Network', full: 'Full Network' };
+  const MERCHANT_TYPE_LABELS = {
+    '1': '1 - Personal', '2': '2 - Small Enterprise', '3': '3 - Big Enterprise',
+    '4': '4 - merchant_type_sg_test', '6': '6 - Merchant Type Test 2',
+    '7': '7 - Samsung Dedicated Fleet', '8': '8 - Samsung Normal Fleet'
+  };
+
+  // Mirrors SP Portal's ADS_MATRIX (Locker ads rate card coverage) — which
+  // Location Type × Region × Coverage combinations are enabled at all.
+  // Finance Portal only requires/shows a rate for a combination that's true
+  // here; a false combination renders as "—" and needs no rate. Seeded with
+  // Condominiums × OCR disabled (mirrors: no Condo lockers exist in OCR yet)
+  // to demonstrate this — in production the whole object is pulled live.
+  function buildAllValid() {
+    const m = {};
+    LOCATION_TYPES.forEach(lt => { m[lt] = {}; CURRENT_REGIONS.forEach(r => { m[lt][r] = true; }); });
+    return m;
+  }
+  const VALID_COMBOS = { half: buildAllValid(), full: buildAllValid() };
+  VALID_COMBOS.half.Condominiums.OCR = false;
+  VALID_COMBOS.full.Condominiums.OCR = false;
+
+  function rateGroupKey(sellerType, merchantType) {
+    return sellerType === 'NSS' ? `NSS-${merchantType}` : 'Shopee';
+  }
+
+  let rateCardVersions = [
+    {
+      id: 'RC-0001',
+      sellerType: 'NSS',
+      merchantType: '2',
+      regions: CURRENT_REGIONS.slice(),
+      effectiveStart: '2025-06-01',
+      created: '2025-05-20 09:00',
+      status: 'past',
+      rates: {
+        half: { 'HDB Residential':{CCR:19,RCR:16,OCR:11}, 'MRT Stations':{CCR:27,RCR:22,OCR:16}, 'Shopping Malls':{CCR:30,RCR:25,OCR:17}, 'Bus Interchanges':{CCR:24,RCR:19,OCR:13}, 'Community Clubs':{CCR:21,RCR:17,OCR:12}, 'Condominiums':{CCR:26,RCR:20}, 'Offices':{CCR:23,RCR:18,OCR:12} },
+        full: { 'HDB Residential':{CCR:5,RCR:4,OCR:3}, 'MRT Stations':{CCR:7,RCR:6,OCR:4}, 'Shopping Malls':{CCR:8,RCR:7,OCR:4}, 'Bus Interchanges':{CCR:6,RCR:5,OCR:4}, 'Community Clubs':{CCR:5,RCR:4,OCR:3}, 'Condominiums':{CCR:6,RCR:5}, 'Offices':{CCR:6,RCR:5,OCR:3} }
+      }
+    },
+    {
+      id: 'RC-0002',
+      sellerType: 'NSS',
+      merchantType: '2',
+      regions: CURRENT_REGIONS.slice(),
+      effectiveStart: '2026-01-01',
+      created: '2025-12-10 10:00',
+      status: 'active',
+      rates: {
+        half: { 'HDB Residential':{CCR:21,RCR:17,OCR:12}, 'MRT Stations':{CCR:31,RCR:26,OCR:18}, 'Shopping Malls':{CCR:34,RCR:28,OCR:19}, 'Bus Interchanges':{CCR:27,RCR:22,OCR:15}, 'Community Clubs':{CCR:24,RCR:19,OCR:13}, 'Condominiums':{CCR:29,RCR:23}, 'Offices':{CCR:26,RCR:21,OCR:14} },
+        full: { 'HDB Residential':{CCR:6,RCR:5,OCR:4}, 'MRT Stations':{CCR:8,RCR:7,OCR:5}, 'Shopping Malls':{CCR:9,RCR:8,OCR:5}, 'Bus Interchanges':{CCR:7,RCR:6,OCR:4}, 'Community Clubs':{CCR:6,RCR:5,OCR:4}, 'Condominiums':{CCR:7,RCR:6}, 'Offices':{CCR:7,RCR:6,OCR:4} }
+      }
+    },
+    {
+      id: 'RC-0003',
+      sellerType: 'Shopee',
+      merchantType: '',
+      regions: CURRENT_REGIONS.slice(),
+      effectiveStart: '2026-01-01',
+      created: '2025-12-11 09:30',
+      status: 'active',
+      rates: {
+        half: { 'HDB Residential':{CCR:20,RCR:16,OCR:11}, 'MRT Stations':{CCR:29,RCR:24,OCR:17}, 'Shopping Malls':{CCR:32,RCR:26,OCR:18}, 'Bus Interchanges':{CCR:25,RCR:20,OCR:14}, 'Community Clubs':{CCR:22,RCR:18,OCR:12}, 'Condominiums':{CCR:27,RCR:22}, 'Offices':{CCR:24,RCR:20,OCR:13} },
+        full: { 'HDB Residential':{CCR:6,RCR:5,OCR:4}, 'MRT Stations':{CCR:8,RCR:6,OCR:4}, 'Shopping Malls':{CCR:9,RCR:7,OCR:5}, 'Bus Interchanges':{CCR:7,RCR:5,OCR:4}, 'Community Clubs':{CCR:6,RCR:5,OCR:4}, 'Condominiums':{CCR:7,RCR:6}, 'Offices':{CCR:6,RCR:5,OCR:4} }
+      }
+    }
+  ];
+  let nextVersionSeq = 4;
+
+  const TODAY = '2026-09-04';
+
+  function statusLabel(s) {
+    if (s === 'active') return '<span class="status-active">Active</span>';
+    if (s === 'scheduled') return '<span class="status-scheduled">Scheduled</span>';
+    return '<span class="status-past">Past</span>';
+  }
+
+  function renderRateTable() {
+    const tbody = document.getElementById('rate-version-tbody');
+    tbody.innerHTML = rateCardVersions.slice().reverse().map(v => `
+      <tr>
+        <td>${v.id}</td>
+        <td>${v.sellerType}</td>
+        <td>${v.sellerType === 'NSS' ? MERCHANT_TYPE_LABELS[v.merchantType] : '—'}</td>
+        <td>${v.regions.map(r => `<span class="region-chip">${r}</span>`).join('')}</td>
+        <td>${Object.keys(v.rates).map(c => COVERAGE_LABELS[c]).join(', ')}</td>
+        <td>${v.effectiveStart} 00:00:00</td>
+        <td>${v.created}</td>
+        <td>${statusLabel(v.status)}</td>
+        <td>
+          <span class="action-link" onclick="openViewModal('${v.id}')">View</span>
+          ${v.status === 'scheduled' ? '<span class="action-sep">|</span><span class="action-link" onclick="cancelVersion(\''+v.id+'\')">Cancel</span>' : ''}
+        </td>
+      </tr>
+    `).join('');
+  }
+  renderRateTable();
+
+  function cancelVersion(id) {
+    rateCardVersions = rateCardVersions.filter(v => v.id !== id);
+    renderRateTable();
+  }
+
+  /* ── VIEW MODAL ── */
+  function openViewModal(id) {
+    const v = rateCardVersions.find(x => x.id === id);
+    if (!v) return;
+    document.getElementById('view-modal-title').textContent = `Rate Card Version — ${v.id}`;
+    let html = `
+      <div class="summary-box">
+        <h4>Version Details</h4>
+        <div class="summary-row"><span class="summary-key">Seller Type</span><span class="summary-val">${v.sellerType}</span></div>
+        ${v.sellerType === 'NSS' ? `<div class="summary-row"><span class="summary-key">Merchant Type</span><span class="summary-val">${MERCHANT_TYPE_LABELS[v.merchantType]}</span></div>` : ''}
+        <div class="summary-row"><span class="summary-key">Regions</span><span class="summary-val">${v.regions.join(', ')} (${CURRENT_MARKET_LABEL})</span></div>
+        <div class="summary-row"><span class="summary-key">Effective Start</span><span class="summary-val">${v.effectiveStart} 00:00:00</span></div>
+        <div class="summary-row"><span class="summary-key">Status</span><span class="summary-val">${statusLabel(v.status)}</span></div>
+      </div>
+    `;
+    ['half', 'full'].forEach(cov => {
+      if (!v.rates[cov]) return;
+      html += `<div class="view-section-title">${COVERAGE_LABELS[cov]} — SGD per locker / week</div>`;
+      html += `<div class="grid-table-wrap"><table class="grid-table"><thead><tr><th></th>${v.regions.map(r=>`<th>${r}</th>`).join('')}</tr></thead><tbody>`;
+      LOCATION_TYPES.forEach(lt => {
+        html += `<tr><td>${lt}</td>${v.regions.map(r => {
+          const val = v.rates[cov][lt] ? v.rates[cov][lt][r] : undefined;
+          return `<td style="text-align:right;">${val !== undefined ? '$' + val : '<span style="color:#ccc;">—</span>'}</td>`;
+        }).join('')}</tr>`;
+      });
+      html += `</tbody></table></div>`;
+    });
+    html += `<div class="info-note blue" style="margin-top:16px;">This version's rates are locked. Campaigns booked while this version was active continue to follow these rates even after a newer version is published.</div>`;
+    document.getElementById('view-modal-body').innerHTML = html;
+    document.getElementById('view-modal-overlay').classList.add('open');
+  }
+  function closeViewModal() {
+    document.getElementById('view-modal-overlay').classList.remove('open');
+  }
+  document.getElementById('view-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeViewModal();
+  });
+
+  /* ═══════════════════════════════════════════
+     CREATE MODAL
+  ════════════════════════════════════════════ */
   let currentStep = 1;
   const totalSteps = 3;
+  let currentSellerType = '';
+  let currentMerchantType = '';
+  let activeCoverageTab = 'half';
+  let gridData = { half: {}, full: {} };
 
-  function openModal() {
+  function emptyGrid() {
+    const g = {};
+    LOCATION_TYPES.forEach(lt => { g[lt] = {}; });
+    return g;
+  }
+
+  function openCreateModal() {
     currentStep = 1;
+    currentSellerType = '';
+    currentMerchantType = '';
+    activeCoverageTab = 'half';
+    gridData = { half: emptyGrid(), full: emptyGrid() };
     resetForm();
     renderStep();
     document.getElementById('modal-overlay').classList.add('open');
   }
-  function closeModal() {
+  function closeCreateModal() {
     document.getElementById('modal-overlay').classList.remove('open');
   }
 
@@ -671,7 +851,6 @@
     document.getElementById('merchant-type-select').value = '';
     document.getElementById('merchant-type-row').style.display = 'none';
     document.getElementById('shopee-note').style.display = 'none';
-    document.getElementById('price-per-spot').value = '';
     document.getElementById('effective-date').value = '';
     document.getElementById('start-immediately').checked = false;
     document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
@@ -679,6 +858,7 @@
   }
 
   function onSellerTypeChange(val) {
+    currentSellerType = val;
     const merchantRow = document.getElementById('merchant-type-row');
     const shopeeNote = document.getElementById('shopee-note');
     if (val === 'NSS') {
@@ -696,10 +876,8 @@
   function onStartImmediately(checked) {
     const dateInput = document.getElementById('effective-date');
     if (checked) {
-      const today = new Date().toISOString().split('T')[0];
-      dateInput.value = today;
+      dateInput.value = TODAY;
       dateInput.readOnly = true;
-      dateInput.classList.add('form-control');
       dateInput.style.background = '#f5f5f5';
       dateInput.style.color = '#888';
     } else {
@@ -709,18 +887,71 @@
     }
   }
 
-  function buildSummary() {
-    const sellerType = document.getElementById('seller-type-select').value;
-    const merchantType = document.getElementById('merchant-type-select').value;
-    const price = document.getElementById('price-per-spot').value;
+  /* ── PRICING GRID ── */
+  function syncGridFromDOM(coverage) {
+    LOCATION_TYPES.forEach(lt => {
+      CURRENT_REGIONS.forEach(r => {
+        const el = document.getElementById(`cell-${coverage}-${lt}-${r}`);
+        if (el) gridData[coverage][lt][r] = el.value;
+      });
+    });
+  }
 
-    let rows = `<div class="summary-row"><span class="summary-key">Seller Type</span><span class="summary-val">${sellerType || '—'}</span></div>`;
-    if (sellerType === 'NSS') {
-      rows += `<div class="summary-row"><span class="summary-key">Merchant Type</span><span class="summary-val">${merchantType || '—'}</span></div>`;
+  function renderGrid(coverage) {
+    const table = document.getElementById('grid-table');
+    let html = `<thead><tr><th></th>${CURRENT_REGIONS.map(r => `<th>${r}</th>`).join('')}</tr></thead><tbody>`;
+    LOCATION_TYPES.forEach(lt => {
+      html += `<tr><td>${lt}</td>`;
+      CURRENT_REGIONS.forEach(r => {
+        if (!VALID_COMBOS[coverage][lt][r]) {
+          html += `<td style="text-align:center;color:#ccc;" title="Not enabled for this combination — configure in SP Portal Booking Configuration">—</td>`;
+        } else {
+          const val = gridData[coverage][lt][r] || '';
+          html += `<td class="grid-cell"><input class="grid-input" type="number" min="0" step="1" id="cell-${coverage}-${lt}-${r}" value="${val}" placeholder="0"/></td>`;
+        }
+      });
+      html += `</tr>`;
+    });
+    html += `</tbody>`;
+    table.innerHTML = html;
+    document.getElementById('grid-market-label').textContent = CURRENT_MARKET_LABEL;
+    document.getElementById('grid-region-chips').innerHTML = CURRENT_REGIONS.map(r => `<span class="region-chip">${r}</span>`).join('');
+  }
+
+  function switchCoverageTab(tab) {
+    syncGridFromDOM(activeCoverageTab);
+    activeCoverageTab = tab;
+    document.querySelectorAll('.coverage-tab').forEach(el => {
+      if (!el.classList.contains('disabled')) el.classList.toggle('active', el.dataset.coverage === tab);
+    });
+    renderGrid(tab);
+  }
+
+  function gridComplete() {
+    return ['half', 'full'].every(cov =>
+      LOCATION_TYPES.every(lt =>
+        CURRENT_REGIONS.every(r => {
+          if (!VALID_COMBOS[cov][lt][r]) return true; // disabled in Booking Configuration — no rate required
+          return gridData[cov][lt][r] !== undefined && gridData[cov][lt][r] !== '' && parseFloat(gridData[cov][lt][r]) > 0;
+        })
+      )
+    );
+  }
+
+  function countValidCells() {
+    let n = 0;
+    ['half', 'full'].forEach(cov => LOCATION_TYPES.forEach(lt => CURRENT_REGIONS.forEach(r => { if (VALID_COMBOS[cov][lt][r]) n++; })));
+    return n;
+  }
+
+  function buildSummary() {
+    let rows = `<div class="summary-row"><span class="summary-key">Seller Type</span><span class="summary-val">${currentSellerType || '—'}</span></div>`;
+    if (currentSellerType === 'NSS') {
+      rows += `<div class="summary-row"><span class="summary-key">Merchant Type</span><span class="summary-val">${currentMerchantType ? MERCHANT_TYPE_LABELS[currentMerchantType] : '—'}</span></div>`;
     }
-    if (price) {
-      rows += `<div class="summary-row"><span class="summary-key">Price per Spot</span><span class="summary-val">SGD ${parseFloat(price).toFixed(4)}</span></div>`;
-    }
+    rows += `<div class="summary-row"><span class="summary-key">Regions</span><span class="summary-val">${CURRENT_REGIONS.join(', ')} (${CURRENT_MARKET_LABEL})</span></div>`;
+    rows += `<div class="summary-row"><span class="summary-key">Coverage Types</span><span class="summary-val">Half Network, Full Network</span></div>`;
+    rows += `<div class="summary-row"><span class="summary-key">Rates Configured</span><span class="summary-val">${countValidCells()} cells (only combinations enabled in Booking Configuration)</span></div>`;
     return `<h4>Summary</h4>${rows}`;
   }
 
@@ -747,14 +978,16 @@
           document.getElementById('err-merchant-type').classList.remove('show');
         }
       }
+      currentSellerType = st;
+      currentMerchantType = document.getElementById('merchant-type-select').value;
     }
     if (step === 2) {
-      const p = document.getElementById('price-per-spot').value;
-      if (!p || parseFloat(p) <= 0) {
-        document.getElementById('err-price').classList.add('show');
+      syncGridFromDOM(activeCoverageTab);
+      if (!gridComplete()) {
+        document.getElementById('err-grid').classList.add('show');
         ok = false;
       } else {
-        document.getElementById('err-price').classList.remove('show');
+        document.getElementById('err-grid').classList.remove('show');
       }
     }
     if (step === 3) {
@@ -777,17 +1010,42 @@
       currentStep++;
       renderStep();
     } else {
-      // submit
-      alert('Rate card created successfully.');
-      closeModal();
+      submitVersion();
     }
   }
   function prevStep() {
     if (currentStep > 1) { currentStep--; renderStep(); }
   }
-  function saveDraft() {
-    alert('Saved as draft.');
-    closeModal();
+
+  function submitVersion() {
+    const effectiveStart = document.getElementById('effective-date').value;
+    const newVersion = {
+      id: `RC-${String(nextVersionSeq++).padStart(4,'0')}`,
+      sellerType: currentSellerType,
+      merchantType: currentSellerType === 'NSS' ? currentMerchantType : '',
+      regions: CURRENT_REGIONS.slice(),
+      effectiveStart,
+      created: TODAY + ' ' + new Date().toTimeString().slice(0,5),
+      status: effectiveStart <= TODAY ? 'active' : 'scheduled',
+      rates: {
+        half: JSON.parse(JSON.stringify(gridData.half)),
+        full: JSON.parse(JSON.stringify(gridData.full))
+      }
+    };
+    // supersede: any currently-active version for the SAME rate group
+    // (Seller Type + Merchant Type) moves to Past once this new version
+    // is itself active — other rate groups' active versions are untouched.
+    // Scheduled versions are left alone until their own start date arrives.
+    if (newVersion.status === 'active') {
+      const key = rateGroupKey(newVersion.sellerType, newVersion.merchantType);
+      rateCardVersions.forEach(v => {
+        if (rateGroupKey(v.sellerType, v.merchantType) === key && v.status === 'active') v.status = 'past';
+      });
+    }
+    rateCardVersions.push(newVersion);
+    renderRateTable();
+    alert(`Rate card version ${newVersion.id} created (${newVersion.status === 'active' ? 'Active immediately' : 'Scheduled for ' + effectiveStart}).`);
+    closeCreateModal();
   }
 
   function renderStep() {
@@ -816,8 +1074,7 @@
       line.classList.toggle('done', i < currentStep);
     }
 
-    // inject summaries
-    if (currentStep === 2) document.getElementById('step2-summary').innerHTML = buildSummary();
+    if (currentStep === 2) renderGrid(activeCoverageTab);
     if (currentStep === 3) document.getElementById('step3-summary').innerHTML = buildSummary();
 
     // buttons
@@ -828,7 +1085,7 @@
 
   // close on overlay click
   document.getElementById('modal-overlay').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
+    if (e.target === this) closeCreateModal();
   });
 </script>
 </body>

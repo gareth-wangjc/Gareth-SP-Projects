@@ -1,0 +1,278 @@
+<article class="guide-page" data-page-slug="locker-advertisements-phase-1">
+<style>
+/* ── Guide content layout (scoped) ── */
+.guide-page .content { max-width: 1040px; padding: 36px 44px 80px; margin: 0 auto; }
+.guide-page .section { margin-bottom: 22px; background: #fff; border: 1px solid var(--gray-border); border-radius: 10px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+
+/* ── Guide typography (scoped) ── */
+.guide-page h2 { font-size: 23px; font-weight: 700; margin: 0 0 10px; color: var(--text); }
+.guide-page h3 { font-size: 16px; font-weight: 600; margin: 18px 0 8px; color: var(--text); }
+.guide-page p { margin-bottom: 14px; color: var(--text-secondary); }
+.guide-page ul, .guide-page ol { margin: 0 0 14px 24px; color: #374151; }
+.guide-page li { margin-bottom: 5px; }
+
+/* ── Hero ── */
+.page-hero { background: linear-gradient(135deg, #111827 0%, #1F2937 100%); color: #fff; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.page-hero-inner { max-width: 1040px; margin: 0 auto; padding: 36px 44px 32px; }
+.page-hero h1 { color: #fff; font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+.page-hero .hero-summary { color: rgba(255,255,255,0.72); font-size: 14px; line-height: 1.7; margin-bottom: 20px; max-width: 720px; }
+.hero-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.hero-link { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; text-decoration: none; transition: all 0.15s; border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
+.hero-link:hover { background: rgba(255,255,255,0.14); color: #fff; text-decoration: none; border-color: rgba(255,255,255,0.35); }
+.hero-link strong, .sticky-link strong { color: inherit !important; font-weight: 800; }
+
+/* ── Section kicker ── */
+.guide-page .section-kicker { color: var(--orange); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+
+/* ── Right-hand TOC links (shell only positions .page-toc; link styling belongs here) ── */
+.guide-page .page-toc-title { display: block; padding: 0 14px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
+.guide-page .toc-section { display: block; padding: 7px 14px; font-size: 12.5px; color: var(--text-secondary); text-decoration: none; cursor: pointer; border-left: 2px solid transparent; transition: all 0.12s; }
+.guide-page .toc-section:hover { color: var(--orange); background: var(--orange-light); border-left-color: var(--orange); text-decoration: none; }
+
+/* ── Module meta (hero metadata row) ── */
+.guide-page .module-meta { display: grid; grid-template-columns: 150px 1fr; gap: 10px; align-items: start; background: var(--gray-light); border: 1px solid var(--gray-border); border-radius: 8px; padding: 12px 14px; margin: 16px 0; }
+.guide-page .module-meta strong { color: var(--text); }
+.guide-page .module-meta span { color: var(--text-secondary); }
+
+/* ── Callouts ── */
+.guide-page .callout { border-left: 4px solid var(--orange); background: var(--orange-light); border-radius: 8px; padding: 14px 16px; color: #7C2D12; margin: 16px 0; }
+.guide-page .callout strong { color: var(--orange); }
+.guide-page .callout.info { border-left-color: var(--blue); background: var(--blue-light); color: #1E3A5F; }
+.guide-page .callout.info strong { color: var(--blue); }
+
+/* ── Steps ── */
+.guide-page .steps { list-style: none; margin: 14px 0; padding: 0; counter-reset: step; }
+.guide-page .step { position: relative; padding: 0 0 16px 34px; margin: 0; border: none; color: #374151; }
+.guide-page .step::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 999px; background: var(--orange); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.guide-page .step strong { display: block; color: var(--text); margin-bottom: 2px; }
+
+/* ── Field table ── */
+.guide-page .field-table { width: 100%; border-collapse: collapse; margin: 14px 0 16px; font-size: 13px; border: 1px solid var(--gray-border); }
+.guide-page .field-table th { text-align: left; background: #F9FAFB; color: var(--text-secondary); border: 1px solid var(--gray-border); padding: 10px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.guide-page .field-table td { vertical-align: top; border: 1px solid var(--gray-border); padding: 10px; color: #374151; }
+.guide-page .field-table td:first-child { width: 190px; color: var(--text); font-weight: 700; }
+
+/* ── Required baseline for screenshot figures ── */
+figure.annotated-ss, .annotated-ss { margin: 22px auto; text-align: center; }
+figure.annotated-ss .ann-img-wrap, .annotated-ss .ann-img-wrap { position: relative; display: table; width: auto; max-width: 100%; margin-left: auto; margin-right: auto; line-height: 0; }
+figure.annotated-ss .ann-img-wrap > a, .annotated-ss .ann-img-wrap > a, figure.annotated-ss .slide-link, .annotated-ss .slide-link { display: inline-block; max-width: 100%; }
+figure.annotated-ss img, .annotated-ss img { display: block; width: auto; max-width: 100%; height: auto; margin-left: auto; margin-right: auto; border: 1px solid var(--gray-border); border-radius: 8px; }
+figure.annotated-ss figcaption, .annotated-ss figcaption { max-width: 860px; margin: 8px auto 0; text-align: center; line-height: 1.5; font-size: 12.5px; color: var(--text-secondary); }
+
+/* ── Responsive ── */
+@media (max-width: 960px) {
+  .guide-page .content { padding-left: 22px; padding-right: 22px; }
+  .guide-page .module-meta { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="site-layout">
+  <main class="page-main">
+    <div id="sticky-page-hd">
+      <div id="sticky-page-hd-title">Locker Advertisements (Phase 1)</div>
+      <div id="sticky-page-hd-links">
+        <a class="sticky-link" href="https://confluence.shopee.io/pages/viewpage.action?pageId=3243446066" target="_blank" rel="noopener"><strong>PRD</strong></a>
+        <a class="sticky-link" href="https://docs.google.com/spreadsheets/d/1XQ-bDggPs1ordXv5hsGIOAeP2BYzvhkhEW-QqJncYgE/edit?gid=1922770186#gid=1922770186" target="_blank" rel="noopener"><strong>UAT TC</strong></a>
+      </div>
+    </div>
+
+    <div class="page-hero">
+    <div class="page-hero-inner">
+      <h1>Locker Advertisements (Phase 1)</h1>
+      <p class="hero-summary">SPX Inhouse Locker screens can now play advertisements. Phase 1 covers SPX Ops uploading and scheduling internal SPX ads only — seller-bought ad space (Shopee Sellers and Non-Shopee Sellers) is out of scope until later phases. This guide documents the module as built in SP Portal.</p>
+      <div class="hero-links">
+        <a class="hero-link" href="https://confluence.shopee.io/pages/viewpage.action?pageId=3243446066" target="_blank" rel="noopener"><strong>PRD</strong></a>
+        <a class="hero-link" href="https://docs.google.com/spreadsheets/d/1XQ-bDggPs1ordXv5hsGIOAeP2BYzvhkhEW-QqJncYgE/edit?gid=1922770186#gid=1922770186" target="_blank" rel="noopener"><strong>UAT TC</strong></a>
+      </div>
+      <div class="module-meta" style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.14);">
+        <strong style="color:#fff;">PM PIC</strong><span style="color:rgba(255,255,255,0.72);">gareth.wangjc@shopee.com</span>
+        <strong style="color:#fff;">Markets</strong><span style="color:rgba(255,255,255,0.72);">All markets</span>
+        <strong style="color:#fff;">Release</strong><span style="color:rgba(255,255,255,0.72);">Phase 1 - 260826</span>
+      </div>
+    </div>
+    </div>
+
+    <div class="content">
+
+      <section class="section" id="overview">
+        <div class="section-kicker">Overview</div>
+        <h2>What this feature does</h2>
+        <p>Inhouse Locker screens display advertisements to buyers and drivers while they interact with the locker (the ad exits when the screen is tapped). Phase 1 gives SPX Ops a self-serve way to configure playback settings, group lockers into playlists, and upload/schedule internal SPX ad creatives — replacing the previous manual, backend-driven process.</p>
+        <p>Everything in this guide lives under <strong>SP Portal → Admin → Inhouse Locker Management → Locker Ads</strong> (for TW: <strong>SP Portal → Admin → Locker Management → Locker Ads</strong>), unless stated otherwise.</p>
+        <div class="callout info">
+          <strong>Phase 1 scope:</strong> Internal SPX ads only. Seller-bought ad space (Shopee Sellers via Seller Center, Non-Shopee Sellers via Shipment Portal), spot-based pricing, AI creative review, and billing are not part of this build — see <a href="#not-live-yet">What's not live yet</a>.
+        </div>
+      </section>
+
+      <section class="section" id="key-concepts">
+        <div class="section-kicker">Key concepts</div>
+        <h2>How ad delivery works</h2>
+        <p>Three concepts drive everything else in this guide:</p>
+        <table class="field-table">
+          <tbody>
+            <tr><td>Creative</td><td>The ad image itself (JPG/JPEG/PNG, 1080×1720, max 10MB). In Phase 1, every creative belongs to SPX Ops (Company is fixed to "SPX Express").</td></tr>
+            <tr><td>Campaign</td><td>One scheduled run of a creative over a date range — this is what Ops actually creates when uploading an ad. Each campaign gets a system-generated Campaign ID and a status (Scheduled → Live → Completed, or Cancelled at any point before Completed).</td></tr>
+            <tr><td>Playlist</td><td>An ordered group of campaigns. Each locker is assigned to at most one playlist at a time, and a playlist can be assigned to many lockers. Ops manage playback order within a playlist rather than assigning ads to lockers one by one.</td></tr>
+          </tbody>
+        </table>
+        <p>In short: Ops uploads a <strong>creative</strong> as part of creating a <strong>campaign</strong>, the campaign is added to one or more <strong>playlists</strong>, and every locker assigned to that playlist plays it.</p>
+      </section>
+
+      <section class="section" id="accessing-locker-ads">
+        <div class="section-kicker">Getting started</div>
+        <h2>Accessing the Locker Ads module</h2>
+        <p>Go to <strong>SP Portal → Admin → Inhouse Locker Management → Locker Ads</strong>. The module has four tabs: <strong>Overview</strong> (landing tab), <strong>Schedule</strong>, <strong>Ad Management</strong>, and <strong>Booking Configuration</strong>. The <strong>+ Upload Internal Ad</strong> button in the top-right is available from every tab.</p>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/overview-tab.png" alt="Locker Ads Overview tab showing Active campaigns count and Upcoming campaigns table"></div>
+          <figcaption>Overview tab: a running count of active campaigns and a list of upcoming campaigns still to go live.</figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="booking-configuration">
+        <div class="section-kicker">Booking Configuration</div>
+        <h2>Setting market-level playback parameters</h2>
+        <p>Under the <strong>Booking Configuration</strong> tab, Ops set two required playback parameters that apply across the market:</p>
+        <table class="field-table">
+          <tbody>
+            <tr><td>Ad slot duration</td><td>How many seconds each ad plays for. Used to estimate total spots for future duration-based campaigns — longer slots mean fewer spots per locker per hour.</td></tr>
+            <tr><td>Inactivity timeout</td><td>How long the locker screen must sit idle before an ad starts playing. Prevents ads from interrupting an active buyer/driver interaction.</td></tr>
+          </tbody>
+        </table>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/booking-configuration-tab.png" alt="Booking Configuration tab showing Ad slot duration and Inactivity timeout fields"></div>
+          <figcaption>Booking Configuration tab — the only two fields live in Phase 1.</figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="schedule-manage-playlist">
+        <div class="section-kicker">Schedule</div>
+        <h2>Manage playlist: viewing a playlist's schedule</h2>
+        <p>The <strong>Schedule</strong> tab is split into three sub-tabs: <strong>Manage playlist</strong>, <strong>Playlists</strong>, and <strong>Locker coverage</strong>. Manage playlist is the default view — pick a playlist from the left sidebar (or search by name) to see its calendar and stats.</p>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/schedule-manage-playlist.png" alt="Schedule tab, Manage playlist sub-tab showing playlist selector, campaign calendar bars, stat cards, and lockers table"></div>
+          <figcaption>Manage playlist: campaign calendar (playback order top to bottom), running stats, and the lockers currently on this playlist.</figcaption>
+        </figure>
+        <p>For the selected playlist, this view shows:</p>
+        <ul>
+          <li>A calendar with one bar per campaign, showing its run dates, with a red line marking today</li>
+          <li>Three stat cards: active campaigns today, lockers on this playlist, and campaigns this month</li>
+          <li>A table of the lockers currently on this playlist, with a <strong>Change playlist</strong> action per row</li>
+          <li>An <strong>Edit playback order</strong> button, and a <strong>View</strong> link per campaign that opens its <a href="#managing-ads">campaign details page</a></li>
+        </ul>
+      </section>
+
+      <section class="section" id="schedule-playlists">
+        <div class="section-kicker">Schedule</div>
+        <h2>Playlists: creating and managing playlists</h2>
+        <p>The <strong>Playlists</strong> sub-tab is the master list — separate from Manage playlist's single-playlist view. It shows every playlist with its operator, locker count, and campaign count, plus <strong>Edit</strong> / <strong>Delete</strong> actions.</p>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/schedule-playlists.png" alt="Schedule tab, Playlists sub-tab showing the master list of playlists with New playlist button"></div>
+          <figcaption>Playlists sub-tab: the master CRUD list of all playlists.</figcaption>
+        </figure>
+        <ol class="steps">
+          <li class="step"><strong>Click + New playlist.</strong> A popup opens.</li>
+          <li class="step"><strong>Enter a Playlist name</strong> (required, up to 255 characters) and an optional <strong>Description</strong> (up to 500 characters).</li>
+          <li class="step"><strong>Click Create.</strong> The playlist is added to the list, ready for lockers and campaigns to be assigned to it.</li>
+        </ol>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/new-playlist-popup.png" alt="New playlist popup with Playlist name and Description fields"></div>
+          <figcaption>New playlist popup — name and description only.</figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="schedule-locker-coverage">
+        <div class="section-kicker">Schedule</div>
+        <h2>Locker coverage: assigning lockers to a playlist</h2>
+        <h3>Turning on ads for a locker</h3>
+        <p>Before a locker can be assigned to a playlist, ads must be enabled on that locker via <strong>SP Management → Point List → Edit → Operation Info</strong>, by checking <strong>Display Locker Ads</strong> under the "Others" point function group.</p>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/point-edit-display-locker-ads.png" alt="Point List Edit page, Operation Info section, Display Locker Ads checkbox highlighted"></div>
+          <figcaption>Point List → Edit → Operation Info: the Display Locker Ads checkbox turns ads on/off for that locker.</figcaption>
+        </figure>
+        <h3>Assigning the locker to a playlist</h3>
+        <p>The <strong>Locker coverage</strong> sub-tab lists every locker with ads enabled and its current playlist assignment. Filter by Service Point, Device ID, Assigned playlist, or Display locker Ads status.</p>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/schedule-locker-coverage.png" alt="Locker coverage tab showing filter bar and locker table with Change playlist action"></div>
+          <figcaption>Locker coverage: filter by Service Point, Device ID, Assigned playlist, or Display locker Ads.</figcaption>
+        </figure>
+        <p>Click <strong>Change playlist</strong> on any row to reassign that locker. For bulk changes, use <strong>Batch Action</strong>:</p>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/batch-action-dropdown.png" alt="Batch Action dropdown showing Download Template and Import to Update options"></div>
+          <figcaption>Batch Action → Download Template opens a Google Sheets template; Import to Update applies the filled-in sheet.</figcaption>
+        </figure>
+      </section>
+
+      <section class="section" id="uploading-ads">
+        <div class="section-kicker">Ad Management</div>
+        <h2>Uploading an internal ad</h2>
+        <p>Click <strong>+ Upload Internal Ad</strong> from any tab to open the upload popup.</p>
+        <ol class="steps">
+          <li class="step"><strong>Ad name</strong> — up to 200 characters.</li>
+          <li class="step"><strong>Campaign period</strong> — start and end date.</li>
+          <li class="step"><strong>Creative file</strong> — drag and drop, or click to browse. Must be JPG, JPEG, or PNG, exactly 1080×1720, and under 10MB.</li>
+          <li class="step"><strong>Assign to playlists</strong> — defaults to all playlists that allow internal ads; click <strong>Customize</strong> to uncheck specific playlists.</li>
+          <li class="step"><strong>Click Schedule ad.</strong> The campaign is created directly in <strong>Scheduled</strong> status — internal ads skip any review queue.</li>
+        </ol>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/upload-internal-ad-popup.png" alt="Upload Internal Ad popup with Ad name, Campaign period, Creative file, and Assign to playlists fields"></div>
+          <figcaption>Upload Internal Ad popup.</figcaption>
+        </figure>
+        <h3>Ad statuses</h3>
+        <table class="field-table">
+          <tbody>
+            <tr><td>Scheduled</td><td>Set immediately when the campaign is created and added to at least one playlist.</td></tr>
+            <tr><td>Live</td><td>Set the first time the ad successfully plays on a locker screen.</td></tr>
+            <tr><td>Completed</td><td>Set once the campaign's end date passes — even if it never played (Phase 1 does not track spot counts).</td></tr>
+            <tr><td>Cancelled</td><td>Set when Ops cancels the campaign; requires a reason of at least 15 characters. Removes the ad from all playlists immediately.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section" id="managing-ads">
+        <div class="section-kicker">Ad Management</div>
+        <h2>Tracking and cancelling campaigns</h2>
+        <p>The <strong>Ad Management</strong> tab lists every campaign. Filter by Ad name, Campaign ID, or Status.</p>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/ad-management-tab.png" alt="Ad Management tab showing campaign table with Ad name, Campaign ID, Company, Operator, Campaign period, No. of playlists, Status, and View action"></div>
+          <figcaption>Ad Management: every campaign, with a View action per row.</figcaption>
+        </figure>
+        <p>Clicking <strong>View</strong> (from Ad Management or from a campaign row in Manage playlist) opens a dedicated <strong>Campaign details</strong> page — not a sidebar — showing the creative, campaign info, and a full ad tracking history (every Scheduled / Edited / Live / Cancelled event with operator and timestamp).</p>
+        <figure class="annotated-ss">
+          <div class="ann-img-wrap"><img loading="lazy" src="image/locker-advertisements-phase-1/campaign-details-page.png" alt="Campaign details page showing creative image, campaign info, ad tracking history, and Cancel Campaign button"></div>
+          <figcaption>Campaign details page, including the full Ad Tracking History.</figcaption>
+        </figure>
+        <p>From this page, <strong>Cancel Campaign</strong> is always available for Scheduled or Live campaigns (prompts for a cancellation reason, minimum 15 characters). An <strong>Edit</strong> option is only available while a campaign is still Scheduled — once Live, only Cancel remains.</p>
+      </section>
+
+      <section class="section" id="not-live-yet">
+        <div class="section-kicker">Roadmap</div>
+        <h2>What's not live yet</h2>
+        <p>The following are out of scope for Phase 1, per the TD's non-scope list:</p>
+        <ul>
+          <li>Sellers (Shopee Sellers or Non-Shopee Sellers) buying ad space themselves — Phase 2 and Phase 3</li>
+          <li>Spot-based pricing/packages and rate cards in Finance Portal</li>
+          <li>AI review of submitted creatives</li>
+          <li>Location-type and region-based targeting/eligibility criteria for playlists</li>
+          <li>Billing and post-campaign stats for sellers</li>
+          <li>Video ad creatives (Phase 1 supports static JPG/PNG only)</li>
+        </ul>
+      </section>
+
+    </div>
+  </main>
+
+  <aside class="page-toc">
+    <div class="page-toc-title">On this page</div>
+    <a class="toc-section" onclick="navTo('overview')">Overview</a>
+    <a class="toc-section" onclick="navTo('key-concepts')">How ad delivery works</a>
+    <a class="toc-section" onclick="navTo('accessing-locker-ads')">Accessing Locker Ads</a>
+    <a class="toc-section" onclick="navTo('booking-configuration')">Booking Configuration</a>
+    <a class="toc-section" onclick="navTo('schedule-manage-playlist')">Schedule: Manage Playlist</a>
+    <a class="toc-section" onclick="navTo('schedule-playlists')">Schedule: Playlists</a>
+    <a class="toc-section" onclick="navTo('schedule-locker-coverage')">Schedule: Locker Coverage</a>
+    <a class="toc-section" onclick="navTo('uploading-ads')">Uploading Internal Ads</a>
+    <a class="toc-section" onclick="navTo('managing-ads')">Managing Ads</a>
+    <a class="toc-section" onclick="navTo('not-live-yet')">What's Not Live Yet</a>
+  </aside>
+</div>
+</article>

@@ -151,6 +151,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .stag-blue{background:#e6f4ff;color:#096dd9;border:1px solid #91caff;}
 .stag-gray{background:#f5f5f5;color:#999;border:1px solid #e8e8e8;}
 .stag-red{background:#fff1f0;color:#cf1322;border:1px solid #ffa39e;}
+.stag-orange{background:#fff7e6;color:#d4380d;border:1px solid #ffbb96;}
 .sdot{width:5px;height:5px;border-radius:50%;display:inline-block;margin-right:3px;}
 .sdot-g{background:#52c41a;}
 .sdot-o{background:#fa8c16;}
@@ -204,7 +205,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tchip{border:1px solid #d0d0d0;border-radius:4px;padding:5px 11px;font-size:12px;cursor:pointer;background:#fff;color:#555;transition:all .12s;}
 .tchip:hover{border-color:#e63c3c;color:#e63c3c;}
 .tchip.on{border-color:#e63c3c;background:#fff8f8;color:#e63c3c;font-weight:500;}
+.tchip.disabled{cursor:not-allowed;color:#ccc;background:#fafafa;border-color:#eee;}
+.tchip.disabled:hover{border-color:#eee;color:#ccc;}
 .tchip-note{font-size:11px;color:#bbb;margin-top:2px;}
+.toast{position:fixed;top:66px;left:50%;transform:translateX(-50%) translateY(-8px);background:#333;color:#fff;padding:10px 18px;border-radius:6px;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;display:flex;align-items:center;gap:8px;max-width:420px;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+.toast-icon{color:#52c41a;font-weight:700;flex-shrink:0;}
 .spots-row{display:flex;flex-wrap:wrap;gap:7px;}
 .spots-row .tchip{min-width:110px;text-align:center;}
 .create-footer{background:#fff;border-top:1px solid #e8e8e8;padding:12px 24px;display:flex;align-items:center;justify-content:flex-end;gap:10px;position:sticky;bottom:0;z-index:100;}
@@ -248,6 +254,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
+
+<!-- TOAST -->
+<div class="toast" id="date-toast"><span class="toast-icon">✓</span><span id="date-toast-msg"></span></div>
 
 <!-- TOPBAR -->
 <div class="topbar">
@@ -360,6 +369,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
       
 
+      <!-- Pending Payment Callout Banner -->
+      <div id="pay-banner" style="display:none;background:#fff7e6;border:1px solid #ffbb96;border-radius:6px;padding:12px 16px;align-items:center;gap:12px;margin-bottom:12px;">
+        <span style="font-size:18px;flex-shrink:0;">💳</span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:#d4380d;" id="pay-banner-text">1 campaign is awaiting payment</div>
+          <div style="font-size:12px;color:#888;margin-top:2px;" id="pay-banner-sub">Pay before the deadline or this campaign will be cancelled automatically.</div>
+        </div>
+        <button onclick="payNow()" style="flex-shrink:0;background:#fa541c;color:#fff;border:none;border-radius:4px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;">Pay now</button>
+      </div>
+
       <!-- Rejected Callout Banner -->
       <div id="ar-banner" style="display:none;background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;padding:12px 16px;align-items:center;gap:12px;">
         <span style="font-size:18px;flex-shrink:0;">⚠️</span>
@@ -374,7 +393,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div id="cancel-banner" style="display:none;background:#fafafa;border:1px solid #d9d9d9;border-radius:6px;padding:12px 16px;align-items:center;gap:12px;">
         <span style="font-size:18px;flex-shrink:0;">ℹ️</span>
         <div style="flex:1;">
-          <div style="font-size:13px;font-weight:600;color:#555;" id="cancel-banner-text">1 campaign has been cancelled by SPX</div>
+          <div style="font-size:13px;font-weight:600;color:#555;" id="cancel-banner-text">1 campaign has been cancelled</div>
           <div style="font-size:12px;color:#888;margin-top:2px;">Please check the cancellation reason in the campaign details.</div>
         </div>
         <button onclick="viewCancelledCampaigns()" style="flex-shrink:0;background:#555;color:#fff;border:none;border-radius:4px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;">View details</button>
@@ -444,7 +463,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <input class="srch" placeholder="🔍  Search Campaign Name"/>
           <select class="fsel"><option>All Exposure Types</option><option>By Spots</option><option>By Duration</option></select>
           <select class="fsel"><option>All Regions</option><option>North East</option><option>Central</option><option>West</option><option>East</option><option>North</option><option>Island-wide</option></select>
-          <select class="fsel" id="status-filter" onchange="filterByStatus(this.value)"><option value="">All Statuses</option><option value="Pending review">Pending review</option><option value="Rejected">Rejected</option><option value="Scheduled">Scheduled</option><option value="Live">Live</option><option value="Completed">Completed</option><option value="Suspended">Suspended</option><option value="Cancelled">Cancelled</option></select>
+          <select class="fsel" id="status-filter" onchange="filterByStatus(this.value)"><option value="">All Statuses</option><option value="Pending review">Pending review</option><option value="Pending payment">Pending payment</option><option value="Rejected">Rejected</option><option value="Scheduled">Scheduled</option><option value="Live">Live</option><option value="Completed">Completed</option><option value="Suspended">Suspended</option><option value="Cancelled">Cancelled</option></select>
         </div>
         <div style="overflow-x:auto;">
           <table class="ads-tbl">
@@ -500,6 +519,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
                 <td>Rejected</td>
                 <td><button style="background:#cf1322;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:12px;cursor:pointer;font-family:inherit;" onclick="openPanel('review','summer-nss')">Review</button></td>
               </tr>
+              <tr style="background:#fff7e6;" data-status="Pending payment">
+                <td><div class="cb"></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div style="font-size:20px;">💳</div></div><div><div class="ai-name">Mid-Year Flash Sale</div></div></div></td>
+                <td style="font-size:12px;color:#888;">SGAD000162</td>
+                <td><div class="t-num">By Spots</div><div class="t-sub">4,500 spots</div></td>
+                <td><div class="t-num">2026-07-01 to 2026-07-31</div></td>
+                <td><div class="t-sub">—</div></td>
+                <td><div class="t-num">SGD 675</div><div class="t-sub">due now</div></td>
+                <td><div class="t-sub">—</div></td>
+                <td>Pending payment</td>
+                <td><button style="background:#fa541c;color:#fff;border:none;border-radius:3px;padding:3px 10px;font-size:12px;cursor:pointer;font-family:inherit;" onclick="openPaymentModal('midyear-nss')">Pay now</button></td>
+              </tr>
               <tr data-status="Scheduled">
                 <td><div class="cb"></div></td>
                 <td><div class="ai-wrap"><div class="ai-thumb"><div style="font-size:20px;">🖼️</div></div><div><div class="ai-name">Q3 Brand Campaign</div></div></div></td>
@@ -535,6 +566,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
                 <td><div class="t-sub">—</div></td>
                 <td>Cancelled</td>
                 <td><button style="background:none;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;" onclick="openPanel('view','q1-nss')">View</button></td>
+              </tr>
+              <tr data-status="Cancelled">
+                <td><div class="cb"></div></td>
+                <td><div class="ai-wrap"><div class="ai-thumb"><div class="ai-thumb-inner" style="background:linear-gradient(135deg,#b0b0b0,#d0d0d0);">📦</div></div><div><div class="ai-name">Weekend Promo — June</div></div></div></td>
+                <td style="font-size:12px;color:#888;">SGAD000149</td>
+                <td><div class="t-num">By Duration</div><div class="t-sub">7 days</div></td>
+                <td><div class="t-num">2026-06-05 to 2026-06-12</div></td>
+                <td><div class="t-sub">—</div></td>
+                <td><div class="t-num">SGD 450</div></td>
+                <td><div class="t-sub">—</div></td>
+                <td>Cancelled</td>
+                <td><button style="background:none;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;" onclick="openPanel('view','weekend-nss')">View</button></td>
               </tr>
             </tbody>
           </table>
@@ -574,6 +617,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
                 <span class="dur-lbl" id="dur-lbl"></span>
               </div>
               <div id="sd-err" style="display:none;font-size:12px;color:#e63c3c;margin-top:6px;"></div>
+              <div id="dur-err" style="display:none;font-size:12px;color:#e63c3c;margin-top:6px;">Campaign period must be at least 1 week (7 days).</div>
             </div>
           </div>
         </div>
@@ -583,36 +627,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="sec-title">Ad Exposure <span class="sec-learn">ⓘ Learn more</span></div>
 
           <div class="field">
-            <div class="flbl req">Exposure Type</div>
+            <div class="flbl req">Coverage</div>
             <div class="fbody">
               <div class="radio-cards">
-                <div class="rc" id="rc-spots" onclick="selExp('spots')">
-                  <div class="rdot" id="rd-spots"></div>
+                <div class="rc" id="rc-half" onclick="selCoverage('half')">
+                  <div class="rdot" id="rd-half"></div>
                   <div>
-                    <div class="rc-title">By number of spots</div>
-                    <div class="rc-desc">Your ad plays until the selected number of impressions is reached, then stops. Gives you fixed, predictable exposure.</div>
+                    <div class="rc-title">Half Network</div>
+                    <div class="rc-desc">Your ad reaches roughly half of the lockers matching your selected location types and regions.</div>
                   </div>
                 </div>
-                <div class="rc" id="rc-dur" onclick="selExp('dur')">
-                  <div class="rdot" id="rd-dur"></div>
+                <div class="rc" id="rc-full" onclick="selCoverage('full')">
+                  <div class="rdot" id="rd-full"></div>
                   <div>
-                    <div class="rc-title">By duration</div>
-                    <div class="rc-desc">Your ad runs for the full campaign period. An estimated number of spots is shown at booking — final charge is based on actual spots delivered.</div>
+                    <div class="rc-title">Full Network</div>
+                    <div class="rc-desc">Your ad reaches all lockers matching your selected location types and regions.</div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div class="field" id="spots-field" style="display:none;">
-            <div class="flbl req">No. of Spots</div>
-            <div class="fbody">
-              <div class="spots-row" id="spots-opts">
-                <div class="tchip" onclick="selSpots(this,3000)">3,000 spots</div>
-                <div class="tchip" onclick="selSpots(this,6000)">6,000 spots</div>
-                <div class="tchip" onclick="selSpots(this,9000)">9,000 spots</div>
-              </div>
-              <div class="tchip-note">Campaign stops automatically once the selected number of spots is reached.</div>
             </div>
           </div>
 
@@ -620,40 +652,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <div class="flbl req">Location</div>
             <div class="fbody">
               <div class="tag-grp-title">By Region</div>
-              <div class="tag-grp">
-                <div class="tchip" data-group="region" onclick="tog(this)">North East</div>
-                <div class="tchip" data-group="region" onclick="tog(this)">Central</div>
-                <div class="tchip" data-group="region" onclick="tog(this)">West</div>
-                <div class="tchip" data-group="region" onclick="tog(this)">East</div>
-                <div class="tchip" data-group="region" onclick="tog(this)">North</div>
-                <div class="tchip" data-group="region" onclick="tog(this)">Island-wide</div>
-              </div>
+              <div class="tag-grp" id="ad-region-chips"></div>
               <div class="tag-grp-title">By Location Type</div>
-              <div class="tag-grp" style="margin-bottom:4px;">
-                <div class="tchip" data-group="loctype" onclick="tog(this)">MRT Stations</div>
-                <div class="tchip" data-group="loctype" onclick="tog(this)">HDB Residential</div>
-                <div class="tchip" data-group="loctype" onclick="tog(this)">Shopping Malls</div>
-                <div class="tchip" data-group="loctype" onclick="tog(this)">Bus Interchanges</div>
-                <div class="tchip" data-group="loctype" onclick="tog(this)">Community Clubs</div>
-                <div class="tchip" data-group="loctype" onclick="tog(this)">Offices</div>
-              </div>
-              <div class="tchip-note">SPX will allocate the most relevant lockers within your selected region and location type.</div>
+              <div class="tag-grp" id="ad-loctype-chips" style="margin-bottom:4px;"></div>
+              <div class="tchip-note">SPX will allocate the most relevant lockers within your selected region and location type, up to your Coverage tier. Select a Coverage above first — some combinations may not be available depending on Coverage.</div>
 
               <!-- Estimated Results inline red box -->
               <div style="background:#fff2f0;border:1px solid #ffccc7;border-radius:5px;padding:12px 14px;margin-top:12px;">
-                <div style="font-size:11px;font-weight:600;color:#cf1322;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em;">Estimated Results</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                  <div>
-                    <div style="font-size:12px;color:#888;margin-bottom:3px;">Spots played ⓘ</div>
-                    <div id="est-impr" style="font-size:13px;font-weight:600;color:#cf1322;">—</div>
-                    <div style="font-size:11px;color:#aaa;margin-top:2px;">Based on selection</div>
-                  </div>
-                  <div>
-                    <div style="font-size:12px;color:#888;margin-bottom:3px;">Cost ⓘ</div>
-                    <div id="est-cost" style="font-size:13px;font-weight:600;color:#cf1322;">—</div>
-                    <div id="est-cost-note" style="font-size:11px;color:#aaa;margin-top:2px;line-height:1.5;">Select exposure type</div>
-                  </div>
-                </div>
+                <div style="font-size:11px;font-weight:600;color:#cf1322;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em;">Estimated Cost</div>
+                <div id="est-cost" style="font-size:15px;font-weight:600;color:#cf1322;">—</div>
+                <div id="est-cost-note" style="font-size:11px;color:#aaa;margin-top:4px;line-height:1.5;">Select coverage, region and location type</div>
               </div>
             </div>
           </div>
@@ -753,35 +761,193 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div><!-- shell -->
 
 <script>
-// ── RATE CARD (matches Shopee seller portal) ──
-const PRICE_PER_SPOT = 0.15; // SGD per spot (demo rate; actual rate set per merchant type in Finance Portal)
-const EST_DAILY_PLAYS = 200; // plays per locker per day (ops-configurable in SP Portal Ad Settings)
-const PRICES = {3000: 450, 6000: 900, 9000: 1350}; // derived: spots × SGD 0.15/spot
-// Demo locker counts by location type × region (nightly snapshot in production)
-const LOCKER_COUNTS = {
-  'MRT Stations':     {'North East':4,  'Central':6,  'West':3,  'East':4,  'North':2},
-  'HDB Residential':  {'North East':12, 'Central':8,  'West':10, 'East':9,  'North':7},
-  'Shopping Malls':   {'North East':3,  'Central':8,  'West':4,  'East':3,  'North':2},
-  'Bus Interchanges': {'North East':2,  'Central':3,  'West':2,  'East':2,  'North':1},
-  'Community Clubs':  {'North East':3,  'Central':4,  'West':3,  'East':3,  'North':2},
-  'Offices':          {'North East':1,  'Central':5,  'West':2,  'East':1,  'North':0},
+// ── LOCKER ADS RATE CARD ──
+// Billing is duration-only now (flat per-locker-per-week, no per-spot component) — see
+// finance_portal_ads_rate.html. Regions / Location Types / valid combinations mirror SP
+// Portal's Booking Configuration (SP_portal_ads_management.html: ADS_REGIONS, ALL_LOC_TYPES,
+// ADS_MATRIX) — pulled live from there in production, hardcoded here as a matching snapshot.
+const PAYMENT_WINDOW_HOURS = 24; // hours to pay after approval (ops-configurable in SP Portal Ad Settings)
+const QR_VALIDITY_SECONDS = 180; // per-QR expiry before the seller must refresh (ops-configurable in SP Portal Ad Settings)
+const MIN_CAMPAIGN_DAYS = 7; // minimum campaign duration
+
+const AD_REGIONS = ['CCR', 'RCR', 'OCR'];
+const AD_LOCATION_TYPES = ['HDB Residential', 'MRT Stations', 'Shopping Malls', 'Bus Interchanges', 'Community Clubs', 'Condominiums', 'Offices'];
+function buildAdAllValid(){ const m={}; AD_LOCATION_TYPES.forEach(lt=>{ m[lt]={}; AD_REGIONS.forEach(r=>{ m[lt][r]=true; }); }); return m; }
+// Which Location Type × Region combinations are enabled, per Coverage. Condominiums × OCR
+// disabled to match the same seeded example used in Finance Portal / SP Portal.
+const AD_VALID_COMBOS = { half: buildAdAllValid(), full: buildAdAllValid() };
+AD_VALID_COMBOS.half['Condominiums'].OCR = false;
+AD_VALID_COMBOS.full['Condominiums'].OCR = false;
+
+// SGD per locker per week — mirrors Finance Portal's active rate card version for this
+// seller's merchant type (RC-0002 in finance_portal_ads_rate.html). Pulled from Finance
+// Portal in production, not entered twice.
+const AD_RATES = {
+  half: { 'HDB Residential':{CCR:21,RCR:17,OCR:12}, 'MRT Stations':{CCR:31,RCR:26,OCR:18}, 'Shopping Malls':{CCR:34,RCR:28,OCR:19}, 'Bus Interchanges':{CCR:27,RCR:22,OCR:15}, 'Community Clubs':{CCR:24,RCR:19,OCR:13}, 'Condominiums':{CCR:29,RCR:23}, 'Offices':{CCR:26,RCR:21,OCR:14} },
+  full: { 'HDB Residential':{CCR:6,RCR:5,OCR:4}, 'MRT Stations':{CCR:8,RCR:7,OCR:5}, 'Shopping Malls':{CCR:9,RCR:8,OCR:5}, 'Bus Interchanges':{CCR:7,RCR:6,OCR:4}, 'Community Clubs':{CCR:6,RCR:5,OCR:4}, 'Condominiums':{CCR:7,RCR:6}, 'Offices':{CCR:7,RCR:6,OCR:4} }
 };
-function getEligibleLockers(){
+
+// Demo locker counts by location type × region — used ONLY to compute the cost estimate,
+// never rendered. Deliberately not shown in the UI: revealing counts would let sellers
+// compare cost-per-locker across combinations. NOTE: in production this calculation must
+// run server-side (seller sends selection, backend returns just a total) — a client-side
+// lookup table like this one can still be read from page source / dev tools, so hiding it
+// from the rendered UI alone doesn't make it confidential.
+const AD_LOCKER_COUNTS = {
+  'HDB Residential': {CCR:2, RCR:9, OCR:14},
+  'MRT Stations':    {CCR:5, RCR:4, OCR:3},
+  'Shopping Malls':  {CCR:6, RCR:4, OCR:3},
+  'Bus Interchanges':{CCR:2, RCR:2, OCR:2},
+  'Community Clubs': {CCR:2, RCR:3, OCR:3},
+  'Condominiums':    {CCR:4, RCR:3},
+  'Offices':         {CCR:5, RCR:2, OCR:1},
+};
+
+// Demo: date ranges where a combination's lockers are already booked out by other
+// campaigns. In production this is a live capacity check against the actual booking
+// calendar, not a hardcoded range. Seeded on Shopping Malls × CCR, 1–7 Jan 2027, to
+// demonstrate the "suggest next available start date" behavior.
+const AD_BLOCKED_RANGES = {
+  half: { 'Shopping Malls': { CCR: [{ start: '2027-01-01', end: '2027-01-07' }] } },
+  full: { 'Shopping Malls': { CCR: [{ start: '2027-01-01', end: '2027-01-07' }] } }
+};
+
+let curCoverage = null;
+let _suggestedDates = null;
+
+function regionHasAnyValid(region, coverage){
+  return AD_LOCATION_TYPES.some(lt => AD_VALID_COMBOS[coverage][lt] && AD_VALID_COMBOS[coverage][lt][region]);
+}
+function loctypeHasAnyValid(lt, coverage){
+  return AD_REGIONS.some(r => AD_VALID_COMBOS[coverage][lt] && AD_VALID_COMBOS[coverage][lt][r]);
+}
+function renderAdChips(){
+  const coverage = curCoverage || 'half';
+  document.getElementById('ad-region-chips').innerHTML = AD_REGIONS.map(r=>{
+    const ok = regionHasAnyValid(r, coverage);
+    return `<div class="tchip${ok?'':' disabled'}" data-group="region"${ok?' onclick="tog(this)"':''} ${ok?'':'title="Not available for this Coverage"'}>${r}</div>`;
+  }).join('');
+  document.getElementById('ad-loctype-chips').innerHTML = AD_LOCATION_TYPES.map(lt=>{
+    const ok = loctypeHasAnyValid(lt, coverage);
+    return `<div class="tchip${ok?'':' disabled'}" data-group="loctype"${ok?' onclick="tog(this)"':''} ${ok?'':'title="Not available for this Coverage"'}>${lt}</div>`;
+  }).join('');
+}
+function selCoverage(cov){
+  curCoverage = cov;
+  ['half','full'].forEach(t=>{
+    document.getElementById('rc-'+t).classList.toggle('sel', t===cov);
+    document.getElementById('rd-'+t).classList.toggle('on', t===cov);
+  });
+  renderAdChips();
+  calcCost();
+}
+function rangesOverlap(aStart, aEnd, bStart, bEnd){
+  return aStart <= bEnd && bStart <= aEnd;
+}
+// Finds the latest "next available start date" across every selected valid combo whose
+// blocked range overlaps the seller's chosen period — the campaign has one start date
+// for the whole booking, so it can only start once every selected combo is free.
+function findNextAvailableStart(coverage, loctypes, regions, sd, ed){
+  const days = Math.round((ed - sd) / 86400000);
+  let latest = null;
+  loctypes.forEach(lt => regions.forEach(r => {
+    if(!(AD_VALID_COMBOS[coverage][lt] && AD_VALID_COMBOS[coverage][lt][r])) return;
+    const blocks = (AD_BLOCKED_RANGES[coverage][lt] && AD_BLOCKED_RANGES[coverage][lt][r]) || [];
+    blocks.forEach(b => {
+      const bStart = new Date(b.start), bEnd = new Date(b.end);
+      if(rangesOverlap(sd, ed, bStart, bEnd)){
+        const candidate = new Date(bEnd.getTime() + 86400000); // day after the block ends
+        if(!latest || candidate > latest) latest = candidate;
+      }
+    });
+  }));
+  if(!latest) return null;
+  return { start: latest, end: new Date(latest.getTime() + days * 86400000) };
+}
+function fmtHuman(d){
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function useSuggestedDates(){
+  if(!_suggestedDates) return;
+  const fmt = d => d.toISOString().slice(0,10);
+  document.getElementById('sd').value = fmt(_suggestedDates.start);
+  document.getElementById('ed').value = fmt(_suggestedDates.end);
+  const msg = 'Campaign period updated to ' + fmtHuman(_suggestedDates.start) + ' – ' + fmtHuman(_suggestedDates.end) + '.';
+  calcDur(); // recomputes duration label, dur-err, and calls calcCost()
+  showToast(msg);
+}
+let _toastTimer = null;
+function showToast(msg){
+  const el = document.getElementById('date-toast');
+  if(!el) return;
+  document.getElementById('date-toast-msg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>{ el.classList.remove('show'); }, 5000);
+}
+
+function calcCost(){
+  const costEl = document.getElementById('est-cost');
+  const noteEl = document.getElementById('est-cost-note');
+  if(!curCoverage){
+    costEl.textContent = '—';
+    noteEl.textContent = 'Select coverage, region and location type';
+    _suggestedDates = null;
+    return;
+  }
+  const s = new Date(document.getElementById('sd').value);
+  const e = new Date(document.getElementById('ed').value);
+  if(!document.getElementById('sd').value || !document.getElementById('ed').value || isNaN(s) || isNaN(e) || e <= s){
+    costEl.textContent = '—';
+    noteEl.textContent = 'Set campaign period to see estimated cost.';
+    _suggestedDates = null;
+    return;
+  }
+  const days = Math.round((e - s) / 86400000);
+  if(days < MIN_CAMPAIGN_DAYS){
+    costEl.textContent = '—';
+    noteEl.textContent = 'Campaign period must be at least 1 week to see estimated cost.';
+    _suggestedDates = null;
+    return;
+  }
   const regions = [...document.querySelectorAll('[data-group="region"].on')].map(el=>el.textContent.trim());
   const loctypes = [...document.querySelectorAll('[data-group="loctype"].on')].map(el=>el.textContent.trim());
-  if(!regions.length || !loctypes.length) return 0;
-  let total = 0;
-  loctypes.forEach(lt=>{
-    const regionMap = LOCKER_COUNTS[lt]||{};
-    if(regions.includes('Island-wide')){
-      total += Object.values(regionMap).reduce((a,b)=>a+b,0);
-    } else {
-      regions.forEach(r=>{ total += regionMap[r]||0; });
-    }
-  });
-  return total;
+  if(!regions.length || !loctypes.length){
+    costEl.textContent = '—';
+    noteEl.textContent = 'Select region and location type to see estimated cost.';
+    _suggestedDates = null;
+    return;
+  }
+  const weeks = Math.ceil(days / 7);
+  const ratio = curCoverage === 'half' ? 0.5 : 1;
+  let weeklyCost = 0, anyIncluded = false, anyExcluded = false;
+  loctypes.forEach(lt => regions.forEach(r => {
+    const valid = AD_VALID_COMBOS[curCoverage][lt] && AD_VALID_COMBOS[curCoverage][lt][r];
+    if(!valid){ anyExcluded = true; return; }
+    const count = (AD_LOCKER_COUNTS[lt]||{})[r] || 0;
+    const rate = (AD_RATES[curCoverage][lt]||{})[r] || 0;
+    weeklyCost += Math.ceil(count * ratio) * rate;
+    anyIncluded = true;
+  }));
+  if(!anyIncluded){
+    costEl.textContent = 'SGD 0';
+    noteEl.textContent = 'None of your selected combinations are available under this Coverage. Please adjust your selection.';
+    _suggestedDates = null;
+    return;
+  }
+  const totalCost = weeklyCost * weeks;
+  costEl.textContent = 'SGD ' + totalCost.toLocaleString();
+
+  _suggestedDates = findNextAvailableStart(curCoverage, loctypes, regions, s, e);
+  if(_suggestedDates){
+    noteEl.innerHTML = 'Not enough availability for your selected dates. '
+      + 'Next available start: <strong>' + fmtHuman(_suggestedDates.start) + '</strong> (through ' + fmtHuman(_suggestedDates.end) + ', same ' + weeks + '-week length). '
+      + '<span class="action-link" onclick="useSuggestedDates()" style="color:#e63c3c;text-decoration:underline;cursor:pointer;font-weight:500;">Use these dates</span>';
+  } else {
+    noteEl.textContent = 'Indicative estimate for ' + weeks + ' week' + (weeks!==1?'s':'') + '. Final cost confirmed on SPX review. GST applicable.'
+      + (anyExcluded ? ' Some selected combinations aren\'t available under this Coverage and were excluded.' : '');
+  }
 }
-let curExpType = null, curSpots = null;
 
 // ── NAV ──
 function goHome(){
@@ -820,75 +986,27 @@ function toggleGroup(id){
 function calcDur(){
   const s = new Date(document.getElementById('sd').value);
   const e = new Date(document.getElementById('ed').value);
-  if(s && e && e > s){
+  const durErrEl = document.getElementById('dur-err');
+  if(s && e && e > s && !isNaN(s) && !isNaN(e)){
     const d = Math.round((e - s) / 86400000);
-    const w = Math.round(d / 7);
-    document.getElementById('dur-lbl').textContent = isNaN(w)||w<=0 ? (d+' day'+(d!==1?'s':'')) : (w+' week'+(w!==1?'s':''));
+    // Only ever label a span "N week(s)" when it's an exact multiple of 7 days — rounding
+    // a 6-day span up to "1 week" is what made the minimum-duration error look contradictory
+    // (label said "1 week" while the 7-day minimum check correctly still failed it).
+    const durLabel = (d > 0 && d % 7 === 0) ? ((d/7) + ' week' + (d/7!==1?'s':'')) : (d+' day'+(d!==1?'s':''));
+    document.getElementById('dur-lbl').textContent = durLabel;
+    if(durErrEl) durErrEl.style.display = d < MIN_CAMPAIGN_DAYS ? '' : 'none';
   } else {
     document.getElementById('dur-lbl').textContent = '';
+    if(durErrEl) durErrEl.style.display = 'none';
   }
   const sdVal=document.getElementById('sd').value;
   const errEl=document.getElementById('sd-err');
   if(errEl){ if(sdVal){ const minStart=new Date(); minStart.setDate(minStart.getDate()+7); minStart.setHours(0,0,0,0); errEl.style.display=new Date(sdVal)<minStart?'':'none'; errEl.textContent='Start date must be at least 7 days from today to allow time for review and scheduling.'; } else{ errEl.style.display='none'; } }
-  if(curExpType === 'dur') calcDurCost();
-}
-function calcDurCost(){
-  const s = new Date(document.getElementById('sd').value);
-  const e = new Date(document.getElementById('ed').value);
-  if(!s || !e || e <= s){
-    document.getElementById('est-cost').textContent = '—';
-    document.getElementById('est-impr').textContent = '—';
-    document.getElementById('est-cost-note').textContent = 'Set campaign period to see estimated cost.';
-    return;
-  }
-  const lockers = getEligibleLockers();
-  if(!lockers){
-    document.getElementById('est-impr').textContent = '—';
-    document.getElementById('est-cost').textContent = '—';
-    document.getElementById('est-cost-note').textContent = 'Select region and location type to see estimated spots.';
-    return;
-  }
-  const days = Math.round((e - s) / 86400000);
-  const estSpots = days * EST_DAILY_PLAYS * lockers;
-  const cost = Math.round(estSpots * PRICE_PER_SPOT);
-  document.getElementById('est-impr').textContent = estSpots.toLocaleString() + ' (estimated)';
-  document.getElementById('est-cost').textContent = 'SGD ' + cost.toLocaleString();
-  document.getElementById('est-cost-note').textContent = 'Indicative estimate. Final cost confirmed on SPX review. GST applicable.';
-}
-
-// ── EXPOSURE TYPE ──
-function selExp(type){
-  curExpType = type;
-  ['spots','dur'].forEach(t => {
-    document.getElementById('rc-'+t).classList.toggle('sel', t===type);
-    const dot = document.getElementById('rd-'+t);
-    dot.classList.toggle('on', t===type);
-  });
-  document.getElementById('spots-field').style.display = type==='spots' ? 'flex' : 'none';
-  if(type === 'dur'){
-    curSpots = null;
-    calcDurCost();
-  } else {
-    if(!curSpots){
-      document.getElementById('est-impr').textContent = '—';
-      document.getElementById('est-cost').textContent = '—';
-      document.getElementById('est-cost-note').textContent = 'Select number of spots to see estimated cost.';
-    }
-  }
-}
-function selSpots(el, val){
-  document.querySelectorAll('#spots-opts .tchip').forEach(c => c.classList.remove('on'));
-  el.classList.add('on');
-  curSpots = val;
-  const sp = PRICES[val];
-  document.getElementById('est-impr').textContent = val ? val.toLocaleString() : '—';
-  const spotCost = sp ? Math.round(val * PRICE_PER_SPOT) : null;
-  document.getElementById('est-cost').textContent = spotCost ? 'SGD ' + spotCost.toLocaleString() : '—';
-  document.getElementById('est-cost-note').textContent = spotCost ? 'Indicative estimate. Final cost confirmed on SPX review. GST applicable.' : '';
+  calcCost();
 }
 
 // ── CHIPS ──
-function tog(el){ el.classList.toggle('on'); if(curExpType==='dur') calcDurCost(); }
+function tog(el){ if(el.classList.contains('disabled')) return; el.classList.toggle('on'); calcCost(); }
 const LOC_TYPE_OPTIONS=['MRT Stations','HDB Residential','Shopping Malls','Bus Interchanges','Community Clubs','Offices'];
 const REGION_OPTIONS=['North East','Central','West','East','North','Island-wide'];
 function makeEditChips(options,currentVals,group){
@@ -915,6 +1033,9 @@ function rmUpload(){
 // ── PUBLISH ──
 function doPublish(){
   { const sv=document.getElementById('sd')?.value||''; if(sv){ const minStart=new Date(); minStart.setDate(minStart.getDate()+7); minStart.setHours(0,0,0,0); if(new Date(sv)<minStart){ const errEl=document.getElementById('sd-err'); if(errEl){errEl.style.display='';errEl.textContent='Start date must be at least 7 days from today to allow time for review and scheduling.';} return; } } }
+  { const sv=document.getElementById('sd')?.value||''; const ev=document.getElementById('ed')?.value||''; if(sv && ev){ const days=Math.round((new Date(ev)-new Date(sv))/86400000); if(days < MIN_CAMPAIGN_DAYS){ const errEl=document.getElementById('dur-err'); if(errEl) errEl.style.display=''; return; } } }
+  if(!curCoverage){ alert('Please select a Coverage (Half Network or Full Network).'); return; }
+  if(!document.querySelectorAll('[data-group="region"].on').length || !document.querySelectorAll('[data-group="loctype"].on').length){ alert('Please select at least one Region and Location Type.'); return; }
   alert('Campaign submitted for SPX review.\n\nYou will be notified within 2 business days once your creative and campaign details have been approved.');
   goLockerAds();
 }
@@ -954,6 +1075,8 @@ const CAMPAIGNS = {
   'yearend-nss': {name:'Year-End Promo 2025',       ref:'SGAD000088', period:'2025-12-01 to 2025-12-31',       exposure:'By Duration · 28 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Completed',          statusClass:'stag-gray',  spend:'SGD 800 (invoiced on completion)', impressions:'6,000', cpm:'SGD 66.7', creative:'yearend.jpg',      flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2025-11-29 14:22', lockers:'42 lockers', playlists:'Playlist 1, Playlist 2', playbackOrder:'#3', adType:'Seller campaign', reviewLog:[{date:'28 Nov 2025, 09:01',event:'Pending review',by:'seller'},{date:'29 Nov 2025, 14:22',event:'Approved',by:'spx'},{date:'01 Dec 2025, 00:00',event:'Live',by:'system'},{date:'31 Dec 2025, 23:59',event:'Completed',by:'system'}]},
   'upcoming-nss': {name:'Q3 Brand Campaign', ref:'SGAD000156', period:'2026-06-17 to 2026-08-17', exposure:'By Spots · 4,500', location:'Island-wide · All types', locType:'All types', region:'Island-wide', status:'Scheduled', statusClass:'stag-blue', spend:'SGD 0 of SGD 600 (committed)', impressions:'—', cpm:'—', creative:'q3_brand.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2026-06-12 09:30', lockers:'42 lockers', playlists:'Playlist 1', adType:'Seller campaign', reviewLog:[{date:'10 Jun 2026, 14:00',event:'Pending review',by:'seller'},{date:'12 Jun 2026, 09:30',event:'Approved',by:'spx'},{date:'12 Jun 2026, 09:30',event:'Scheduled',by:'system'}]},
   'q1-nss': {name:'Q1 Trade Show 2026', ref:'SGAD000095', period:'2026-01-15 to 2026-01-28', exposure:'By Duration · 14 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Cancelled', statusClass:'stag-gray', spend:'SGD 600', impressions:'—', cpm:'—', creative:'q1_tradeshow.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2026-01-10 09:15', lockers:'42 lockers', playlists:'Playlist 1', playbackOrder:'#5', adType:'Seller campaign', reviewLog:[{date:'10 Jan 2026, 09:00',event:'Pending review',by:'seller'},{date:'10 Jan 2026, 09:15',event:'Approved',by:'spx'},{date:'15 Jan 2026, 00:00',event:'Live',by:'system'},{date:'05 Jun 2026, 16:04',event:'Cancelled',note:'Promotional content no longer compliant with updated SPX advertising guidelines effective June 2026.',by:'spx'}]},
+  'midyear-nss': {name:'Mid-Year Flash Sale', ref:'SGAD000162', period:'2026-07-01 to 2026-07-31', exposure:'By Spots · 4,500', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Pending payment', statusClass:'stag-orange', spend:'SGD 675 (due now)', impressions:'—', cpm:'—', creative:'midyear_flash.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', amountDue:'SGD 675.00', paidAt:null, paymentDueAt:new Date(Date.now()+19*3600*1000).toISOString(), reviewLog:[{date:'—',event:'Pending review',by:'seller'},{date:'—',event:'Approved',by:'spx'},{date:'—',event:'Pending payment',by:'system',note:'Payment due within 24 hours of approval. The campaign will be cancelled automatically if payment is not received in time.'}]},
+  'weekend-nss': {name:'Weekend Promo — June', ref:'SGAD000149', period:'2026-06-05 to 2026-06-12', exposure:'By Duration · 7 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Cancelled', statusClass:'stag-gray', spend:'SGD 450', impressions:'—', cpm:'—', creative:'weekend_promo.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', amountDue:'SGD 450.00', paidAt:null, paymentDueAt:new Date(Date.now()-30*3600*1000).toISOString(), reviewLog:[{date:'—',event:'Pending review',by:'seller'},{date:'—',event:'Approved',by:'spx'},{date:'—',event:'Pending payment',by:'system'},{date:'—',event:'Cancelled — payment not received',by:'system',note:'No payment was received within 24 hours of approval. The campaign was cancelled automatically.'}]},
 };
 
 function openPanel(mode, id){
@@ -976,10 +1099,17 @@ function openPanel(mode, id){
       ['Region', c.region||'—'],
       ['Status', c.status],
     ];
+    if(c.status==='Pending payment'){
+      rows.push(['Amount due', c.amountDue||'—']);
+      rows.push(['Payment due by', fmtPaymentDeadline(c.paymentDueAt)]);
+    }
     rows.forEach(([l,v])=>{body+=`<tr><td style="color:#aaa;padding:6px 0;border-bottom:1px solid #f5f5f5;width:130px;font-size:13px;">${l}</td><td style="padding:6px 0;border-bottom:1px solid #f5f5f5;font-weight:500;font-size:13px;">${v}</td></tr>`;});
     body += `</table>`;
     if(c.status==='Pending review'){
       body += `<div style="margin:4px 0 16px;"><button onclick="openPanel('edit','${id}')" style="background:#e63c3c;color:#fff;border:none;border-radius:4px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;width:100%;">Edit campaign</button></div>`;
+    }
+    if(c.status==='Pending payment'){
+      body += `<div style="margin:4px 0 16px;"><button onclick="openPaymentModal('${id}')" style="background:#fa541c;color:#fff;border:none;border-radius:4px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;width:100%;">Pay now — ${c.amountDue||''}</button></div>`;
     }
     body += renderNSSReviewLog(c.reviewLog, true);
   } else if(mode==='edit'){
@@ -1046,7 +1176,7 @@ function openPanel(mode, id){
   }
   document.getElementById('panel-body').innerHTML = body;
   const footer = document.getElementById('panel-footer');
-  const CANCELLABLE = ['Pending review','Rejected','Approved','Scheduled'];
+  const CANCELLABLE = ['Pending review','Rejected','Approved','Pending payment','Scheduled'];
   if(mode==='edit'){
     footer.style.display = 'flex';
     footer.innerHTML = '<button onclick="openPanel(\'view\',\''+id+'\')" style="background:#fff;border:1px solid #d0d0d0;border-radius:5px;padding:9px 16px;font-size:13px;cursor:pointer;">Cancel</button>'
@@ -1102,6 +1232,28 @@ function renderNSSReviewLog(log, sellerView) {
   return html;
 }
 
+// ── SHARED ROW UPDATE ──
+function updateNSSRow(ref, newStatus, opts) {
+  opts = opts || {};
+  document.querySelectorAll('.ads-tbl tbody tr').forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells[2] && cells[2].textContent.trim() === ref) {
+      row.dataset.status = newStatus;
+      row.style.background = opts.bg || '';
+      if (cells[8]) cells[8].textContent = newStatus;
+      if (cells[9]) {
+        const btn = cells[9].querySelector('button');
+        if (btn) {
+          btn.style.cssText = opts.actionStyle || 'background:none;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;';
+          btn.textContent = opts.actionLabel || 'View';
+          if (opts.actionOnClick) btn.onclick = opts.actionOnClick;
+        }
+      }
+    }
+  });
+}
+const NSS_VIEW_BTN_STYLE = 'background:none;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;';
+
 function confirmNSSCancel(id) {
   const c = CAMPAIGNS[id];
   if (!c) return;
@@ -1114,22 +1266,7 @@ function confirmNSSCancel(id) {
   c.reviewLog.push(entry);
   c.status = 'Cancelled';
   c.statusClass = 'stag-gray';
-  document.querySelectorAll('.ads-tbl tbody tr').forEach(row => {
-    const cells = row.querySelectorAll('td');
-    if (cells[2] && cells[2].textContent.trim() === c.ref) {
-      row.dataset.status = 'Cancelled';
-      row.style.background = '';
-      if (cells[8]) cells[8].textContent = 'Cancelled';
-      if (cells[9]) {
-        const btn = cells[9].querySelector('button');
-        if (btn) {
-          btn.style.cssText = 'background:none;border:none;color:#1677ff;font-size:12px;cursor:pointer;padding:0;font-family:inherit;';
-          btn.textContent = 'View';
-          btn.onclick = () => openPanel('view', id);
-        }
-      }
-    }
-  });
+  updateNSSRow(c.ref, 'Cancelled', {actionLabel:'View', actionStyle:NSS_VIEW_BTN_STYLE, actionOnClick:() => openPanel('view', id)});
   closePanel();
 }
 
@@ -1214,12 +1351,60 @@ function reviewNow() {
   if (el) setTimeout(()=>el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
 }
 
+// ── PAY NOW ──
+function payNow() {
+  const payRows = document.querySelectorAll('.ads-tbl tbody tr[data-status="Pending payment"]');
+  if (payRows.length === 1) {
+    const ref = payRows[0].querySelectorAll('td')[2]?.textContent.trim();
+    const key = Object.keys(CAMPAIGNS).find(k => CAMPAIGNS[k].ref === ref);
+    if (key) { openPaymentModal(key); return; }
+  }
+  goLockerAds();
+  const sel = document.getElementById('status-filter');
+  if (sel) { sel.value = 'Pending payment'; filterByStatus('Pending payment'); }
+  const el = document.getElementById('ads-list-section');
+  if (el) setTimeout(()=>el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+}
+
+// ── PAYMENT DEADLINE FORMATTING ──
+function fmtTimeLeft(iso) {
+  if (!iso) return '';
+  const ms = new Date(iso) - new Date();
+  if (ms <= 0) return 'overdue';
+  const hrs = Math.floor(ms/3600000), mins = Math.floor((ms%3600000)/60000);
+  return hrs + 'h ' + mins + 'm left';
+}
+function fmtPaymentDeadline(iso) {
+  if (!iso) return '—';
+  const due = new Date(iso);
+  const dateStr = due.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+due.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  return dateStr + ' (' + fmtTimeLeft(iso) + ')';
+}
+
+// ── AUTO-CANCEL UNPAID CAMPAIGNS ──
+function sweepNSSPayments() {
+  Object.keys(CAMPAIGNS).forEach(id => {
+    const c = CAMPAIGNS[id];
+    if (c.status === 'Pending payment' && c.paymentDueAt && new Date(c.paymentDueAt) < new Date()) {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      c.status = 'Cancelled';
+      c.statusClass = 'stag-gray';
+      if (!c.reviewLog) c.reviewLog = [];
+      c.reviewLog.push({date:dateStr, event:'Cancelled — payment not received', by:'system', note:'No payment was received within '+PAYMENT_WINDOW_HOURS+' hours of approval. The campaign was cancelled automatically.'});
+      updateNSSRow(c.ref, 'Cancelled', {actionLabel:'View', actionStyle:NSS_VIEW_BTN_STYLE, actionOnClick:() => openPanel('view', id)});
+    }
+  });
+}
+
 // ── INIT BANNER ──
 function initBanner() {
   const arRows = document.querySelectorAll('.ads-tbl tbody tr[data-status="Rejected"]');
   const cancelRows = document.querySelectorAll('.ads-tbl tbody tr[data-status="Cancelled"]');
+  const payRows = document.querySelectorAll('.ads-tbl tbody tr[data-status="Pending payment"]');
   const banner = document.getElementById('ar-banner');
   const cancelBanner = document.getElementById('cancel-banner');
+  const payBanner = document.getElementById('pay-banner');
 
   if (arRows.length > 0 && banner) {
     const txt = document.getElementById('ar-banner-text');
@@ -1227,17 +1412,196 @@ function initBanner() {
       ? '1 campaign needs your attention'
       : arRows.length + ' campaigns need your attention';
     banner.style.display = 'flex';
+  } else if (banner) {
+    banner.style.display = 'none';
   }
 
   if (cancelRows.length > 0 && cancelBanner && !window._cancelBannerDismissed) {
     const txt = document.getElementById('cancel-banner-text');
     if (txt) txt.textContent = cancelRows.length === 1
-      ? '1 campaign has been cancelled by SPX'
-      : cancelRows.length + ' campaigns have been cancelled by SPX';
+      ? '1 campaign has been cancelled'
+      : cancelRows.length + ' campaigns have been cancelled';
     cancelBanner.style.display = 'flex';
+  } else if (cancelBanner) {
+    cancelBanner.style.display = 'none';
+  }
+
+  if (payRows.length > 0 && payBanner) {
+    const txt = document.getElementById('pay-banner-text');
+    const sub = document.getElementById('pay-banner-sub');
+    if (txt) txt.textContent = payRows.length === 1
+      ? '1 campaign is awaiting payment'
+      : payRows.length + ' campaigns are awaiting payment';
+    if (sub) {
+      if (payRows.length === 1) {
+        const ref = payRows[0].querySelectorAll('td')[2]?.textContent.trim();
+        const camp = Object.values(CAMPAIGNS).find(c => c.ref === ref);
+        sub.textContent = camp
+          ? ('Pay by ' + fmtPaymentDeadline(camp.paymentDueAt) + ' or this campaign will be cancelled.')
+          : 'Pay before the deadline or this campaign will be cancelled automatically.';
+      } else {
+        sub.textContent = 'Pay by the due date shown on each campaign, or they will be cancelled automatically.';
+      }
+    }
+    payBanner.style.display = 'flex';
+  } else if (payBanner) {
+    payBanner.style.display = 'none';
   }
 }
-document.addEventListener('DOMContentLoaded', initBanner);
+document.addEventListener('DOMContentLoaded', function(){ sweepNSSPayments(); initBanner(); });
+
+// ── PAYMENT QR MODAL ──
+let _payTimer = null, _payRemaining = 0, _payAttempt = 0, _payCampaignId = null;
+
+function buildQrSvg(seed) {
+  let h = 0;
+  for (let i=0; i<seed.length; i++) { h = (h*31 + seed.charCodeAt(i)) >>> 0; }
+  function rnd() { h ^= h<<13; h>>>=0; h ^= h>>>17; h ^= h<<5; h>>>=0; return h/4294967296; }
+  const n = 21, cell = 180/n;
+  let rects = '';
+  for (let r=0; r<n; r++) {
+    for (let c=0; c<n; c++) {
+      const inFinder = (r<7&&c<7)||(r<7&&c>=n-7)||(r>=n-7&&c<7);
+      if (inFinder) continue;
+      if (rnd() > 0.55) rects += `<rect x="${c*cell}" y="${r*cell}" width="${cell}" height="${cell}" fill="#222"/>`;
+    }
+  }
+  function finder(x,y) {
+    return `<rect x="${x}" y="${y}" width="${7*cell}" height="${7*cell}" fill="#fff"/>`
+      + `<rect x="${x}" y="${y}" width="${7*cell}" height="${7*cell}" fill="none" stroke="#222" stroke-width="${cell}"/>`
+      + `<rect x="${x+2*cell}" y="${y+2*cell}" width="${3*cell}" height="${3*cell}" fill="#222"/>`;
+  }
+  const finders = finder(0,0) + finder((n-7)*cell,0) + finder(0,(n-7)*cell);
+  return `<svg width="180" height="180" viewBox="0 0 180 180" style="background:#fff;border:1px solid #eee;border-radius:4px;">${rects}${finders}</svg>`;
+}
+
+function renderPaymentQr() {
+  const area = document.getElementById('pay-qr-area');
+  if (!area) return;
+  area.style.opacity = ''; area.style.filter = '';
+  area.innerHTML = buildQrSvg(_payCampaignId + '-' + _payAttempt);
+}
+
+function tickPaymentCountdown() {
+  const el = document.getElementById('pay-countdown');
+  if (_payRemaining <= 0) { setPaymentExpired(); return; }
+  if (el) {
+    const m = Math.floor(_payRemaining/60), s = _payRemaining%60;
+    el.textContent = 'Expires in ' + m + ':' + (s<10?'0':'') + s;
+    el.style.color = '#fa541c';
+  }
+  _payRemaining--;
+}
+
+function startPaymentQr() {
+  _payRemaining = QR_VALIDITY_SECONDS;
+  renderPaymentQr();
+  tickPaymentCountdown();
+  if (_payTimer) clearInterval(_payTimer);
+  _payTimer = setInterval(tickPaymentCountdown, 1000);
+}
+
+function setPaymentExpired() {
+  if (_payTimer) { clearInterval(_payTimer); _payTimer = null; }
+  const area = document.getElementById('pay-qr-area');
+  if (area) {
+    area.style.opacity = '.25'; area.style.filter = 'grayscale(1)'; area.style.position = 'relative';
+    let chip = document.getElementById('pay-expired-chip');
+    if (!chip) { chip = document.createElement('div'); chip.id = 'pay-expired-chip'; chip.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'; area.appendChild(chip); }
+    chip.innerHTML = '<div style="background:rgba(0,0,0,0.6);color:#fff;font-size:12px;padding:4px 10px;border-radius:4px;">QR expired</div>';
+  }
+  const el = document.getElementById('pay-countdown');
+  if (el) { el.textContent = 'QR code expired — generate a new one to continue.'; el.style.color = '#cf1322'; }
+  const link = document.getElementById('pay-refresh-link');
+  if (link) link.style.cssText = 'display:inline-block;background:#fa541c;color:#fff;border-radius:4px;padding:6px 14px;font-size:12px;text-decoration:none;font-weight:500;';
+}
+
+function refreshPaymentQr() {
+  _payAttempt++;
+  const chip = document.getElementById('pay-expired-chip');
+  if (chip) chip.remove();
+  const link = document.getElementById('pay-refresh-link');
+  if (link) link.style.cssText = 'font-size:12px;color:#1677ff;text-decoration:none;';
+  startPaymentQr();
+}
+
+function openPaymentModal(id) {
+  const c = CAMPAIGNS[id];
+  if (!c) return;
+  const existing = document.getElementById('payment-overlay');
+  if (existing) existing.remove();
+  _payCampaignId = id;
+  _payAttempt = 0;
+  const overlay = document.createElement('div');
+  overlay.id = 'payment-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  overlay.onclick = () => closePaymentModal();
+  overlay.innerHTML = `<div id="payment-card" style="background:#fff;width:360px;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.3);position:relative;padding:20px;box-sizing:border-box;" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="font-size:15px;font-weight:600;">Pay for campaign</div>
+      <button onclick="closePaymentModal()" style="background:transparent;border:none;font-size:18px;color:#888;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:8px 10px;font-size:12px;color:#d46b08;margin-bottom:14px;">⚠️ Do not close this window while completing payment on your phone.</div>
+    <div style="text-align:center;margin-bottom:10px;">
+      <div style="font-size:13px;font-weight:600;">${c.name}</div>
+      <div style="font-size:11px;color:#aaa;margin-top:1px;">${c.ref}</div>
+      <div style="font-size:20px;font-weight:700;color:#d4380d;margin-top:6px;">${c.amountDue||''}</div>
+    </div>
+    <div style="font-size:12px;color:#888;text-align:center;margin-bottom:12px;">Please scan this QR using your mobile banking app or PayNow.</div>
+    <div id="pay-qr-area" style="width:180px;height:180px;margin:0 auto 10px;"></div>
+    <div id="pay-countdown" style="font-size:12px;color:#fa541c;text-align:center;margin-bottom:14px;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <a href="javascript:void(0)" id="pay-refresh-link" onclick="refreshPaymentQr()" style="font-size:12px;color:#1677ff;text-decoration:none;">↻ Generate new QR</a>
+      <a href="javascript:void(0)" onclick="simulatePaymentSuccess()" style="font-size:11px;color:#bbb;font-style:italic;text-decoration:none;">(Demo) Simulate payment received</a>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  startPaymentQr();
+}
+
+function simulatePaymentSuccess() {
+  if (_payTimer) { clearInterval(_payTimer); _payTimer = null; }
+  const card = document.getElementById('payment-card');
+  if (!card) return;
+  const c = CAMPAIGNS[_payCampaignId];
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="font-size:15px;font-weight:600;">Pay for campaign</div>
+      <button onclick="closePaymentModal()" style="background:transparent;border:none;font-size:18px;color:#888;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div style="text-align:center;padding:10px 0 4px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:#f6ffed;border:2px solid #52c41a;display:flex;align-items:center;justify-content:center;font-size:36px;color:#389e0d;margin:0 auto 14px;">✓</div>
+      <div style="font-size:14px;font-weight:600;color:#389e0d;margin-bottom:6px;">Payment received</div>
+      <div style="font-size:13px;font-weight:500;">${c ? c.name : ''}</div>
+      <div style="font-size:18px;font-weight:700;color:#389e0d;margin-top:4px;">${c ? c.amountDue : ''}</div>
+      <div style="font-size:11px;color:#aaa;margin-top:4px;">${dateStr}</div>
+    </div>
+    <button onclick="closePaymentModal();applyPaymentSuccess('${_payCampaignId}');" style="margin-top:16px;width:100%;background:#389e0d;color:#fff;border:none;border-radius:4px;padding:9px;font-size:13px;font-weight:500;cursor:pointer;">Done</button>
+  `;
+}
+
+function applyPaymentSuccess(id) {
+  const c = CAMPAIGNS[id];
+  if (!c) return;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  c.paidAt = dateStr;
+  c.status = 'Scheduled';
+  c.statusClass = 'stag-blue';
+  if (!c.reviewLog) c.reviewLog = [];
+  c.reviewLog.push({date:dateStr, event:'Payment received', by:'seller'});
+  c.reviewLog.push({date:dateStr, event:'Scheduled', by:'system'});
+  updateNSSRow(c.ref, 'Scheduled', {actionLabel:'View', actionStyle:NSS_VIEW_BTN_STYLE, actionOnClick:() => openPanel('view', id)});
+  initBanner();
+}
+
+function closePaymentModal() {
+  if (_payTimer) { clearInterval(_payTimer); _payTimer = null; }
+  const overlay = document.getElementById('payment-overlay');
+  if (overlay) overlay.remove();
+}
 
 </script>
 </body>

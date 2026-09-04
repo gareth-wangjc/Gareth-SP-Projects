@@ -43,7 +43,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .htab:hover{color:#ee4d2d;}
 .htab.on{color:#ee4d2d;border-bottom-color:#ee4d2d;font-weight:500;}
 .content{padding:16px 20px 24px;}
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
 .metric{background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:14px 16px;}
 .m-lbl{font-size:12px;color:#888;margin-bottom:6px;}
 .m-val{font-size:22px;font-weight:600;}
@@ -77,6 +77,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pr{background:#fff1f0;color:#cf1322;border:1px solid #ffa39e;}.pr::before{background:#f5222d;}
 .pb{background:#e6f4ff;color:#096dd9;border:1px solid #91caff;}.pb::before{background:#1890ff;}
 .pk{background:#fafafa;color:#888;border:1px solid #d9d9d9;}.pk::before{background:#bfbfbf;}
+.pp{background:#fff7e6;color:#d4380d;border:1px solid #ffbb96;}.pp::before{background:#fa541c;}
 .tbl{width:100%;border-collapse:collapse;}
 .tbl th{font-size:12px;color:#888;font-weight:500;text-align:left;padding:9px 12px;border-bottom:1px solid #e8e8e8;background:#fafafa;white-space:nowrap;}
 .tbl td{padding:9px 12px;border-bottom:1px solid #f5f5f5;font-size:13px;vertical-align:middle;}
@@ -299,14 +300,14 @@ if(!window.CAMPS) window.CAMPS=[
   {name:'SPF Advisory',     type:'int',buyer:'SPX Internal',   company:'SPX',         ref:'SGAD000001',
    start:1,end:30,startDate:'2026-04-01',endDate:'2026-04-30',order:1,status:'Live',creative:'spf_advisory.jpg',
    spotsBased:false,bookedLocTypes:['HDB Residential','MRT Stations'],bookedRegions:['North','East','Central','West','North East'],
-   approvedDate:'2026-04-01 09:00:00',assignedPlaylists:['pl-1','pl-2'], reviewLog:[
+   approvedDate:'2026-04-01 09:00:00',paidAt:'2026-04-01 09:00:00',assignedPlaylists:['pl-1','pl-2'], reviewLog:[
     {date:'01 Apr 2026, 09:00', event:'Scheduled', by:'system'},
     {date:'01 Apr 2026, 09:00', event:'Live', by:'system'},
   ]},
   {name:'Lazada Returns',   type:'ext',buyer:'Priya Nair',      company:'Lazada SG',   ref:'SGAD000398',
    start:6,end:30,startDate:'2026-04-06',endDate:'2026-04-30',order:2,status:'Live',creative:'lazada_returns_v2.jpg',
    spotsBased:false,bookedLocTypes:['MRT Stations','HDB Residential'],bookedRegions:['East','Central'],
-   approvedDate:'2026-04-05 14:22:11',assignedPlaylists:['pl-1'], reviewLog:[
+   approvedDate:'2026-04-05 14:22:11',paidAt:'2026-04-05 16:40:00',assignedPlaylists:['pl-1'], reviewLog:[
     {date:'04 Apr 2026, 10:15', event:'Pending review', by:'seller'},
     {date:'05 Apr 2026, 14:22', event:'Approved', by:'spx'},
     {date:'05 Apr 2026, 14:22', event:'Scheduled', by:'system'},
@@ -315,7 +316,7 @@ if(!window.CAMPS) window.CAMPS=[
   {name:'Senoko Energy',    type:'ext',buyer:'K. Lim',           company:'Senoko Energy',ref:'SGAD000380',
    start:10,end:28,startDate:'2026-04-10',endDate:'2026-04-28',order:3,status:'Live',creative:'senoko_livesmart.jpg',
    spotsBased:true,spotsBooked:6000,bookedLocTypes:['HDB Residential'],bookedRegions:['North','North East'],
-   approvedDate:'2026-04-09 11:05:44',assignedPlaylists:['pl-1'], reviewLog:[
+   approvedDate:'2026-04-09 11:05:44',paidAt:'2026-04-09 15:12:00',assignedPlaylists:['pl-1'], reviewLog:[
     {date:'05 Apr 2026, 11:20', event:'Pending review', by:'seller'},
     {date:'07 Apr 2026, 14:30', event:'Rejected', by:'spx', note:'Banner text is too small and does not meet minimum readability standards. Please increase font size and ensure key message is legible at 2m distance.', archivedCreative:'senoko_v1.jpg'},
     {date:'08 Apr 2026, 16:20', event:'Pending review', by:'seller'},
@@ -344,13 +345,36 @@ if(!window.CAMPS) window.CAMPS=[
     {date:'20 Apr 2026, 11:30', event:'Approved', by:'spx'},
    ],
    spotsBased:false,bookedLocTypes:['HDB Residential','Shopping Malls'],bookedRegions:['North','East','West','Central','North East'],
-   approvedDate:'2026-04-20 11:30:00',assignedPlaylists:[]},
+   approvedDate:'2026-04-20 11:30:00',paidAt:'2026-04-20 14:05:00',assignedPlaylists:[]},
+  // Awaiting seller payment — approved, but not yet paid; cannot be scheduled until paidAt is set
+  {name:'Mid-Year Flash Sale',type:'ext',buyer:'K. Lim',company:'NSS Logistics Co.',ref:'SGAD000162',
+   start:1,end:31,startDate:'2026-07-01',endDate:'2026-07-31',order:7,status:'Scheduled',creative:'midyear_flash.jpg',
+   spotsBased:true,spotsBooked:4500,bookedLocTypes:['MRT Stations','HDB Residential'],bookedRegions:['Island-wide'],
+   approvedDate:fmtTs(new Date()),paidAt:null,amountDue:'SGD 675.00',
+   paymentDueAt:new Date(Date.now()+19*3600*1000).toISOString(),assignedPlaylists:[],reviewLog:[
+    {date:fmtTs(new Date()), event:'Pending review', by:'seller'},
+    {date:fmtTs(new Date()), event:'Approved', by:'spx'},
+    {date:fmtTs(new Date()), event:'Pending payment', by:'system', note:'Payment due by '+fmtTs(new Date(Date.now()+19*3600*1000))+'. Campaign will be cancelled if payment is not received.'},
+  ]},
 ];
 if(!window.DONE) window.DONE=[
   {name:'FairPrice CNY',company:'FairPrice Group',buyer:'Maya Tan',ref:'SGAD000388',start:'1 Mar',end:'28 Apr',days:58,lockers:100,impressions:1740000,hours:4350,status:'Completed'},
   {name:'Singtel Broadband',company:'Singtel',buyer:'J. Ong',ref:'SGAD000412',start:'10 Jan',end:'21 Apr',days:101,lockers:100,impressions:3030000,hours:7575,status:'Completed'},
 ];
-if(!window.CANCELLED) window.CANCELLED=[];
+if(!window.CANCELLED) window.CANCELLED=[
+  // Auto-cancelled — seller did not pay within the payment window
+  {name:'Weekend Promo — June',type:'ext',buyer:'K. Lim',company:'NSS Logistics Co.',ref:'SGAD000149',
+   start:1,end:7,startDate:'2026-06-05',endDate:'2026-06-12',order:0,status:'Cancelled',creative:'weekend_promo.jpg',
+   spotsBased:false,bookedLocTypes:['HDB Residential'],bookedRegions:['Island-wide'],
+   approvedDate:'2026-06-04 09:00:00',paidAt:null,amountDue:'SGD 450.00',
+   paymentDueAt:new Date(Date.now()-30*3600*1000).toISOString(),assignedPlaylists:[],
+   cancelReason:'Payment not received within the payment window.',reviewLog:[
+    {date:'03 Jun 2026, 10:00', event:'Pending review', by:'seller'},
+    {date:'04 Jun 2026, 09:00', event:'Approved', by:'spx'},
+    {date:'04 Jun 2026, 09:00', event:'Pending payment', by:'system'},
+    {date:'05 Jun 2026, 09:00', event:'Cancelled — payment not received', by:'system', note:'No payment was received within 24 hours of approval. The campaign was cancelled automatically.'},
+  ]},
+];
 
 // Lockers — each has one assigned playlist (one-to-one)
 // Each locker has: locType (dropdown), tags (free-text keywords), confirmedPlaylistId (explicit assignment)
@@ -375,6 +399,90 @@ if(!window.LOCKERS) window.LOCKERS=[
 if(!window.LOCKER_CONFLICTS) window.LOCKER_CONFLICTS=[];
 if(!window.REGIONS) window.REGIONS=['North','North East','East','Central','West','South'];
 
+// Location Types are master data — the same reference list Point List uses
+// (see e.g. its "Location Types" field). Ads config never adds/removes one;
+// it only ever shows whatever list already exists for this market.
+const ALL_LOC_TYPES=['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs','Condominiums','Offices'];
+
+// ── LOCKER ADS RATE CARD COVERAGE (Booking Configuration) ──
+// Regions here are a separate, ads-specific list (CCR/RCR/OCR per the exec
+// deck), not the general locker network's compass Region field above — ads
+// pricing regions genuinely differ from playlist-targeting regions. Location
+// Types, unlike Regions, reuse ALL_LOC_TYPES directly (no separate ads-only
+// list) since that master list already lives elsewhere and shouldn't be
+// duplicated or edited from this screen.
+// Finance Portal's rate grid pulls ADS_REGIONS / ALL_LOC_TYPES / the matrix
+// below live from here — it never hardcodes them.
+if(!window.ADS_REGIONS) window.ADS_REGIONS=['CCR','RCR','OCR'];
+// Half/Full are the only coverage tiers today. Individual Locker is a future
+// phase and deliberately NOT in this list — it isn't a %-of-lockers tier, it's
+// a pick-one-specific-locker mode, so it can't be "just another row" here.
+if(!window.ADS_COVERAGE) window.ADS_COVERAGE=['half','full'];
+const ADS_COVERAGE_LABELS={half:'Half Network', full:'Full Network'};
+// ADS_MATRIX[coverage][locationType][region] = true/false — whether that
+// combination is offered at all. The %-based matching logic itself (Half =
+// >=50% of matched lockers, Full = 100%, tiebreak lowest Point ID) is fixed
+// in the booking engine, not stored here — this matrix only controls WHERE
+// each already-built tier is switched on.
+function buildDefaultAdsMatrix(){
+  const m={};
+  window.ADS_COVERAGE.forEach(cov=>{
+    m[cov]={};
+    ALL_LOC_TYPES.forEach(lt=>{
+      m[cov][lt]={};
+      window.ADS_REGIONS.forEach(r=>{ m[cov][lt][r]=true; });
+    });
+  });
+  return m;
+}
+if(!window.ADS_MATRIX) window.ADS_MATRIX=buildDefaultAdsMatrix();
+
+function addAdsRegion(){
+  const name=(prompt('New region name (e.g. North)')||'').trim(); if(!name) return;
+  if(window.ADS_REGIONS.includes(name)){alert('Region already exists');return;}
+  window.ADS_REGIONS.push(name);
+  window.ADS_COVERAGE.forEach(cov=>ALL_LOC_TYPES.forEach(lt=>{ window.ADS_MATRIX[cov][lt][name]=false; }));
+  renderTab();
+}
+function removeAdsRegion(name){
+  if(!confirm('Remove region "'+name+'" from Locker Ads? Existing rate card versions in Finance Portal that already reference it are unaffected.')) return;
+  window.ADS_REGIONS=window.ADS_REGIONS.filter(r=>r!==name);
+  window.ADS_COVERAGE.forEach(cov=>ALL_LOC_TYPES.forEach(lt=>{ delete window.ADS_MATRIX[cov][lt][name]; }));
+  renderTab();
+}
+function toggleAdsCell(cov,lt,r){
+  window.ADS_MATRIX[cov][lt][r]=!window.ADS_MATRIX[cov][lt][r];
+  renderTab();
+}
+function switchAdsCovTab(cov){ window._adsCovTab=cov; renderTab(); }
+
+function renderAdsMatrix(){
+  const cov=window._adsCovTab||'half';
+  const tabsHTML=window.ADS_COVERAGE.map(c=>`<div data-ads-cov-tab="${c}" onclick="switchAdsCovTab('${c}')" style="padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid ${cov===c?'#ee4d2d':'transparent'};color:${cov===c?'#ee4d2d':'#666'};">${ADS_COVERAGE_LABELS[c]}</div>`).join('')
+    +`<div style="padding:7px 14px;font-size:12px;color:#ccc;cursor:not-allowed;" title="Individual locker pricing lands next phase">Individual Locker <span style="font-size:10px;">(next phase)</span></div>`;
+
+  // "+" add-region affordance sits at the end of the column headers, not as
+  // a separate button below the table — reads as "add a column here".
+  const addColW=36;
+  const headerRow=`<div style="display:flex;background:#fafafa;border-bottom:2px solid #e8e8e8;">
+    <div style="width:110px;flex-shrink:0;padding:7px 10px;"></div>
+    ${window.ADS_REGIONS.map(r=>`<div style="flex:1;text-align:center;padding:7px 6px;font-size:11px;font-weight:600;color:#888;position:relative;">${r}<span onclick="removeAdsRegion('${r}')" title="Remove region" style="position:absolute;top:1px;right:2px;color:#ccc;cursor:pointer;font-size:10px;">✕</span></div>`).join('')}
+    <div style="width:${addColW}px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-left:1px dashed #e0e0e0;">
+      <span onclick="addAdsRegion()" title="Add region" style="cursor:pointer;color:#ee4d2d;font-size:16px;font-weight:700;line-height:1;">+</span>
+    </div>
+  </div>`;
+
+  const rows=ALL_LOC_TYPES.map(lt=>`<div style="display:flex;border-bottom:1px solid #f5f5f5;align-items:center;">
+    <div style="width:110px;flex-shrink:0;padding:7px 10px;font-size:12px;font-weight:500;">${lt}</div>
+    ${window.ADS_REGIONS.map(r=>`<div style="flex:1;text-align:center;padding:7px 6px;"><input type="checkbox" id="ads-cell-${cov}-${lt}-${r}" style="accent-color:#ee4d2d;width:14px;height:14px;cursor:pointer;" ${window.ADS_MATRIX[cov][lt][r]?'checked':''} onchange="toggleAdsCell('${cov}','${lt}','${r}')"/></div>`).join('')}
+    <div style="width:${addColW}px;flex-shrink:0;border-left:1px dashed #e0e0e0;"></div>
+  </div>`).join('');
+
+  return `<div style="display:flex;gap:2px;border-bottom:1px solid #eee;margin-bottom:10px;">${tabsHTML}</div>
+    <div style="border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">${headerRow}${rows}</div>
+    <div class="fhint" style="margin-top:6px;">Location Types are pulled from this market's existing master list (same list used in Point List) — add or remove one there, not here. Regions are ads-specific — use the + above to add one.</div>`;
+}
+
 // Playlists — explicit confirmed assignment model
 // filter: {locTypes:[], anyTags:[], allTags:[]} — preview tool only, assignment requires explicit confirm
 if(!window.PLAYLISTS) window.PLAYLISTS=[
@@ -397,7 +505,52 @@ function suggestPlaylists(bookedLocTypes, bookedRegions){
 }
 function plSlug(name){ return name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
 function plBySlug(slug){ return window.PLAYLISTS.find(p=>p.slug===slug||p.id===slug); }
-const ALL_LOC_TYPES=['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs','Condominiums','Offices'];
+
+// ── SELLER PAYMENT HELPERS ──
+function isAwaitingPayment(c){ return c.type!=='int' && !!c.approvedDate && !c.paidAt && !c.rejected && c.status!=='Cancelled'; }
+function isPaymentOverdue(c){ return isAwaitingPayment(c) && c.paymentDueAt && new Date(c.paymentDueAt) < new Date(); }
+function fmtTs(d){ return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+function fmtDueIn(c){
+  if(!c.paymentDueAt) return '—';
+  const ms = new Date(c.paymentDueAt) - new Date();
+  if(ms <= 0){ const h = Math.floor(-ms/3600000); return 'Overdue by ' + h + 'h'; }
+  const h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000);
+  return h + 'h ' + m + 'm left';
+}
+// Cancel campaigns whose payment window has lapsed. Called at each render entry point
+// (not inside the pure status derivation, since that runs inside .map() over window.CAMPS
+// and would corrupt the array if it spliced mid-iteration).
+function sweepUnpaidCampaigns(){
+  let changed = false;
+  for(let i=window.CAMPS.length-1; i>=0; i--){
+    const c = window.CAMPS[i];
+    if(isPaymentOverdue(c)){
+      window.CAMPS.splice(i,1);
+      c.status = 'Cancelled';
+      c.cancelReason = 'Payment not received within the payment window.';
+      if(!c.reviewLog) c.reviewLog = [];
+      c.reviewLog.push({date:fmtTs(new Date()), event:'Cancelled — payment not received', by:'system',
+        note:'No payment was received within '+RC.payment_window_hours+' hours of approval. The campaign was cancelled automatically.'});
+      if(!window.CANCELLED) window.CANCELLED = [];
+      window.CANCELLED.push(c);
+      changed = true;
+    }
+  }
+  if(changed) window.CAMPS.forEach((x,j)=>x.order=j+1);
+  return changed;
+}
+// Shared status derivation — single source of truth for the ad-management list, filters, and the ad detail panel.
+function adStatus(c){
+  if(c.rejected) return {label:'Rejected',cls:'pr'};
+  if(c.status==='Cancelled') return {label:'Cancelled',cls:'pr'};
+  if(!c.approvedDate) return {label:'Pending review',cls:'po'};
+  if(isAwaitingPayment(c)) return {label:'Pending payment',cls:'pp'};
+  if((c.assignedPlaylists||[]).length===0) return {label:'Approved',cls:'pb'};
+  if(c.status==='Live') return {label:'Live',cls:'pg'};
+  if(c.status==='Scheduled') return {label:'Scheduled',cls:'pb'};
+  return {label:'Completed',cls:'pk'};
+}
+// ALL_LOC_TYPES is declared earlier, alongside the Locker Ads rate card coverage config.
 
 // AI criteria — ops-configurable named categories
 if(!window.AI_CRITERIA) window.AI_CRITERIA=[
@@ -424,6 +577,8 @@ const RC={
   cycle_interval: 10,        // seconds per ad slot
   inactivity_timeout: 30,    // seconds of locker inactivity before showing ad
   est_daily_plays: 200,      // estimated ad plays per locker per day (used for duration campaign estimates shown to sellers)
+  payment_window_hours: 24, // hours after approval the seller has to pay before auto-cancellation
+  qr_validity_seconds: 180, // how long each generated payment QR stays valid before the seller must refresh it
   tiers:[
     {name:'Starter',  spots:150000},
     {name:'Standard', spots:300000},
@@ -482,7 +637,7 @@ function toggleCampLockers(name){
 let curTab='overview', finSub='payments', activePl='pl-1', expandedLockers=false, editingAcctId=null;
 let _panelForcedBack = false;
 function switchTab(t){curTab=t;['overview','schedule','review','finance'].forEach(id=>document.getElementById('ht-'+id).classList.toggle('on',id===t));renderTab();}
-function renderTab(){document.getElementById('tab-content').innerHTML=({overview:renderOverview,schedule:renderSchedule,review:renderReview,finance:renderFinance}[curTab]||renderOverview)();}
+function renderTab(){sweepUnpaidCampaigns();document.getElementById('tab-content').innerHTML=({overview:renderOverview,schedule:renderSchedule,review:renderReview,finance:renderFinance}[curTab]||renderOverview)();}
 function tog(el){const ch=el.nextElementSibling;ch.classList.toggle('closed');el.querySelector('span:last-child').textContent=ch.classList.contains('closed')?'▾':'▴';}
 document.addEventListener('DOMContentLoaded',renderTab);
 
@@ -493,6 +648,8 @@ function renderOverview(){
 
   // Upcoming campaigns in next 30 days (scheduled or live, not yet ended)
   const upcoming = window.CAMPS.filter(c => c.status === 'Scheduled' || c.status === 'Live');
+  const pendingPayment = window.CAMPS.filter(isAwaitingPayment);
+  const anyOverdue = pendingPayment.some(isPaymentOverdue);
 
   // ── METRICS ──
   let body = `<div class="content">
@@ -508,6 +665,11 @@ function renderOverview(){
         <div class="m-sub">Currently running</div>
       </div>
       <div class="metric">
+        <div class="m-lbl">Awaiting payment</div>
+        <div class="m-val${anyOverdue?' red':''}">${pendingPayment.length}</div>
+        <div class="m-sub">Seller action required</div>
+      </div>
+      <div class="metric">
         <div class="m-lbl">MTD revenue</div>
         <div class="m-val">SGD 142k</div>
         <div class="m-sub">Apr 2026</div>
@@ -521,23 +683,26 @@ function renderOverview(){
         <div class="card-hd"><div class="card-title">Priority actions</div></div>
         <div class="card-bd" style="padding:8px 12px;">`;
 
-  // Pending schedule = approved but not yet assigned to any playlist
-  const pendingSchedule = window.CAMPS.filter(c => c.approvedDate && (c.assignedPlaylists||[]).length===0 && !c.rejected && c.status!=='Cancelled');
+  // Pending schedule = approved, paid, but not yet assigned to any playlist
+  const pendingSchedule = window.CAMPS.filter(c => c.approvedDate && c.paidAt && (c.assignedPlaylists||[]).length===0 && !c.rejected && c.status!=='Cancelled');
 
   // Filter bar
   if(!window._paFilter) window._paFilter = 'all';
   body += `<div style="display:flex;gap:6px;margin-bottom:10px;">
     <button style="padding:3px 12px;font-size:12px;border-radius:3px;border:1px solid ${window._paFilter==='all'?'#ee4d2d':'#d0d0d0'};background:${window._paFilter==='all'?'#ee4d2d':'#fff'};color:${window._paFilter==='all'?'#fff':'#555'};cursor:pointer;" onclick="window._paFilter='all';renderTab()">All</button>
     <button style="padding:3px 12px;font-size:12px;border-radius:3px;border:1px solid ${window._paFilter==='creative'?'#ee4d2d':'#d0d0d0'};background:${window._paFilter==='creative'?'#ee4d2d':'#fff'};color:${window._paFilter==='creative'?'#fff':'#555'};cursor:pointer;" onclick="window._paFilter='creative';renderTab()">Ad reviews</button>
+    <button style="padding:3px 12px;font-size:12px;border-radius:3px;border:1px solid ${window._paFilter==='payment'?'#ee4d2d':'#d0d0d0'};background:${window._paFilter==='payment'?'#ee4d2d':'#fff'};color:${window._paFilter==='payment'?'#fff':'#555'};cursor:pointer;" onclick="window._paFilter='payment';renderTab()">Awaiting payment</button>
     <button style="padding:3px 12px;font-size:12px;border-radius:3px;border:1px solid ${window._paFilter==='schedule'?'#ee4d2d':'#d0d0d0'};background:${window._paFilter==='schedule'?'#ee4d2d':'#fff'};color:${window._paFilter==='schedule'?'#fff':'#555'};cursor:pointer;" onclick="window._paFilter='schedule';renderTab()">Pending schedule</button>
   </div>`;
 
   // Combine and sort — most recently added (highest order) first
   const reviewItems = pendingCreatives.map(c=>({type:'review',c}));
+  const paymentItems = pendingPayment.map(c=>({type:'payment',c}));
   const scheduleItems = pendingSchedule.map(c=>({type:'schedule',c}));
   let actionItems = [];
-  if(window._paFilter==='all') actionItems=[...reviewItems,...scheduleItems].sort((a,b)=>(b.c.order||0)-(a.c.order||0));
+  if(window._paFilter==='all') actionItems=[...reviewItems,...paymentItems,...scheduleItems].sort((a,b)=>(b.c.order||0)-(a.c.order||0));
   else if(window._paFilter==='creative') actionItems=reviewItems;
+  else if(window._paFilter==='payment') actionItems=paymentItems;
   else if(window._paFilter==='schedule') actionItems=scheduleItems;
 
   actionItems.forEach(({type,c}) => {
@@ -549,6 +714,14 @@ function renderOverview(){
           <div style="font-size:11px;color:#888;">${goLive} · ${c.name}</div>
         </div>
         <button class="btn-sm" style="flex-shrink:0;" onclick="openAdPanel('${c.ref}')">Review</button>
+      </div>`;
+    } else if(type==='payment'){
+      body += `<div style="background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:9px 13px;display:flex;align-items:center;gap:11px;margin-bottom:7px;border-left:3px solid #fa8c16;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;margin-bottom:2px;">${c.company}'s ad campaign is awaiting payment</div>
+          <div style="font-size:11px;color:#888;">Due ${c.paymentDueAt?fmtTs(new Date(c.paymentDueAt)):'—'} · ${fmtDueIn(c)} · ${c.name}</div>
+        </div>
+        <button class="btn-sm" style="flex-shrink:0;" onclick="openAdPanel('${c.ref}')">View</button>
       </div>`;
     } else {
       body += `<div style="background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:9px 13px;display:flex;align-items:center;gap:11px;margin-bottom:7px;border-left:3px solid #1677ff;">
@@ -1061,7 +1234,7 @@ function renderReview(){
   const af=window._adFilter;
   // sub-filter
   const filtered = allAds.filter(c=>{
-    const st_label=c.rejected?'Rejected':c.status==='Cancelled'?'Cancelled':!c.approvedDate?'Pending review':(c.assignedPlaylists||[]).length===0?'Approved':c.status==='Live'?'Live':c.status==='Scheduled'?'Scheduled':'Completed';
+    const st_label=adStatus(c).label;
     const exposureLabel=c.spotsBased?'By Spots':'By Duration';
     const subMatch = adMgmtSub==='pending' ? !c.approvedDate : true;
     return subMatch
@@ -1074,17 +1247,6 @@ function renderReview(){
     const ts = c => new Date((c.reviewLog?.[0]?.date||'').replace(',',''));
     return ts(b) - ts(a);
   });
-
-  // status helper
-  function adStatus(c){
-    if(c.rejected) return {label:'Rejected',cls:'pr'};
-    if(c.status==='Cancelled') return {label:'Cancelled',cls:'pr'};
-    if(!c.approvedDate) return {label:'Pending review',cls:'po'};
-    if((c.assignedPlaylists||[]).length===0) return {label:'Approved',cls:'pb'};
-    if(c.status==='Live') return {label:'Live',cls:'pg'};
-    if(c.status==='Scheduled') return {label:'Scheduled',cls:'pb'};
-    return {label:'Completed',cls:'pk'};
-  }
 
   const pendingCount = allAds.filter(c=>!c.approvedDate).length;
 
@@ -1102,7 +1264,7 @@ function renderReview(){
         <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Campaign ID</span><input class="fi" placeholder="Search..." style="width:160px;" value="${af.campaignId}" oninput="window._adFilter.campaignId=this.value"/></div>
         <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;">Company</span><input class="fi" placeholder="Search..." style="width:130px;" value="${af.company}" oninput="window._adFilter.company=this.value"/></div>
         <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Exposure type</span><select class="fi" onchange="window._adFilter.exposure=this.value"><option value="">All</option><option>By Spots</option><option>By Duration</option></select></div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;">Status</span><select class="fi" onchange="window._adFilter.status=this.value"><option value="">All</option><option>Pending review</option><option>Approved</option><option>Scheduled</option><option>Live</option><option>Rejected</option><option>Ended</option><option>Cancelled</option></select></div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;">Status</span><select class="fi" onchange="window._adFilter.status=this.value"><option value="">All</option><option>Pending review</option><option>Pending payment</option><option>Approved</option><option>Scheduled</option><option>Live</option><option>Rejected</option><option>Ended</option><option>Cancelled</option></select></div>
       </div>
       <div style="display:flex;gap:7px;"><button class="btn-r" style="padding:5px 14px;font-size:12px;" onclick="renderTab()">Search</button><button class="btn-w" style="padding:5px 12px;font-size:12px;" onclick="window._adFilter={name:'',campaignId:'',company:'',exposure:'',status:''};renderTab()">Reset</button></div>
     </div>
@@ -1150,20 +1312,13 @@ function renderReview(){
 
 // ── AD DETAIL PANEL ──────────────────────────────────────────────────
 function openAdPanel(ref){
+  sweepUnpaidCampaigns();
   const c=[...window.CAMPS,...window.CANCELLED].find(x=>x.ref===ref); if(!c) return;
-  function adStatus(c){
-    if(c.rejected) return {label:'Rejected',cls:'pr'};
-    if(c.status==='Cancelled') return {label:'Cancelled',cls:'pr'};
-    if(!c.approvedDate) return {label:'Pending review',cls:'po'};
-    if((c.assignedPlaylists||[]).length===0) return {label:'Approved',cls:'pb'};
-    if(c.status==='Live') return {label:'Live',cls:'pg'};
-    if(c.status==='Scheduled') return {label:'Scheduled',cls:'pb'};
-    return {label:'Completed',cls:'pk'};
-  }
   const st=adStatus(c);
   window._campLockersExpanded=false;
   const isCancelled = c.status === 'Cancelled';
-  const isApproved = !!c.approvedDate && (c.assignedPlaylists||[]).length === 0 && !c.rejected;
+  const isAwaitingPay = !!c.approvedDate && !c.paidAt && !c.rejected && !isCancelled;
+  const isApproved = !!c.approvedDate && !!c.paidAt && (c.assignedPlaylists||[]).length === 0 && !c.rejected;
   const isPending = !c.approvedDate && !c.rejected;
   const canCancel = !isCancelled && !c.rejected && (c.status==='Live'||c.status==='Scheduled') && (c.assignedPlaylists||[]).length>0;
   const showCreativeStep = !isCancelled && (isPending || _panelForcedBack);
@@ -1215,6 +1370,18 @@ function openAdPanel(ref){
     body += '<div style="margin-top:12px;"><div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">Feedback to seller (if changes requested)</div>'
           + '<textarea class="finput" id="cr-feedback" rows="3" placeholder="Describe what needs to change." style="resize:vertical;" oninput="checkFeedback()"></textarea>'
           + '<div style="font-size:11px;color:#aaa;margin-top:4px;" id="fb-hint">Minimum 15 characters required.</div></div>';
+  } else if(isAwaitingPay) {
+    const overdue = isPaymentOverdue(c);
+    const bg = overdue ? '#fff1f0' : '#fffbe6', border = overdue ? '#ffa39e' : '#ffe58f', fg = overdue ? '#cf1322' : '#d46b08';
+    body += '<div style="background:'+bg+';border:1px solid '+border+';border-radius:6px;padding:12px 14px;">'
+          + '<div style="font-size:13px;font-weight:600;color:'+fg+';margin-bottom:6px;">'+(overdue?'Payment overdue — this campaign will be cancelled on next refresh.':'Waiting on seller payment')+'</div>'
+          + '<div style="font-size:12px;color:#555;line-height:1.7;">'
+          + 'Approved: '+c.approvedDate+'<br>'
+          + 'Payment due: '+(c.paymentDueAt?fmtTs(new Date(c.paymentDueAt)):'—')+' ('+fmtDueIn(c)+')<br>'
+          + 'Amount: '+(c.amountDue||'—')
+          + '</div>'
+          + '<div style="font-size:12px;color:#666;margin-top:8px;line-height:1.6;">This campaign cannot be scheduled or played until payment is received, even if its campaign period has started. '+c.buyer+' at '+c.company+' has been notified in their Shipment Portal.</div>'
+          + '</div>';
   } else if(isApproved) {
     // Playlist assignment
     body += '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:4px;">Playlist assignment</div>'
@@ -1265,22 +1432,38 @@ function openAdPanel(ref){
     : showCreativeStep
       ? '<button id="btn-req-changes" class="btn-sm" disabled style="opacity:0.4;cursor:not-allowed;" onclick="requestChanges(\''+c.ref+'\')">Request changes</button>'
         + '<button class="btn-sm-r" onclick="approveCreative(\''+c.ref+'\')">' + nextLabel + '</button>'
-      : isApproved
-        ? '<button class="btn-sm" onclick="closePanel()">Cancel</button>'
+      : isAwaitingPay
+        ? '<button class="btn-sm" onclick="closePanel()">Close</button>'
           + '<button class="btn-sm" onclick="backToReview(\''+c.ref+'\')">← Back</button>'
-          + '<button class="btn-sm-r" onclick="assignPlaylist(\''+c.ref+'\')">Assign playlist</button>'
-        : canCancel
-          ? '<button class="btn-sm" onclick="closePanel()">Close</button>'
-            + (c.type==='int'&&c.status==='Scheduled'?'<button class="btn-sm" onclick="editInternalAd(\''+c.ref+'\')">Edit</button>':'')
-            + '<button class="btn-sm-d" onclick="cancelAdPanel(\''+c.ref+'\')">Cancel campaign</button>'
-          : '<button class="btn-sm" onclick="closePanel()">Close</button>';
+        : isApproved
+          ? '<button class="btn-sm" onclick="closePanel()">Cancel</button>'
+            + '<button class="btn-sm" onclick="backToReview(\''+c.ref+'\')">← Back</button>'
+            + '<button class="btn-sm-r" onclick="assignPlaylist(\''+c.ref+'\')">Assign playlist</button>'
+          : canCancel
+            ? '<button class="btn-sm" onclick="closePanel()">Close</button>'
+              + (c.type==='int'&&c.status==='Scheduled'?'<button class="btn-sm" onclick="editInternalAd(\''+c.ref+'\')">Edit</button>':'')
+              + '<button class="btn-sm-d" onclick="cancelAdPanel(\''+c.ref+'\')">Cancel campaign</button>'
+            : '<button class="btn-sm" onclick="closePanel()">Close</button>';
   openPanel();
 }
 
 function approveCreative(ref){
   const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
-  if(!c.approvedDate) c.approvedDate=new Date().toISOString().replace('T',' ').substring(0,19);
+  if(!c.approvedDate){
+    const now=new Date();
+    c.approvedDate=now.toISOString().replace('T',' ').substring(0,19);
+    if(c.type!=='int'){
+      c.paidAt=null;
+      c.paymentDueAt=new Date(now.getTime()+RC.payment_window_hours*3600*1000).toISOString();
+      c.amountDue=c.amountDue||'SGD —';
+      c.reviewLog=c.reviewLog||[];
+      c.reviewLog.push({date:fmtTs(now), event:'Approved', by:'spx'});
+      c.reviewLog.push({date:fmtTs(now), event:'Pending payment', by:'system',
+        note:'Payment due by '+fmtTs(new Date(c.paymentDueAt))+'. Campaign will be cancelled if payment is not received.'});
+    }
+  }
   openAdPanel(ref);
+  renderTab();
 }
 
 function requestChanges(ref){
@@ -1301,6 +1484,7 @@ function backToReview(ref){
 
 function assignPlaylist(ref){
   const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  if(c.type!=='int' && !c.paidAt){ alert('Payment has not been received for this campaign. It cannot be scheduled yet.'); return; }
   const checked=[...document.querySelectorAll('.pl-assign-cb:checked')].map(el=>el.dataset.plid);
   c.assignedPlaylists=checked;
   const today=new Date();
@@ -1364,8 +1548,22 @@ function renderBookingConfig(){
     <div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:10px 14px;margin-bottom:24px;display:flex;align-items:flex-start;gap:8px;">
       <span style="font-size:15px;flex-shrink:0;">ℹ️</span>
       <div style="font-size:12px;color:#8a6d00;line-height:1.6;">
-        <b>Spot rates are managed per merchant type in Finance Portal.</b><br/>
-        To view or update pricing, go to Finance Portal → Billing Rule → Service Point → Locker Advertisement.
+        <b>Rates for each enabled combination below are set in Finance Portal, not here.</b><br/>
+        Locker ads are priced per locker per week, tiered by Location Type × Region × Coverage and scoped by Seller Type / Merchant Type. Finance Portal pulls the enabled combinations from this page live — only a checked cell requires a rate there. Go to Finance Portal → Billing Rule → Service Point → Locker Advertisement to set pricing.
+      </div>
+    </div>
+
+    <!-- SECTION: LOCKER ADS RATE CARD COVERAGE -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+      <div style="width:4px;height:18px;background:#ee4d2d;border-radius:1px;flex-shrink:0;"></div>
+      <span style="font-size:14px;font-weight:700;color:#222;">Locker ads rate card coverage</span>
+    </div>
+
+    <div class="frow" style="align-items:flex-start;">
+      <div class="flbl" style="padding-top:4px;">Enabled combinations</div>
+      <div class="fbody">
+        ${renderAdsMatrix()}
+        <div class="fhint">Determines which Location Type × Region × Coverage combinations sellers can book, and which cells Finance Portal requires a rate for. The Half/Full matching logic itself (≥50%/100% of matched lockers, tiebreak lowest Point ID) is fixed in the booking engine — this only controls where each already-built tier is switched on. Individual Locker pricing is a future phase and isn't a row here — it's a pick-one-specific-locker mode, not a network-coverage tier, so it'll need its own configuration when it lands.</div>
       </div>
     </div>
 
@@ -1405,6 +1603,34 @@ function renderBookingConfig(){
           <span style="font-size:13px;color:#666;">plays / locker / day</span>
         </div>
         <div class="fhint">Used to calculate estimated spots shown to sellers when booking by duration. Based on typical play frequency after accounting for locker opening hours and transactional downtime. Update periodically as delivery data becomes available.</div>
+      </div>
+    </div>
+
+    <!-- SECTION: SELLER PAYMENT -->
+    <div style="display:flex;align-items:center;gap:10px;margin:28px 0 18px;">
+      <div style="width:4px;height:18px;background:#ee4d2d;border-radius:1px;flex-shrink:0;"></div>
+      <span style="font-size:14px;font-weight:700;color:#222;">Seller payment</span>
+    </div>
+
+    <div class="frow">
+      <div class="flbl">Payment window</div>
+      <div class="fbody">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input class="finput" value="${RC.payment_window_hours}" style="width:70px;" type="number" min="1" onchange="RC.payment_window_hours=+this.value"/>
+          <span style="font-size:13px;color:#666;">hours after approval</span>
+        </div>
+        <div class="fhint">How long a seller has to pay after their campaign is approved. Campaigns not paid within this window are cancelled automatically and the seller is notified in their Shipment Portal. Ads cannot be scheduled or played until payment is received, even if the campaign period has already started.</div>
+      </div>
+    </div>
+
+    <div class="frow">
+      <div class="flbl">QR code validity</div>
+      <div class="fbody">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input class="finput" value="${RC.qr_validity_seconds}" style="width:70px;" type="number" min="1" onchange="RC.qr_validity_seconds=+this.value"/>
+          <span style="font-size:13px;color:#666;">seconds per QR</span>
+        </div>
+        <div class="fhint">How long each payment QR code stays scannable before the seller must generate a new one. Does not extend the overall payment window.</div>
       </div>
     </div>
 
