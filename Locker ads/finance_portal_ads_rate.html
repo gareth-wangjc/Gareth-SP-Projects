@@ -309,10 +309,8 @@
     padding: 8px 14px; font-size: 12px; color: #666; cursor: pointer;
     border-bottom: 2px solid transparent; font-weight: 500;
   }
-  .coverage-tab:hover:not(.disabled) { color: #333; }
+  .coverage-tab:hover { color: #333; }
   .coverage-tab.active { color: #e31837; border-bottom-color: #e31837; }
-  .coverage-tab.disabled { color: #ccc; cursor: not-allowed; }
-  .coverage-tab .soon { font-size: 10px; color: #bbb; margin-left: 4px; }
 
   /* pricing grid */
   .grid-table-wrap { border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
@@ -431,7 +429,7 @@
     <!-- ═══ LOCKER ADS tab ═══ -->
     <div id="panel-locker-ads" style="display:none;">
       <div class="filter-bar">
-        <div class="filter-group"><div class="filter-label">Version ID</div><input class="filter-input" placeholder="Please Input"/></div>
+        <div class="filter-group"><div class="filter-label">Rate ID</div><input class="filter-input" placeholder="Please Input"/></div>
         <div class="filter-group"><div class="filter-label">Seller Type</div>
           <select class="filter-select">
             <option value="">Please Select</option>
@@ -469,7 +467,7 @@
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Version ID</th>
+            <th>Rate ID</th>
             <th>Seller Type</th>
             <th>Merchant Type</th>
             <th>Regions</th>
@@ -562,11 +560,10 @@
       <!-- STEP 2 — Pricing Grid -->
       <div class="step-panel" id="panel-step-2">
         <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:6px;">Enter the weekly rate per locker (SGD) for each enabled combination below</div>
-        <div class="pulled-note" style="margin-top:0; margin-bottom:10px;"><span class="dot"></span>Regions for this Finance Portal (<span id="grid-market-label">Singapore</span>): <span id="grid-region-chips"></span> — Location Types and which combinations are enabled are also pulled from SP Portal Booking Configuration. Nothing here is editable — go to SP Portal to change what's offered.</div>
+        <div class="pulled-note" style="margin-top:0; margin-bottom:10px;"><span class="dot"></span>Regions and location types for Half / Full Network are configured from SP Portal &gt; Admin &gt; Inhouse Locker Management &gt; Locker Ads &gt; Booking Configuration.</div>
         <div class="coverage-tabs" id="coverage-tabs">
           <div class="coverage-tab active" data-coverage="half" onclick="switchCoverageTab('half')">Half Network</div>
           <div class="coverage-tab" data-coverage="full" onclick="switchCoverageTab('full')">Full Network</div>
-          <div class="coverage-tab disabled" title="Individual locker pricing lands next phase">Individual Locker <span class="soon">(next phase)</span></div>
         </div>
         <div class="grid-table-wrap">
           <table class="grid-table" id="grid-table"></table>
@@ -914,8 +911,6 @@
     });
     html += `</tbody>`;
     table.innerHTML = html;
-    document.getElementById('grid-market-label').textContent = CURRENT_MARKET_LABEL;
-    document.getElementById('grid-region-chips').innerHTML = CURRENT_REGIONS.map(r => `<span class="region-chip">${r}</span>`).join('');
   }
 
   function switchCoverageTab(tab) {

@@ -292,6 +292,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- REJECT AD MODAL -->
+<div class="modal-ov" id="modal-reject-ad">
+  <div class="modal" style="width:520px;">
+    <div class="modal-hdr"><div class="modal-title">Reject campaign</div><button class="modal-close" onclick="closeModal('reject-ad')">✕</button></div>
+    <div class="modal-body">
+      <div style="font-size:13px;font-weight:500;margin-bottom:7px;">Reason <span style="color:#ee4d2d;">*</span></div>
+      <textarea id="reject-ad-reason" class="finput" rows="4" placeholder="Describe what needs to change." style="resize:vertical;" oninput="updateRejectAdBtn()"></textarea>
+      <div id="reject-ad-hint" style="font-size:11px;color:#aaa;margin-top:4px;">Minimum 15 characters required.</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-w" onclick="closeModal('reject-ad')">Cancel</button>
+      <button class="btn-r" id="reject-ad-confirm-btn" disabled style="opacity:0.4;cursor:not-allowed;" onclick="confirmRejectAd()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- APPROVE / ASSIGN PLAYLIST MODAL -->
+<div class="modal-ov" id="modal-approve-pl">
+  <div class="modal" style="width:640px;">
+    <div class="modal-hdr"><div class="modal-title">Assign playlists</div><button class="modal-close" onclick="closeModal('approve-pl')">✕</button></div>
+    <div class="modal-body" id="approve-pl-body"></div>
+    <div class="modal-ft">
+      <button class="btn-w" onclick="closeModal('approve-pl')">Cancel</button>
+      <button class="btn-r" id="approve-pl-confirm-btn" onclick="confirmApprovePlaylist()">Approve &amp; assign</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════ DATA ══════════════
 const MARKET = {name:'Singapore', regionField:'Postal sector (derived)', regionLabel:'Region/Town'};
@@ -299,14 +327,14 @@ const MARKET = {name:'Singapore', regionField:'Postal sector (derived)', regionL
 if(!window.CAMPS) window.CAMPS=[
   {name:'SPF Advisory',     type:'int',buyer:'SPX Internal',   company:'SPX',         ref:'SGAD000001',
    start:1,end:30,startDate:'2026-04-01',endDate:'2026-04-30',order:1,status:'Live',creative:'spf_advisory.jpg',
-   spotsBased:false,bookedLocTypes:['HDB Residential','MRT Stations'],bookedRegions:['North','East','Central','West','North East'],
+   spotsBased:false,bookedLocTypes:['HDB Residential','MRT Stations'],bookedRegions:['CCR','RCR','OCR'],
    approvedDate:'2026-04-01 09:00:00',paidAt:'2026-04-01 09:00:00',assignedPlaylists:['pl-1','pl-2'], reviewLog:[
     {date:'01 Apr 2026, 09:00', event:'Scheduled', by:'system'},
     {date:'01 Apr 2026, 09:00', event:'Live', by:'system'},
   ]},
   {name:'Lazada Returns',   type:'ext',buyer:'Priya Nair',      company:'Lazada SG',   ref:'SGAD000398',
    start:6,end:30,startDate:'2026-04-06',endDate:'2026-04-30',order:2,status:'Live',creative:'lazada_returns_v2.jpg',
-   spotsBased:false,bookedLocTypes:['MRT Stations','HDB Residential'],bookedRegions:['East','Central'],
+   spotsBased:false,bookedLocTypes:['MRT Stations','HDB Residential'],bookedRegions:['CCR','RCR','OCR'],
    approvedDate:'2026-04-05 14:22:11',paidAt:'2026-04-05 16:40:00',assignedPlaylists:['pl-1'], reviewLog:[
     {date:'04 Apr 2026, 10:15', event:'Pending review', by:'seller'},
     {date:'05 Apr 2026, 14:22', event:'Approved', by:'spx'},
@@ -315,7 +343,7 @@ if(!window.CAMPS) window.CAMPS=[
   ]},
   {name:'Senoko Energy',    type:'ext',buyer:'K. Lim',           company:'Senoko Energy',ref:'SGAD000380',
    start:10,end:28,startDate:'2026-04-10',endDate:'2026-04-28',order:3,status:'Live',creative:'senoko_livesmart.jpg',
-   spotsBased:true,spotsBooked:6000,bookedLocTypes:['HDB Residential'],bookedRegions:['North','North East'],
+   spotsBased:true,spotsBooked:6000,bookedLocTypes:['HDB Residential'],bookedRegions:['OCR'],
    approvedDate:'2026-04-09 11:05:44',paidAt:'2026-04-09 15:12:00',assignedPlaylists:['pl-1'], reviewLog:[
     {date:'05 Apr 2026, 11:20', event:'Pending review', by:'seller'},
     {date:'07 Apr 2026, 14:30', event:'Rejected', by:'spx', note:'Banner text is too small and does not meet minimum readability standards. Please increase font size and ensure key message is legible at 2m distance.', archivedCreative:'senoko_v1.jpg'},
@@ -326,7 +354,7 @@ if(!window.CAMPS) window.CAMPS=[
   ]},
   {name:'SPX Brand May',    type:'int',buyer:'SPX Internal',     company:'SPX',         ref:'SGAD000002',
    start:22,end:30,startDate:'2026-04-22',endDate:'2026-05-31',order:4,status:'Scheduled',creative:'spx_brand_may.jpg',
-   spotsBased:false,bookedLocTypes:['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs','Condominiums','Offices'],bookedRegions:['North','North East','East','Central','West'],
+   spotsBased:false,bookedLocTypes:['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs','Condominiums','Offices'],bookedRegions:['CCR','RCR','OCR'],
    approvedDate:'2026-04-18 10:00:00',assignedPlaylists:['pl-1','pl-2'], reviewLog:[
     {date:'18 Apr 2026, 10:00', event:'Scheduled', by:'system'},
   ]},
@@ -335,7 +363,7 @@ if(!window.CAMPS) window.CAMPS=[
    reviewLog:[
     {date:'18 Apr 2026, 14:30', event:'Pending review', by:'seller'},
    ],
-   spotsBased:true,spotsBooked:9000,bookedLocTypes:['MRT Stations','Shopping Malls'],bookedRegions:['Central','East','West'],
+   spotsBased:true,spotsBooked:9000,bookedLocTypes:['MRT Stations','Shopping Malls'],bookedRegions:['CCR','RCR','OCR'],
    approvedDate:null,assignedPlaylists:[]},
   // Pending review — not yet approved or assigned
   {name:'FairPrice Q2',     type:'ext',buyer:'Maya Tan',         company:'FairPrice Group',ref:'SGAD000441',
@@ -344,12 +372,12 @@ if(!window.CAMPS) window.CAMPS=[
     {date:'19 Apr 2026, 09:15', event:'Pending review', by:'seller'},
     {date:'20 Apr 2026, 11:30', event:'Approved', by:'spx'},
    ],
-   spotsBased:false,bookedLocTypes:['HDB Residential','Shopping Malls'],bookedRegions:['North','East','West','Central','North East'],
+   spotsBased:false,bookedLocTypes:['HDB Residential','Shopping Malls'],bookedRegions:['CCR','RCR','OCR'],
    approvedDate:'2026-04-20 11:30:00',paidAt:'2026-04-20 14:05:00',assignedPlaylists:[]},
   // Awaiting seller payment — approved, but not yet paid; cannot be scheduled until paidAt is set
   {name:'Mid-Year Flash Sale',type:'ext',buyer:'K. Lim',company:'NSS Logistics Co.',ref:'SGAD000162',
    start:1,end:31,startDate:'2026-07-01',endDate:'2026-07-31',order:7,status:'Scheduled',creative:'midyear_flash.jpg',
-   spotsBased:true,spotsBooked:4500,bookedLocTypes:['MRT Stations','HDB Residential'],bookedRegions:['Island-wide'],
+   spotsBased:true,spotsBooked:4500,bookedLocTypes:['MRT Stations','HDB Residential'],bookedRegions:['CCR','RCR','OCR'],
    approvedDate:fmtTs(new Date()),paidAt:null,amountDue:'SGD 675.00',
    paymentDueAt:new Date(Date.now()+19*3600*1000).toISOString(),assignedPlaylists:[],reviewLog:[
     {date:fmtTs(new Date()), event:'Pending review', by:'seller'},
@@ -365,7 +393,7 @@ if(!window.CANCELLED) window.CANCELLED=[
   // Auto-cancelled — seller did not pay within the payment window
   {name:'Weekend Promo — June',type:'ext',buyer:'K. Lim',company:'NSS Logistics Co.',ref:'SGAD000149',
    start:1,end:7,startDate:'2026-06-05',endDate:'2026-06-12',order:0,status:'Cancelled',creative:'weekend_promo.jpg',
-   spotsBased:false,bookedLocTypes:['HDB Residential'],bookedRegions:['Island-wide'],
+   spotsBased:false,bookedLocTypes:['HDB Residential'],bookedRegions:['CCR','RCR','OCR'],
    approvedDate:'2026-06-04 09:00:00',paidAt:null,amountDue:'SGD 450.00',
    paymentDueAt:new Date(Date.now()-30*3600*1000).toISOString(),assignedPlaylists:[],
    cancelReason:'Payment not received within the payment window.',reviewLog:[
@@ -379,25 +407,24 @@ if(!window.CANCELLED) window.CANCELLED=[
 // Lockers — each has one assigned playlist (one-to-one)
 // Each locker has: locType (dropdown), tags (free-text keywords), confirmedPlaylistId (explicit assignment)
 if(!window.LOCKERS) window.LOCKERS=[
-  {id:'SG-0101',name:'Tampines MRT',          locType:'MRT Stations',     region:'East',       confirmedPlaylistId:'pl-1'},
-  {id:'SG-0102',name:'Bishan MRT',            locType:'MRT Stations',     region:'Central',    confirmedPlaylistId:'pl-1'},
-  {id:'SG-0103',name:'Woodlands MRT',         locType:'MRT Stations',     region:'North',      confirmedPlaylistId:'pl-1'},
-  {id:'SG-0201',name:'Blk 412A Yishun',       locType:'HDB Residential',  region:'North',      confirmedPlaylistId:'pl-1'},
-  {id:'SG-0202',name:'Blk 216 Bukit Batok',   locType:'HDB Residential',  region:'West',       confirmedPlaylistId:'pl-1'},
-  {id:'SG-0203',name:'Blk 103 Hougang',       locType:'HDB Residential',  region:'North East', confirmedPlaylistId:'pl-1'},
-  {id:'SG-0301',name:'Northwave Condo',        locType:'Condominiums',     region:'North',      confirmedPlaylistId:'pl-2'},
-  {id:'SG-0302',name:'The Sail @ Marina Bay',  locType:'Condominiums',     region:'Central',    confirmedPlaylistId:'pl-2'},
-  {id:'SG-0401',name:'Asia Square Tower 1',    locType:'Offices',          region:'Central',    confirmedPlaylistId:'pl-2'},
-  {id:'SG-0402',name:'Mapletree Business City',locType:'Offices',          region:'West',       confirmedPlaylistId:'pl-2'},
-  {id:'SG-0501',name:'Canberra Plaza',         locType:'Shopping Malls',   region:'North',      confirmedPlaylistId:'pl-1'},
-  {id:'SG-0502',name:'Our Tampines Hub',       locType:'Community Clubs',  region:'East',       confirmedPlaylistId:'pl-1'},
-  {id:'SG-0503',name:'Bishan Bus Interchange', locType:'Bus Interchanges', region:'Central',    confirmedPlaylistId:'pl-1'},
-  {id:'SG-0601',name:'Khatib MRT',             locType:'MRT Stations',     region:'North',      confirmedPlaylistId:null},
-  {id:'SG-0602',name:'Yishun Community Club',  locType:'Community Clubs',  region:'North',      confirmedPlaylistId:null},
+  {id:'SG-0101',name:'Tampines MRT',          locType:'MRT Stations',     region:'OCR',        confirmedPlaylistId:'pl-1'},
+  {id:'SG-0102',name:'Bishan MRT',            locType:'MRT Stations',     region:'RCR',        confirmedPlaylistId:'pl-1'},
+  {id:'SG-0103',name:'Woodlands MRT',         locType:'MRT Stations',     region:'OCR',        confirmedPlaylistId:'pl-1'},
+  {id:'SG-0201',name:'Blk 412A Yishun',       locType:'HDB Residential',  region:'OCR',        confirmedPlaylistId:'pl-1'},
+  {id:'SG-0202',name:'Blk 216 Bukit Batok',   locType:'HDB Residential',  region:'OCR',        confirmedPlaylistId:'pl-1'},
+  {id:'SG-0203',name:'Blk 103 Hougang',       locType:'HDB Residential',  region:'OCR',        confirmedPlaylistId:'pl-1'},
+  {id:'SG-0301',name:'Northwave Condo',        locType:'Condominiums',     region:'OCR',        confirmedPlaylistId:'pl-2'},
+  {id:'SG-0302',name:'The Sail @ Marina Bay',  locType:'Condominiums',     region:'CCR',        confirmedPlaylistId:'pl-2'},
+  {id:'SG-0401',name:'Asia Square Tower 1',    locType:'Offices',          region:'CCR',        confirmedPlaylistId:'pl-2'},
+  {id:'SG-0402',name:'Mapletree Business City',locType:'Offices',          region:'OCR',        confirmedPlaylistId:'pl-2'},
+  {id:'SG-0501',name:'Canberra Plaza',         locType:'Shopping Malls',   region:'OCR',        confirmedPlaylistId:'pl-1'},
+  {id:'SG-0502',name:'Our Tampines Hub',       locType:'Community Clubs',  region:'OCR',        confirmedPlaylistId:'pl-1'},
+  {id:'SG-0503',name:'Bishan Bus Interchange', locType:'Bus Interchanges', region:'RCR',        confirmedPlaylistId:'pl-1'},
+  {id:'SG-0601',name:'Khatib MRT',             locType:'MRT Stations',     region:'OCR',        confirmedPlaylistId:null},
+  {id:'SG-0602',name:'Yishun Community Club',  locType:'Community Clubs',  region:'OCR',        confirmedPlaylistId:null},
 ]
 // LOCKER_CONFLICTS: lockers flagged due to tag changes that suggest a different playlist
 if(!window.LOCKER_CONFLICTS) window.LOCKER_CONFLICTS=[];
-if(!window.REGIONS) window.REGIONS=['North','North East','East','Central','West','South'];
 
 // Location Types are master data — the same reference list Point List uses
 // (see e.g. its "Location Types" field). Ads config never adds/removes one;
@@ -405,18 +432,14 @@ if(!window.REGIONS) window.REGIONS=['North','North East','East','Central','West'
 const ALL_LOC_TYPES=['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs','Condominiums','Offices'];
 
 // ── LOCKER ADS RATE CARD COVERAGE (Booking Configuration) ──
-// Regions here are a separate, ads-specific list (CCR/RCR/OCR per the exec
-// deck), not the general locker network's compass Region field above — ads
-// pricing regions genuinely differ from playlist-targeting regions. Location
-// Types, unlike Regions, reuse ALL_LOC_TYPES directly (no separate ads-only
-// list) since that master list already lives elsewhere and shouldn't be
-// duplicated or edited from this screen.
+// Regions (CCR/RCR/OCR) are the single region taxonomy used everywhere in
+// this file — locker.region, playlist targeting, campaign booking, and this
+// ads matrix. Location Types, unlike Regions, reuse ALL_LOC_TYPES directly
+// (no separate ads-only list) since that master list already lives elsewhere
+// and shouldn't be duplicated or edited from this screen.
 // Finance Portal's rate grid pulls ADS_REGIONS / ALL_LOC_TYPES / the matrix
 // below live from here — it never hardcodes them.
 if(!window.ADS_REGIONS) window.ADS_REGIONS=['CCR','RCR','OCR'];
-// Half/Full are the only coverage tiers today. Individual Locker is a future
-// phase and deliberately NOT in this list — it isn't a %-of-lockers tier, it's
-// a pick-one-specific-locker mode, so it can't be "just another row" here.
 if(!window.ADS_COVERAGE) window.ADS_COVERAGE=['half','full'];
 const ADS_COVERAGE_LABELS={half:'Half Network', full:'Full Network'};
 // ADS_MATRIX[coverage][locationType][region] = true/false — whether that
@@ -438,7 +461,7 @@ function buildDefaultAdsMatrix(){
 if(!window.ADS_MATRIX) window.ADS_MATRIX=buildDefaultAdsMatrix();
 
 function addAdsRegion(){
-  const name=(prompt('New region name (e.g. North)')||'').trim(); if(!name) return;
+  const name=(prompt('New region code (e.g. WCR)')||'').trim(); if(!name) return;
   if(window.ADS_REGIONS.includes(name)){alert('Region already exists');return;}
   window.ADS_REGIONS.push(name);
   window.ADS_COVERAGE.forEach(cov=>ALL_LOC_TYPES.forEach(lt=>{ window.ADS_MATRIX[cov][lt][name]=false; }));
@@ -456,10 +479,18 @@ function toggleAdsCell(cov,lt,r){
 }
 function switchAdsCovTab(cov){ window._adsCovTab=cov; renderTab(); }
 
+// A Location Type with no checked cell in any region, in either coverage
+// tier, is not bookable by sellers at all — those lockers run internal SPX
+// ads only. This replaces the old standalone "Seller-selectable location
+// types" toggle, which duplicated this same fact at a coarser grain and
+// could drift out of sync with the matrix.
+function isLocTypeInternalOnly(lt){
+  return window.ADS_COVERAGE.every(cov=>window.ADS_REGIONS.every(r=>!window.ADS_MATRIX[cov][lt][r]));
+}
+
 function renderAdsMatrix(){
   const cov=window._adsCovTab||'half';
-  const tabsHTML=window.ADS_COVERAGE.map(c=>`<div data-ads-cov-tab="${c}" onclick="switchAdsCovTab('${c}')" style="padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid ${cov===c?'#ee4d2d':'transparent'};color:${cov===c?'#ee4d2d':'#666'};">${ADS_COVERAGE_LABELS[c]}</div>`).join('')
-    +`<div style="padding:7px 14px;font-size:12px;color:#ccc;cursor:not-allowed;" title="Individual locker pricing lands next phase">Individual Locker <span style="font-size:10px;">(next phase)</span></div>`;
+  const tabsHTML=window.ADS_COVERAGE.map(c=>`<div data-ads-cov-tab="${c}" onclick="switchAdsCovTab('${c}')" style="padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid ${cov===c?'#ee4d2d':'transparent'};color:${cov===c?'#ee4d2d':'#666'};">${ADS_COVERAGE_LABELS[c]}</div>`).join('');
 
   // "+" add-region affordance sits at the end of the column headers, not as
   // a separate button below the table — reads as "add a column here".
@@ -473,7 +504,7 @@ function renderAdsMatrix(){
   </div>`;
 
   const rows=ALL_LOC_TYPES.map(lt=>`<div style="display:flex;border-bottom:1px solid #f5f5f5;align-items:center;">
-    <div style="width:110px;flex-shrink:0;padding:7px 10px;font-size:12px;font-weight:500;">${lt}</div>
+    <div style="width:110px;flex-shrink:0;padding:7px 10px;font-size:12px;font-weight:500;">${lt}${isLocTypeInternalOnly(lt)?'<div style="font-size:10px;font-weight:400;color:#aaa;margin-top:1px;">Internal ads only</div>':''}</div>
     ${window.ADS_REGIONS.map(r=>`<div style="flex:1;text-align:center;padding:7px 6px;"><input type="checkbox" id="ads-cell-${cov}-${lt}-${r}" style="accent-color:#ee4d2d;width:14px;height:14px;cursor:pointer;" ${window.ADS_MATRIX[cov][lt][r]?'checked':''} onchange="toggleAdsCell('${cov}','${lt}','${r}')"/></div>`).join('')}
     <div style="width:${addColW}px;flex-shrink:0;border-left:1px dashed #e0e0e0;"></div>
   </div>`).join('');
@@ -489,11 +520,11 @@ if(!window.PLAYLISTS) window.PLAYLISTS=[
   {id:'pl-1',name:'Playlist 1',slug:'playlist-1',desc:'Runs all approved seller campaigns and internal ads.',
    rules:{ext:true,int:true},
    locTypes:['HDB Residential','MRT Stations','Shopping Malls','Bus Interchanges','Community Clubs'],
-   regions:['North','North East','East','Central','West']},
+   regions:['CCR','RCR','OCR']},
   {id:'pl-2',name:'Playlist 2',slug:'playlist-2',desc:'Runs internal SPX ads only. No seller campaigns.',
    rules:{ext:false,int:true},
    locTypes:['Condominiums','Offices'],
-   regions:['North','North East','East','Central','West']},
+   regions:['CCR','RCR','OCR']},
 ];
 // Derive suggested playlists for a campaign booking
 function suggestPlaylists(bookedLocTypes, bookedRegions){
@@ -507,7 +538,21 @@ function plSlug(name){ return name.toLowerCase().replace(/[^a-z0-9]+/g,'-').repl
 function plBySlug(slug){ return window.PLAYLISTS.find(p=>p.slug===slug||p.id===slug); }
 
 // ── SELLER PAYMENT HELPERS ──
-function isAwaitingPayment(c){ return c.type!=='int' && !!c.approvedDate && !c.paidAt && !c.rejected && c.status!=='Cancelled'; }
+function isAwaitingPayment(c){ return c.type!=='int' && !!c.approvedDate && (c.assignedPlaylists||[]).length>0 && !c.paidAt && !c.rejected && c.status!=='Cancelled'; }
+// How many seller (external) ads are currently in rotation on this specific locker screen —
+// used to enforce RC.max_seller_ads_per_locker. A playlist can span several location types/regions,
+// so the real crowding on any one screen depends on which campaigns actually target that locker,
+// not on the playlist's total assigned-campaign count.
+function countActiveSellerAdsOnLocker(locker, excludeRef){
+  return window.CAMPS.filter(c=>
+    c.ref!==excludeRef &&
+    c.type!=='int' &&
+    (c.status==='Live'||c.status==='Scheduled') &&
+    (c.assignedPlaylists||[]).includes(locker.confirmedPlaylistId) &&
+    (c.bookedLocTypes||[]).includes(locker.locType) &&
+    (c.bookedRegions||[]).includes(locker.region)
+  ).length;
+}
 function isPaymentOverdue(c){ return isAwaitingPayment(c) && c.paymentDueAt && new Date(c.paymentDueAt) < new Date(); }
 function fmtTs(d){ return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
 function fmtDueIn(c){
@@ -540,12 +585,14 @@ function sweepUnpaidCampaigns(){
   return changed;
 }
 // Shared status derivation — single source of truth for the ad-management list, filters, and the ad detail panel.
+// Playlist assignment always happens right after approval, before payment: "Approved" means
+// not yet assigned to a playlist; "Pending payment" means assigned but the seller hasn't paid yet.
 function adStatus(c){
   if(c.rejected) return {label:'Rejected',cls:'pr'};
   if(c.status==='Cancelled') return {label:'Cancelled',cls:'pr'};
   if(!c.approvedDate) return {label:'Pending review',cls:'po'};
-  if(isAwaitingPayment(c)) return {label:'Pending payment',cls:'pp'};
   if((c.assignedPlaylists||[]).length===0) return {label:'Approved',cls:'pb'};
+  if(isAwaitingPayment(c)) return {label:'Pending payment',cls:'pp'};
   if(c.status==='Live') return {label:'Live',cls:'pg'};
   if(c.status==='Scheduled') return {label:'Scheduled',cls:'pb'};
   return {label:'Completed',cls:'pk'};
@@ -576,27 +623,12 @@ const RC={
   price_per_spot: 0.00003,   // SGD per spot (e.g. 0.00003 = SGD 3 per 100,000 spots)
   cycle_interval: 10,        // seconds per ad slot
   inactivity_timeout: 30,    // seconds of locker inactivity before showing ad
-  est_daily_plays: 200,      // estimated ad plays per locker per day (used for duration campaign estimates shown to sellers)
+  max_seller_ads_per_locker: 5, // cap on seller/external ads in rotation on any single locker screen
   payment_window_hours: 24, // hours after approval the seller has to pay before auto-cancellation
-  qr_validity_seconds: 180, // how long each generated payment QR stays valid before the seller must refresh it
-  tiers:[
-    {name:'Starter',  spots:150000},
-    {name:'Standard', spots:300000},
-    {name:'Premium',  spots:600000},
-  ],
   discounts:[
     {weeks:4, pct:5},
     {weeks:8, pct:10},
   ],
-  locTypeOptions:{
-    'HDB Residential':true,
-    'MRT Stations':true,
-    'Shopping Malls':true,
-    'Bus Interchanges':true,
-    'Community Clubs':true,
-    'Condominiums':false,
-    'Offices':false,
-  },
 }
 
 function getOrdered(plId){
@@ -965,7 +997,7 @@ function renderLockerCoverage(){
       <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Locker ID</span><input class="fi" placeholder="e.g. SG-01" style="width:100px;" value="${f.id}" oninput="window._covFilter.id=this.value"/></div>
       <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Locker name</span><input class="fi" placeholder="Search name" style="width:130px;" value="${f.name}" oninput="window._covFilter.name=this.value"/></div>
       <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;">Location type</span><select class="fi" onchange="window._covFilter.locType=this.value"><option value="">All</option>${[...new Set(window.LOCKERS.map(l=>l.locType))].map(t=>`<option ${f.locType===t?'selected':''}>${t}</option>`).join('')}</select></div>
-      <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;">Region</span><select class="fi" onchange="window._covFilter.region=this.value"><option value="">All</option>${window.REGIONS.map(r=>`<option ${f.region===r?'selected':''}>${r}</option>`).join('')}</select></div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;">Region</span><select class="fi" onchange="window._covFilter.region=this.value"><option value="">All</option>${window.ADS_REGIONS.map(r=>`<option ${f.region===r?'selected':''}>${r}</option>`).join('')}</select></div>
       <div style="display:flex;align-items:center;gap:5px;font-size:12px;"><span style="color:#555;white-space:nowrap;">Assigned playlist</span><select class="fi" onchange="window._covFilter.playlist=this.value"><option value="">All</option>${window.PLAYLISTS.map(p=>`<option ${f.playlist===p.name?'selected':''}>${p.name}</option>`).join('')}<option ${f.playlist==='Unassigned'?'selected':''}>Unassigned</option></select></div>
     </div>
     <div style="display:flex;gap:7px;"><button class="btn-r" style="padding:5px 14px;font-size:12px;" onclick="renderTab()">Search</button><button class="btn-w" style="padding:5px 12px;font-size:12px;" onclick="window._covFilter={id:'',name:'',locType:'',region:'',playlist:''};renderTab()">Reset</button></div>
@@ -1146,7 +1178,7 @@ function filterAssignOpts(query, lockerId){
   container.innerHTML=window.PLAYLISTS.filter(p=>!q||p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)||p.slug.includes(q)).map(p=>`<div onclick="window._overridePl='${p.id}';document.querySelectorAll('.assign-opt').forEach(el=>{el.style.borderColor='#e8e8e8';el.style.background='#fff';});this.style.borderColor='#ee4d2d';this.style.background='#fef5f5';" class="assign-opt" style="border:1px solid ${l&&l.confirmedPlaylistId===p.id?'#ee4d2d':'#e8e8e8'};border-radius:3px;padding:11px 13px;margin-bottom:7px;cursor:pointer;background:${l&&l.confirmedPlaylistId===p.id?'#fef5f5':'#fff'};">
     <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;"><div style="font-size:13px;font-weight:500;">${p.name}</div>${l&&l.confirmedPlaylistId===p.id?'<span style="font-size:11px;color:#ee4d2d;">Current</span>':''}</div>
     <div style="font-size:12px;color:#888;margin-bottom:5px;">${p.desc}</div>
-    <div style="display:flex;gap:5px;">${p.rules.int?`<span style="border:1px solid #ee4d2d;border-radius:3px;padding:2px 7px;font-size:11px;color:#ee4d2d;background:#fff;">Internal ads</span>`:''} ${p.rules.ext?`<span style="border:1px solid #ee4d2d;border-radius:3px;padding:2px 7px;font-size:11px;color:#ee4d2d;background:#fff;">Seller ads</span>`:''}<span style="font-size:11px;color:#aaa;margin-left:auto;">${plLockers(p.id).length} lockers</span></div>
+    <div style="display:flex;gap:5px;">${p.rules.int?`<span style="border:1px solid #ee4d2d;border-radius:3px;padding:2px 7px;font-size:11px;color:#ee4d2d;background:#fff;">Internal ads</span>`:''} ${p.rules.ext?`<span style="border:1px solid #ee4d2d;border-radius:3px;padding:2px 7px;font-size:11px;color:#ee4d2d;background:#fff;">External ads</span>`:''}<span style="font-size:11px;color:#aaa;margin-left:auto;">${plLockers(p.id).length} lockers</span></div>
   </div>`).join('')||'<div style="font-size:12px;color:#aaa;padding:10px 0;">No playlists match.</div>';
 }
 
@@ -1300,7 +1332,7 @@ function renderReview(){
             <td style="font-size:12px;color:#888;white-space:nowrap;">${period}</td>
             <td><div style="display:flex;flex-wrap:wrap;gap:3px;">${plNames.length?plNames.map(n=>`<span style="background:#f5f5f5;border:1px solid #e8e8e8;border-radius:2px;padding:1px 6px;font-size:11px;color:#555;">${n}</span>`).join(''):'<span style="font-size:12px;color:#aaa;">—</span>'}</div></td>
             <td style="font-size:12px;color:#555;">${st.label}</td>
-            <td>${!isCancelled&&isPending?`<button class="btn-sm-r" style="font-size:11px;padding:2px 8px;" onclick="openAdPanel('${c.ref}')">Review</button>`:`<span style="color:#1890ff;cursor:pointer;font-size:13px;" onclick="openAdPanel('${c.ref}')">View</span>`}</td>
+            <td>${!isCancelled&&isPending?`<button class="btn-sm-r" style="font-size:11px;padding:2px 8px;" onclick="openAdReviewPage('${c.ref}')">Review</button>`:`<span style="color:#1890ff;cursor:pointer;font-size:13px;" onclick="openAdPanel('${c.ref}')">View</span>`}</td>
           </tr>`;
         }).join('')}
         ${filtered.length===0?`<tr><td colspan="9" style="text-align:center;color:#aaa;padding:20px;">No ads match this filter.</td></tr>`:''}
@@ -1317,8 +1349,10 @@ function openAdPanel(ref){
   const st=adStatus(c);
   window._campLockersExpanded=false;
   const isCancelled = c.status === 'Cancelled';
-  const isAwaitingPay = !!c.approvedDate && !c.paidAt && !c.rejected && !isCancelled;
-  const isApproved = !!c.approvedDate && !!c.paidAt && (c.assignedPlaylists||[]).length === 0 && !c.rejected;
+  // Playlist assignment always happens right after approval, before payment —
+  // "Approved" = not yet assigned to a playlist; "Awaiting payment" = assigned but unpaid.
+  const isApproved = !!c.approvedDate && (c.assignedPlaylists||[]).length === 0 && !c.rejected && !isCancelled;
+  const isAwaitingPay = !!c.approvedDate && !c.paidAt && !c.rejected && !isCancelled && (c.assignedPlaylists||[]).length > 0;
   const isPending = !c.approvedDate && !c.rejected;
   const canCancel = !isCancelled && !c.rejected && (c.status==='Live'||c.status==='Scheduled') && (c.assignedPlaylists||[]).length>0;
   const showCreativeStep = !isCancelled && (isPending || _panelForcedBack);
@@ -1389,19 +1423,24 @@ function openAdPanel(ref){
     if(eligiblePls.length===0){
       body += '<div style="font-size:12px;color:#aaa;">No eligible playlists for this ad type.</div>';
     } else {
+      let capacityExcluded=0;
       eligiblePls.forEach(p=>{
         const isAssigned=c.assignedPlaylists.includes(p.id);
         const isSuggested=suggestedIds.has(p.id);
         const isChecked=isAssigned||isSuggested;
         const totalLockers=window.LOCKERS.filter(l=>l.confirmedPlaylistId===p.id).length;
-        const matchingLockers=window.LOCKERS.filter(l=>
+        const matchingLockerObjs=window.LOCKERS.filter(l=>
           l.confirmedPlaylistId===p.id &&
           (c.bookedLocTypes||[]).includes(l.locType) &&
           (c.bookedRegions||[]).includes(l.region)
-        ).length;
+        );
+        const matchingLockers=matchingLockerObjs.length;
         if(matchingLockers===0) return;
-        const matchColor=matchingLockers?'#389e0d':'#d46b08';
-        const matchNote=matchingLockers+' of '+totalLockers+' locker'+(totalLockers!==1?'s':'')+' match your booking'+(matchingLockers===0?' — no overlap':' · plays on matched lockers only');
+        const overCapLockers=isAssigned?[]:matchingLockerObjs.filter(l=>countActiveSellerAdsOnLocker(l,c.ref)>=RC.max_seller_ads_per_locker);
+        if(overCapLockers.length>0 && overCapLockers.length===matchingLockers){ capacityExcluded++; return; }
+        const matchColor=overCapLockers.length>0?'#d46b08':'#389e0d';
+        const matchNote=matchingLockers+' of '+totalLockers+' locker'+(totalLockers!==1?'s':'')+' match your booking'+(matchingLockers===0?' — no overlap':' · plays on matched lockers only')
+          +(overCapLockers.length>0?' · seller-ad cap reached at '+overCapLockers.length+' of '+matchingLockers+' matching locker'+(matchingLockers!==1?'s':''):'');
         const locTypesHtml=(p.locTypes||[]).map(t=>'<div style="margin-bottom:2px;">'+t+'</div>').join('');
         const regionsHtml=(p.regions||[]).map(r=>'<div style="margin-bottom:2px;">'+r+'</div>').join('');
         body += '<div style="border:1px solid #e8e8e8;border-radius:3px;margin-bottom:6px;background:#fff;overflow:hidden;">'
@@ -1421,6 +1460,9 @@ function openAdPanel(ref){
               + '</div></div>'
               + '</div>';
       });
+      if(capacityExcluded>0){
+        body += '<div style="font-size:11px;color:#d46b08;margin-top:4px;">'+capacityExcluded+' playlist'+(capacityExcluded!==1?'s':'')+' hidden — every matching locker is already at the seller-ad cap ('+RC.max_seller_ads_per_locker+' per locker, set in Booking Configuration).</div>';
+      }
     }
   }
 
@@ -1447,20 +1489,220 @@ function openAdPanel(ref){
   openPanel();
 }
 
+// ── AD REVIEW PAGE (full page — pending review only) ────────────────
+function openAdReviewPage(ref){
+  document.getElementById('tab-content').innerHTML = renderAdReviewPage(ref);
+}
+function closeAdReviewPage(){
+  renderTab();
+}
+function renderAdReviewPage(ref){
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return '';
+  window._campLockersExpanded=false;
+
+  // AI screening
+  let aiHtml='';
+  window.AI_CRITERIA.filter(x=>x.enabled).forEach((cr,i)=>{
+    const flagged=i===2;
+    aiHtml += '<div class="ai-check'+(flagged?' flagged':'')+'"><div class="ai-row">'
+          + '<span style="font-size:12px;font-weight:500;">'+cr.label+'</span>'
+          + '<span style="font-size:11px;color:'+(flagged?'#cf1322':'#389e0d')+';font-weight:500;">'+(flagged?'Flagged · 62%':'Pass · 96%')+'</span>'
+          + '</div>'
+          + (flagged?'<div style="font-size:11px;color:#888;margin-bottom:3px;">Possible competitor brand logo (bottom-right).</div>':'')
+          + '<div class="ai-bar"><div class="ai-bar-fill" style="width:'+(flagged?62:96)+'%;background:'+(flagged?'#cf1322':'#52c41a')+';">'
+          + '</div></div></div>';
+  });
+
+  const adPlNames=(c.assignedPlaylists||[]).map(id=>window.PLAYLISTS.find(p=>p.id===id)?.name||id);
+  const fieldsHtml='<table class="kv" style="margin-top:16px;">'
+        + '<tr><td>Company</td><td>'+c.company+'</td></tr>'
+        + '<tr><td>Uploaded by</td><td>'+c.buyer+'</td></tr>'
+        + '<tr><td>Review date</td><td>'+(c.approvedDate||'—')+'</td></tr>'
+        + '<tr><td>Campaign period</td><td>'+(c.startDate||'—')+' to '+(c.endDate||'—')+(c.spotsBased?' · ~'+(c.spotsBooked||0).toLocaleString()+' spots (est. end)':'')+'</td></tr>'
+        + '<tr><td>Lockers</td><td id="camp-locker-cell">'+buildLockerCellContent(c)+'</td></tr>'
+        + '<tr><td>Playlists</td><td>'+(adPlNames.length?adPlNames.join(', '):'—')+'</td></tr>'
+        + '<tr><td>Status</td><td>'+adStatus(c).label+'</td></tr>'
+        + '<tr><td>Ad type</td><td>'+(c.type==='int'?'Internal (SPX)':'Seller campaign')+'</td></tr>'
+        + '</table>';
+
+  return '<div style="background:#fff;min-height:100%;display:flex;flex-direction:column;">'
+    + '<div class="bc" style="padding:10px 20px 0;">'
+    + '<a onclick="closeAdReviewPage()">Inhouse Locker Management</a><span class="sep">›</span>'
+    + '<a onclick="closeAdReviewPage()">Locker Ads</a><span class="sep">›</span>'
+    + '<span class="cur">Campaign details</span>'
+    + '</div>'
+    + '<div style="padding:14px 20px 4px;">'
+    + '<div style="font-size:18px;font-weight:600;">'+c.name+'</div>'
+    + '<div style="font-size:12px;color:#aaa;margin-top:2px;">'+c.ref+'</div>'
+    + '</div>'
+    + '<div style="flex:1;display:flex;gap:20px;padding:14px 20px 90px;align-items:flex-start;">'
+    + '<div style="flex:1;min-width:0;">'
+    + '<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">'
+    + '<div style="flex:1;min-width:260px;">'
+    + '<div style="font-size:12px;color:#888;margin-bottom:6px;">Creative</div>'
+    + '<div style="background:#f0f0f0;border-radius:3px;height:320px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;">'
+    + '<div style="text-align:center;"><div style="font-size:30px;margin-bottom:6px;">🖼️</div>['+(c.creative||'no creative')+']<div style="font-size:11px;margin-top:3px;">1080×1720 px</div></div>'
+    + '</div></div>'
+    + '<div style="flex:1;min-width:240px;">'
+    + '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:7px;">AI screening</div>'
+    + aiHtml
+    + '</div>'
+    + '</div>'
+    + fieldsHtml
+    + '</div>'
+    + '<div style="width:300px;flex-shrink:0;background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:14px;">'
+    + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">'
+    + '<div style="width:3px;height:14px;background:#ee4d2d;border-radius:1px;"></div>'
+    + '<span style="font-size:13px;font-weight:600;color:#ee4d2d;">Ad tracking history</span>'
+    + '</div>'
+    + renderReviewLog(c.reviewLog, false, c.buyer, true)
+    + '</div>'
+    + '</div>'
+    + '<div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e8e8e8;padding:11px 20px;display:flex;gap:8px;justify-content:flex-end;">'
+    + '<button class="btn-sm" onclick="closeAdReviewPage()">Close</button>'
+    + '<button class="btn-sm-d" onclick="openRejectAdModal(\''+c.ref+'\')">Reject</button>'
+    + '<button class="btn-sm-r" onclick="openApprovePlaylistModal(\''+c.ref+'\')">Approve</button>'
+    + '</div>'
+    + '</div>';
+}
+
+let _rejectAdRef=null;
+function openRejectAdModal(ref){
+  _rejectAdRef=ref;
+  document.getElementById('reject-ad-reason').value='';
+  updateRejectAdBtn();
+  openModal('reject-ad');
+}
+function updateRejectAdBtn(){
+  const val=document.getElementById('reject-ad-reason')?.value||'';
+  const btn=document.getElementById('reject-ad-confirm-btn');
+  const hint=document.getElementById('reject-ad-hint');
+  if(!btn) return;
+  const ready=val.trim().length>=15;
+  btn.disabled=!ready; btn.style.opacity=ready?'1':'0.4'; btn.style.cursor=ready?'pointer':'not-allowed';
+  const rem=Math.max(0,15-val.trim().length);
+  hint.textContent=rem>0?(rem+' more character'+(rem!==1?'s':'')+' needed'):'';
+}
+function confirmRejectAd(){
+  const ref=_rejectAdRef;
+  const reason=document.getElementById('reject-ad-reason')?.value||'';
+  if(reason.trim().length<15 || !ref) return;
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  c.rejected=true;
+  c.approvedDate=null;
+  c.reviewLog=c.reviewLog||[];
+  c.reviewLog.push({date:new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',',''), event:'Rejected', by:'spx', note:reason, archivedCreative:c.creative});
+  closeModal('reject-ad');
+  closeAdReviewPage();
+}
+
+let _approvePlRef=null;
+function openApprovePlaylistModal(ref){
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  _approvePlRef=ref;
+
+  // Ops always assigns a playlist right after approving — payment is requested
+  // only once that's done, never the other way round.
+  if(!c.approvedDate){
+    const now=new Date();
+    c.approvedDate=now.toISOString().replace('T',' ').substring(0,19);
+    c.reviewLog=c.reviewLog||[];
+    c.reviewLog.push({date:fmtTs(now), event:'Approved', by:'spx'});
+  }
+
+  const suggested=suggestPlaylists(c.bookedLocTypes||[],c.bookedRegions||[]);
+  const suggestedIds=new Set(suggested.map(p=>p.id));
+  const eligiblePls=window.PLAYLISTS;
+
+  let html='';
+  if(c.type!=='int' && !c.paidAt){
+    html += '<div style="background:#e6f4ff;border:1px solid #91caff;border-radius:3px;padding:9px 12px;font-size:12px;color:#096dd9;margin-bottom:12px;">This is a seller campaign — once you confirm playlists below, the seller will be notified to make payment before the ad can go live.</div>';
+  }
+  html += '<div style="font-size:12px;color:#888;margin-bottom:10px;">Playlists have been auto-assigned based on the seller\'s booked location types and regions. Each locker only plays this ad if it matches the booking — no over-delivery. De-select any before confirming if needed.</div>';
+
+  let anyRendered=false;
+  let capacityExcluded=0;
+  if(eligiblePls.length===0){
+    html += '<div style="font-size:12px;color:#aaa;">No eligible playlists for this ad type.</div>';
+  } else {
+    eligiblePls.forEach(p=>{
+      const isAssigned=(c.assignedPlaylists||[]).includes(p.id);
+      const isSuggested=suggestedIds.has(p.id);
+      const isChecked=isAssigned||isSuggested;
+      const totalLockers=window.LOCKERS.filter(l=>l.confirmedPlaylistId===p.id).length;
+      const matchingLockerObjs=window.LOCKERS.filter(l=>
+        l.confirmedPlaylistId===p.id &&
+        (c.bookedLocTypes||[]).includes(l.locType) &&
+        (c.bookedRegions||[]).includes(l.region)
+      );
+      const matchingLockers=matchingLockerObjs.length;
+      if(matchingLockers===0) return;
+      const overCapLockers=isAssigned?[]:matchingLockerObjs.filter(l=>countActiveSellerAdsOnLocker(l,c.ref)>=RC.max_seller_ads_per_locker);
+      if(overCapLockers.length>0 && overCapLockers.length===matchingLockers){ capacityExcluded++; return; }
+      anyRendered=true;
+      const matchColor=overCapLockers.length>0?'#d46b08':'#389e0d';
+      const matchNote=matchingLockers+' of '+totalLockers+' locker'+(totalLockers!==1?'s':'')+' match your booking'+(matchingLockers===0?' — no overlap':' · plays on matched lockers only')
+        +(overCapLockers.length>0?' · seller-ad cap reached at '+overCapLockers.length+' of '+matchingLockers+' matching locker'+(matchingLockers!==1?'s':''):'');
+      const locTypesHtml=(p.locTypes||[]).map(t=>'<div style="margin-bottom:2px;">'+t+'</div>').join('');
+      const regionsHtml=(p.regions||[]).map(r=>'<div style="margin-bottom:2px;">'+r+'</div>').join('');
+      html += '<div style="border:1px solid #e8e8e8;border-radius:3px;margin-bottom:6px;background:#fff;overflow:hidden;">'
+            + '<label style="display:flex;align-items:flex-start;gap:9px;padding:10px 12px;cursor:pointer;margin:0;">'
+            + '<input type="checkbox" class="pl-assign-cb" data-plid="'+p.id+'" '+(isChecked?'checked':'')+' style="accent-color:#ee4d2d;margin-top:2px;flex-shrink:0;"/>'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div style="font-size:13px;font-weight:500;">'+p.name+'</div>'
+            + '<div style="font-size:11px;margin-top:3px;display:flex;align-items:center;gap:6px;">'
+            + '<span style="color:'+matchColor+';">'+matchNote+'</span>'
+            + '<button onclick="event.preventDefault();event.stopPropagation();togglePlDetail(\''+p.id+'\',this)" style="background:none;border:none;color:#1890ff;cursor:pointer;font-size:11px;padding:0;flex-shrink:0;">▾ Details</button>'
+            + '</div>'
+            + '</div></label>'
+            + '<div id="pl-detail-'+p.id+'" style="display:none;padding:8px 12px 10px 34px;border-top:1px solid #f0f0f0;">'
+            + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:11px;color:#555;">'
+            + '<div><div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Location types</div>'+locTypesHtml+'</div>'
+            + '<div><div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Regions</div>'+regionsHtml+'</div>'
+            + '</div></div>'
+            + '</div>';
+    });
+    if(!anyRendered && capacityExcluded===0) html += '<div style="font-size:12px;color:#aaa;">No playlists match this booking yet.</div>';
+    if(capacityExcluded>0){
+      html += '<div style="font-size:11px;color:#d46b08;margin-top:4px;">'+capacityExcluded+' playlist'+(capacityExcluded!==1?'s':'')+' hidden — every matching locker is already at the seller-ad cap ('+RC.max_seller_ads_per_locker+' per locker, set in Booking Configuration).</div>';
+    }
+  }
+
+  document.getElementById('approve-pl-body').innerHTML=html;
+  const confirmBtn=document.getElementById('approve-pl-confirm-btn');
+  confirmBtn.disabled=false;
+  confirmBtn.style.opacity='1';
+  confirmBtn.style.cursor='pointer';
+  confirmBtn.textContent='Assign';
+  openModal('approve-pl');
+  renderTab();
+}
+function confirmApprovePlaylist(){
+  const ref=_approvePlRef;
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  const checked=[...document.querySelectorAll('#approve-pl-body .pl-assign-cb:checked')].map(el=>el.dataset.plid);
+  c.assignedPlaylists=checked;
+  const now=new Date();
+  c.reviewLog=c.reviewLog||[];
+  if(c.type!=='int' && !c.paidAt){
+    c.paymentDueAt=new Date(now.getTime()+RC.payment_window_hours*3600*1000).toISOString();
+    c.amountDue=c.amountDue||'SGD —';
+    c.reviewLog.push({date:fmtTs(now), event:'Pending payment', by:'system',
+      note:'Payment due by '+fmtTs(new Date(c.paymentDueAt))+'. Campaign will be cancelled if payment is not received.'});
+  }
+  const start=c.startDate?new Date(c.startDate):null;
+  c.status=(start&&start<=now)?'Live':'Scheduled';
+  closeModal('approve-pl');
+  renderTab();
+}
+
 function approveCreative(ref){
   const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
   if(!c.approvedDate){
     const now=new Date();
     c.approvedDate=now.toISOString().replace('T',' ').substring(0,19);
-    if(c.type!=='int'){
-      c.paidAt=null;
-      c.paymentDueAt=new Date(now.getTime()+RC.payment_window_hours*3600*1000).toISOString();
-      c.amountDue=c.amountDue||'SGD —';
-      c.reviewLog=c.reviewLog||[];
-      c.reviewLog.push({date:fmtTs(now), event:'Approved', by:'spx'});
-      c.reviewLog.push({date:fmtTs(now), event:'Pending payment', by:'system',
-        note:'Payment due by '+fmtTs(new Date(c.paymentDueAt))+'. Campaign will be cancelled if payment is not received.'});
-    }
+    c.reviewLog=c.reviewLog||[];
+    c.reviewLog.push({date:fmtTs(now), event:'Approved', by:'spx'});
   }
   openAdPanel(ref);
   renderTab();
@@ -1484,12 +1726,18 @@ function backToReview(ref){
 
 function assignPlaylist(ref){
   const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
-  if(c.type!=='int' && !c.paidAt){ alert('Payment has not been received for this campaign. It cannot be scheduled yet.'); return; }
   const checked=[...document.querySelectorAll('.pl-assign-cb:checked')].map(el=>el.dataset.plid);
   c.assignedPlaylists=checked;
-  const today=new Date();
+  const now=new Date();
+  c.reviewLog=c.reviewLog||[];
+  if(c.type!=='int' && !c.paidAt){
+    c.paymentDueAt=new Date(now.getTime()+RC.payment_window_hours*3600*1000).toISOString();
+    c.amountDue=c.amountDue||'SGD —';
+    c.reviewLog.push({date:fmtTs(now), event:'Pending payment', by:'system',
+      note:'Payment due by '+fmtTs(new Date(c.paymentDueAt))+'. Campaign will be cancelled if payment is not received.'});
+  }
   const start=c.startDate?new Date(c.startDate):null;
-  c.status=(start&&start<=today)?'Live':'Scheduled';
+  c.status=(start&&start<=now)?'Live':'Scheduled';
   closePanel();
   renderTab();
 }
@@ -1524,34 +1772,7 @@ function renderFinance(){
 }
 
 function renderBookingConfig(){
-  // Spot packages — tier name + spot count only (no pricing shown here)
-  const tiersHTML = RC.tiers.map((t,i)=>{
-    return `<div style="display:grid;grid-template-columns:1fr 180px 28px;gap:8px;padding:7px 0;border-bottom:1px solid #f5f5f5;align-items:center;">
-      <input class="ein" value="${t.name}" placeholder="e.g. Starter" onchange="RC.tiers[${i}].name=this.value"/>
-      <div style="display:flex;align-items:center;gap:5px;">
-        <input class="ein" style="width:90px;" value="${t.spots}" type="number" min="0" onchange="RC.tiers[${i}].spots=+this.value"/>
-        <span style="font-size:12px;color:#888;">spots</span>
-      </div>
-      <button onclick="RC.tiers.splice(${i},1);renderTab()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:14px;">✕</button>
-    </div>`;
-  }).join('');
-
-  const ltHTML = Object.entries(RC.locTypeOptions).map(([lt,enabled])=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5;">
-    <input type="checkbox" style="accent-color:#ee4d2d;width:14px;height:14px;" ${enabled?'checked':''} onchange="RC.locTypeOptions['${lt}']=this.checked;renderTab()"/>
-    <span style="font-size:13px;flex:1;">${lt}</span>
-    <span style="font-size:11px;color:#aaa;margin-left:auto;">${enabled?'Seller-selectable':'Internal ads only'}</span>
-  </div>`).join('');
-
   return`<div style="max-width:700px;padding-bottom:32px;">
-
-    <!-- FINANCE PORTAL CALLOUT -->
-    <div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:10px 14px;margin-bottom:24px;display:flex;align-items:flex-start;gap:8px;">
-      <span style="font-size:15px;flex-shrink:0;">ℹ️</span>
-      <div style="font-size:12px;color:#8a6d00;line-height:1.6;">
-        <b>Rates for each enabled combination below are set in Finance Portal, not here.</b><br/>
-        Locker ads are priced per locker per week, tiered by Location Type × Region × Coverage and scoped by Seller Type / Merchant Type. Finance Portal pulls the enabled combinations from this page live — only a checked cell requires a rate there. Go to Finance Portal → Billing Rule → Service Point → Locker Advertisement to set pricing.
-      </div>
-    </div>
 
     <!-- SECTION: LOCKER ADS RATE CARD COVERAGE -->
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
@@ -1559,11 +1780,20 @@ function renderBookingConfig(){
       <span style="font-size:14px;font-weight:700;color:#222;">Locker ads rate card coverage</span>
     </div>
 
+    <!-- FINANCE PORTAL CALLOUT -->
+    <div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:10px 14px;margin-bottom:18px;display:flex;align-items:flex-start;gap:8px;">
+      <span style="font-size:15px;flex-shrink:0;">ℹ️</span>
+      <div style="font-size:12px;color:#8a6d00;line-height:1.6;">
+        <b>Rates for each enabled combination below are set in Finance Portal, not here.</b><br/>
+        Locker ads are priced per locker per week, tiered by Location Type × Region × Coverage and scoped by Seller Type / Merchant Type. Finance Portal pulls the enabled combinations from this page live — only a checked cell requires a rate there. Go to Finance Portal → Billing Rule → Service Point → Locker Advertisement to set pricing.
+      </div>
+    </div>
+
     <div class="frow" style="align-items:flex-start;">
       <div class="flbl" style="padding-top:4px;">Enabled combinations</div>
       <div class="fbody">
         ${renderAdsMatrix()}
-        <div class="fhint">Determines which Location Type × Region × Coverage combinations sellers can book, and which cells Finance Portal requires a rate for. The Half/Full matching logic itself (≥50%/100% of matched lockers, tiebreak lowest Point ID) is fixed in the booking engine — this only controls where each already-built tier is switched on. Individual Locker pricing is a future phase and isn't a row here — it's a pick-one-specific-locker mode, not a network-coverage tier, so it'll need its own configuration when it lands.</div>
+        <div class="fhint">Determines which Location Type × Region × Coverage combinations sellers can book. The Half/Full matching logic itself (≥50%/100% of matched lockers, tiebreak lowest Point ID) is fixed in the booking engine — this only controls where each already-built tier is switched on. A Location Type with no cells checked in any region or coverage tier is not bookable by sellers at all — those lockers run internal SPX ads only (tagged "Internal ads only" on the row above).</div>
       </div>
     </div>
 
@@ -1596,13 +1826,13 @@ function renderBookingConfig(){
     </div>
 
     <div class="frow">
-      <div class="flbl">Est. daily plays<br>per locker</div>
+      <div class="flbl">Max external ads per locker</div>
       <div class="fbody">
         <div style="display:flex;align-items:center;gap:8px;">
-          <input class="finput" value="${RC.est_daily_plays}" style="width:70px;" type="number" min="1" onchange="RC.est_daily_plays=+this.value"/>
-          <span style="font-size:13px;color:#666;">plays / locker / day</span>
+          <input class="finput" value="${RC.max_seller_ads_per_locker}" style="width:70px;" type="number" min="1" onchange="RC.max_seller_ads_per_locker=+this.value"/>
+          <span style="font-size:13px;color:#666;">external ads per locker screen</span>
         </div>
-        <div class="fhint">Used to calculate estimated spots shown to sellers when booking by duration. Based on typical play frequency after accounting for locker opening hours and transactional downtime. Update periodically as delivery data becomes available.</div>
+        <div class="fhint">Caps how many seller (external) campaigns can be in rotation on any single locker screen at the same time. Enforced per locker, not per playlist — a playlist can cover several location types and regions, so a campaign's actual competition for screen time depends on which specific lockers it's targeted at. Internal SPX ads don't count toward this cap. Assigning a campaign to a playlist is blocked if it would push any of that playlist's matching lockers over the cap.</div>
       </div>
     </div>
 
@@ -1620,60 +1850,6 @@ function renderBookingConfig(){
           <span style="font-size:13px;color:#666;">hours after approval</span>
         </div>
         <div class="fhint">How long a seller has to pay after their campaign is approved. Campaigns not paid within this window are cancelled automatically and the seller is notified in their Shipment Portal. Ads cannot be scheduled or played until payment is received, even if the campaign period has already started.</div>
-      </div>
-    </div>
-
-    <div class="frow">
-      <div class="flbl">QR code validity</div>
-      <div class="fbody">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <input class="finput" value="${RC.qr_validity_seconds}" style="width:70px;" type="number" min="1" onchange="RC.qr_validity_seconds=+this.value"/>
-          <span style="font-size:13px;color:#666;">seconds per QR</span>
-        </div>
-        <div class="fhint">How long each payment QR code stays scannable before the seller must generate a new one. Does not extend the overall payment window.</div>
-      </div>
-    </div>
-
-    <!-- SECTION: SELLER BOOKING OPTIONS -->
-    <div style="display:flex;align-items:center;gap:10px;margin:28px 0 18px;">
-      <div style="width:4px;height:18px;background:#ee4d2d;border-radius:1px;flex-shrink:0;"></div>
-      <span style="font-size:14px;font-weight:700;color:#222;">Seller booking options</span>
-    </div>
-
-    <div class="frow" style="align-items:flex-start;">
-      <div class="flbl" style="padding-top:4px;">Spot packages</div>
-      <div class="fbody">
-        <div style="border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">
-          <div style="display:grid;grid-template-columns:1fr 180px 28px;gap:8px;padding:6px 10px;background:#fafafa;border-bottom:2px solid #e8e8e8;font-size:11px;font-weight:600;color:#888;">
-            <div>Package name</div><div>Total spots</div><div></div>
-          </div>
-          <div style="padding:0 10px;">
-            ${tiersHTML||'<div style="font-size:12px;color:#aaa;padding:10px 0;">No packages configured.</div>'}
-          </div>
-        </div>
-        <button class="btn-sm" style="margin-top:8px;" onclick="RC.tiers.push({name:'New package',spots:0});renderTab()">+ Add package</button>
-        <div class="fhint">Define the preset spot counts sellers can choose from when booking by spot. Total spots in the package are the total number of ad plays committed across all eligible lockers combined. Each play on any eligible locker counts as 1 spotPricing is calculated at checkout based on the seller's merchant type rate in Finance Portal.</div>
-      </div>
-    </div>
-
-    <div class="frow" style="align-items:flex-start;">
-      <div class="flbl" style="padding-top:4px;">Seller-selectable<br>location types</div>
-      <div class="fbody">
-        <div style="border:1px solid #e8e8e8;border-radius:3px;padding:0 12px;">
-          ${ltHTML}
-        </div>
-        <div class="fhint">Checked types appear as options when sellers book. Unchecked types only run internal SPX ads.</div>
-      </div>
-    </div>
-
-    <div class="frow" style="align-items:flex-start;">
-      <div class="flbl" style="padding-top:4px;">Regions for<br>seller targeting</div>
-      <div class="fbody">
-        <div style="border:1px solid #e8e8e8;border-radius:3px;padding:0 12px;">
-          ${window.REGIONS.map((r,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f5f5f5;"><input class="ein" style="flex:1;" value="${r}" onchange="window.REGIONS[${i}]=this.value"/><button onclick="window.REGIONS.splice(${i},1);renderTab()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:14px;">✕</button></div>`).join('')}
-        </div>
-        <button class="btn-sm" style="margin-top:8px;" onclick="addRegion()">+ Add region</button>
-        <div class="fhint">These region names appear as filter options when sellers book. Each locker point can be tagged to one region in Point List.</div>
       </div>
     </div>
 
@@ -1818,7 +1994,7 @@ function openPlModal(editId){
     <div style="margin-top:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Regions covered</div>
       <div style="font-size:12px;color:#888;margin-bottom:8px;">Select all regions where this playlist's lockers are located.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
-        ${window.REGIONS.map(r=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px 10px;border:1px solid #e8e8e8;border-radius:3px;"><input type="checkbox" class="pl-region" style="accent-color:#ee4d2d;" data-region="${r}" ${pl&&pl.regions&&pl.regions.includes(r)?'checked':''}/> ${r}</label>`).join('')}
+        ${window.ADS_REGIONS.map(r=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:7px 10px;border:1px solid #e8e8e8;border-radius:3px;"><input type="checkbox" class="pl-region" style="accent-color:#ee4d2d;" data-region="${r}" ${pl&&pl.regions&&pl.regions.includes(r)?'checked':''}/> ${r}</label>`).join('')}
       </div>
     </div>
     <div style="margin-top:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Internal ads</div>
@@ -2081,10 +2257,10 @@ function removeUpload(){_uploadAttempts=0;_uploadFileName='';document.getElement
 function resetUploadZone(){clearInterval(_uploadTimer);_uploadAttempts=0;_uploadFileName='';['uzone-uploading','uzone-failed','uzone-success'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var idle=document.getElementById('uzone-idle');if(idle)idle.style.display='';}
 
 // ── REVIEW LOG (ops view) ──
-function renderReviewLog(log, sellerView, buyerName) {
+function renderReviewLog(log, sellerView, buyerName, bare) {
   if (!log || log.length === 0) return '';
-  let html = '<div style="margin-top:16px;border-top:1px solid #f0f0f0;padding-top:12px;">';
-  html += '<div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">Ad Tracking History</div>';
+  let html = bare ? '<div>' : '<div style="margin-top:16px;border-top:1px solid #f0f0f0;padding-top:12px;">';
+  if (!bare) html += '<div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">Ad Tracking History</div>';
   log.forEach((entry, i) => {
     const isLast = i === log.length - 1;
     const byLabel = sellerView
