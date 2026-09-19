@@ -186,11 +186,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .finput::placeholder{color:#ccc;}
 .fhint{font-size:11px;color:#bbb;margin-top:4px;}
 .fchar{color:#bbb;float:right;}
-.date-row{display:flex;align-items:center;gap:8px;}
+.date-row{display:flex;align-items:flex-start;gap:16px;}
 .dinput{border:1px solid #d0d0d0;border-radius:5px;padding:7px 10px;font-size:13px;color:#555;width:145px;outline:none;}
 .dinput:focus{border-color:#e63c3c;}
-.dsep{color:#aaa;}
-.dur-lbl{font-size:12px;color:#e63c3c;font-weight:500;white-space:nowrap;}
 .radio-cards{display:flex;flex-direction:column;gap:8px;}
 .rc{border:1px solid #e8e8e8;border-radius:5px;padding:13px 15px;display:flex;gap:10px;cursor:pointer;transition:border-color .15s,background .15s;}
 .rc:hover{border-color:#e63c3c;}
@@ -548,7 +546,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
                 <td><div class="ai-wrap"><div class="ai-thumb"><div class="ai-thumb-inner" style="background:linear-gradient(135deg,#a8edea,#fed6e3);">✨</div></div><div><div class="ai-name">Year-End Promo 2025</div></div></div></td>
                 <td style="font-size:12px;color:#888;">SGAD000088</td>
                 <td><div class="t-num">By Duration</div><div class="t-sub">28 days</div></td>
-                <td><div class="t-num">2025-12-01 to 2025-12-31</div></td>
+                <td><div class="t-num">2025-12-01 to 2025-12-28</div></td>
                 <td><div class="t-num">6,000</div></td>
                 <td><div class="t-num">SGD 800</div></td>
                 <td><div class="t-num">SGD 66.70</div></td>
@@ -572,7 +570,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
                 <td><div class="ai-wrap"><div class="ai-thumb"><div class="ai-thumb-inner" style="background:linear-gradient(135deg,#b0b0b0,#d0d0d0);">📦</div></div><div><div class="ai-name">Weekend Promo — June</div></div></div></td>
                 <td style="font-size:12px;color:#888;">SGAD000149</td>
                 <td><div class="t-num">By Duration</div><div class="t-sub">7 days</div></td>
-                <td><div class="t-num">2026-06-05 to 2026-06-12</div></td>
+                <td><div class="t-num">2026-06-05 to 2026-06-11</div></td>
                 <td><div class="t-sub">—</div></td>
                 <td><div class="t-num">SGD 450</div></td>
                 <td><div class="t-sub">—</div></td>
@@ -611,13 +609,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <div class="flbl req">Campaign Period</div>
             <div class="fbody">
               <div class="date-row">
-                <input type="date" class="dinput" id="sd" onchange="calcDur()"/>
-                <span class="dsep">→</span>
-                <input type="date" class="dinput" id="ed" onchange="calcDur()"/>
-                <span class="dur-lbl" id="dur-lbl"></span>
+                <div>
+                  <div class="tag-grp-title" style="margin-bottom:5px;">Start Date</div>
+                  <input type="date" class="dinput" id="sd" onchange="calcDur()"/>
+                </div>
+                <div>
+                  <div class="tag-grp-title" style="margin-bottom:5px;">Duration (Weeks)</div>
+                  <input type="number" class="dinput" id="dur-weeks" min="1" step="1" placeholder="e.g. 2" style="width:110px;" oninput="calcDur()"/>
+                </div>
               </div>
+              <div id="period-display" class="fhint"></div>
               <div id="sd-err" style="display:none;font-size:12px;color:#e63c3c;margin-top:6px;"></div>
-              <div id="dur-err" style="display:none;font-size:12px;color:#e63c3c;margin-top:6px;">Campaign period must be at least 1 week (7 days).</div>
             </div>
           </div>
         </div>
@@ -629,22 +631,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="field">
             <div class="flbl req">Coverage</div>
             <div class="fbody">
-              <div class="radio-cards">
-                <div class="rc" id="rc-half" onclick="selCoverage('half')">
-                  <div class="rdot" id="rd-half"></div>
-                  <div>
-                    <div class="rc-title">Half Network</div>
-                    <div class="rc-desc">Your ad reaches roughly half of the lockers matching your selected location types and regions.</div>
-                  </div>
-                </div>
-                <div class="rc" id="rc-full" onclick="selCoverage('full')">
-                  <div class="rdot" id="rd-full"></div>
-                  <div>
-                    <div class="rc-title">Full Network</div>
-                    <div class="rc-desc">Your ad reaches all lockers matching your selected location types and regions.</div>
-                  </div>
-                </div>
-              </div>
+              <div class="radio-cards" id="ad-coverage-cards"></div>
             </div>
           </div>
 
@@ -655,7 +642,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <div class="tag-grp" id="ad-region-chips"></div>
               <div class="tag-grp-title">By Location Type</div>
               <div class="tag-grp" id="ad-loctype-chips" style="margin-bottom:4px;"></div>
-              <div class="tchip-note">SPX will allocate the most relevant lockers within your selected region and location type, up to your Coverage tier. Select a Coverage above first — some combinations may not be available depending on Coverage.</div>
+              <div class="tchip-note">SPX will allocate the most relevant lockers within your selected region and location type, up to your Coverage tier. Select a Coverage above first — some region × location type combinations may not be available.</div>
 
               <!-- Estimated Results inline red box -->
               <div style="background:#fff2f0;border:1px solid #ffccc7;border-radius:5px;padding:12px 14px;margin-top:12px;">
@@ -763,25 +750,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 // ── LOCKER ADS RATE CARD ──
 // Billing is duration-only now (flat per-locker-per-week, no per-spot component) — see
-// finance_portal_ads_rate.html. Regions / Location Types / valid combinations mirror SP
-// Portal's Booking Configuration (SP_portal_ads_management.html: ADS_REGIONS, ALL_LOC_TYPES,
-// ADS_MATRIX) — pulled live from there in production, hardcoded here as a matching snapshot.
+// finance_portal_ads_rate.html. Coverage packages / Regions / Location Types / valid
+// combinations mirror SP Portal's Booking Configuration (SP_portal_ads_management.html:
+// ADS_REGIONS, ALL_LOC_TYPES, ADS_MATRIX) — pulled live from there in production, hardcoded
+// here as a matching snapshot.
 const PAYMENT_WINDOW_HOURS = 24; // hours to pay after approval (ops-configurable in SP Portal Ad Settings)
 const QR_VALIDITY_SECONDS = 180; // per-QR expiry before the seller must refresh (ops-configurable in SP Portal Ad Settings)
-const MIN_CAMPAIGN_DAYS = 7; // minimum campaign duration
+
+const AD_COVERAGE = [
+  { id: 'half', name: 'Half Coverage', pct: 50 },
+  { id: 'full', name: 'Full Coverage', pct: 100 }
+];
 
 const AD_REGIONS = ['CCR', 'RCR', 'OCR'];
 const AD_LOCATION_TYPES = ['HDB Residential', 'MRT Stations', 'Shopping Malls', 'Bus Interchanges', 'Community Clubs', 'Condominiums', 'Offices'];
 function buildAdAllValid(){ const m={}; AD_LOCATION_TYPES.forEach(lt=>{ m[lt]={}; AD_REGIONS.forEach(r=>{ m[lt][r]=true; }); }); return m; }
-// Which Location Type × Region combinations are enabled, per Coverage. Condominiums × OCR
-// disabled to match the same seeded example used in Finance Portal / SP Portal.
-const AD_VALID_COMBOS = { half: buildAdAllValid(), full: buildAdAllValid() };
-AD_VALID_COMBOS.half['Condominiums'].OCR = false;
-AD_VALID_COMBOS.full['Condominiums'].OCR = false;
+// Which Location Type × Region combinations are enabled — a property of the inventory,
+// not the Coverage package. Condominiums × OCR disabled to match the same seeded example
+// used in Finance Portal / SP Portal.
+const AD_VALID_COMBOS = buildAdAllValid();
+AD_VALID_COMBOS['Condominiums'].OCR = false;
 
-// SGD per locker per week — mirrors Finance Portal's active rate card version for this
+// SGD per locker — mirrors Finance Portal's active rate card version for this
 // seller's merchant type (RC-0002 in finance_portal_ads_rate.html). Pulled from Finance
 // Portal in production, not entered twice.
+// NOTE: Finance Portal's rate card now stores rates as Coverage %-band rows
+// (Flat Fee brackets or Tiered single-lookup, see finance_portal_ads_rate.html)
+// rather than one flat rate per half/full package — this mockup's half/full
+// split is a simplified stand-in and hasn't been reconciled to that shape yet.
 const AD_RATES = {
   half: { 'HDB Residential':{CCR:21,RCR:17,OCR:12}, 'MRT Stations':{CCR:31,RCR:26,OCR:18}, 'Shopping Malls':{CCR:34,RCR:28,OCR:19}, 'Bus Interchanges':{CCR:27,RCR:22,OCR:15}, 'Community Clubs':{CCR:24,RCR:19,OCR:13}, 'Condominiums':{CCR:29,RCR:23}, 'Offices':{CCR:26,RCR:21,OCR:14} },
   full: { 'HDB Residential':{CCR:6,RCR:5,OCR:4}, 'MRT Stations':{CCR:8,RCR:7,OCR:5}, 'Shopping Malls':{CCR:9,RCR:8,OCR:5}, 'Bus Interchanges':{CCR:7,RCR:6,OCR:4}, 'Community Clubs':{CCR:6,RCR:5,OCR:4}, 'Condominiums':{CCR:7,RCR:6}, 'Offices':{CCR:7,RCR:6,OCR:4} }
@@ -807,38 +803,46 @@ const AD_LOCKER_COUNTS = {
 // campaigns. In production this is a live capacity check against the actual booking
 // calendar, not a hardcoded range. Seeded on Shopping Malls × CCR, 1–7 Jan 2027, to
 // demonstrate the "suggest next available start date" behavior.
-const AD_BLOCKED_RANGES = {
-  half: { 'Shopping Malls': { CCR: [{ start: '2027-01-01', end: '2027-01-07' }] } },
-  full: { 'Shopping Malls': { CCR: [{ start: '2027-01-01', end: '2027-01-07' }] } }
-};
+const AD_BLOCKED_RANGES = { 'Shopping Malls': { CCR: [{ start: '2027-01-01', end: '2027-01-07' }] } };
 
 let curCoverage = null;
 let _suggestedDates = null;
 
-function regionHasAnyValid(region, coverage){
-  return AD_LOCATION_TYPES.some(lt => AD_VALID_COMBOS[coverage][lt] && AD_VALID_COMBOS[coverage][lt][region]);
+function regionHasAnyValid(region){
+  return AD_LOCATION_TYPES.some(lt => AD_VALID_COMBOS[lt] && AD_VALID_COMBOS[lt][region]);
 }
-function loctypeHasAnyValid(lt, coverage){
-  return AD_REGIONS.some(r => AD_VALID_COMBOS[coverage][lt] && AD_VALID_COMBOS[coverage][lt][r]);
+function loctypeHasAnyValid(lt){
+  return AD_REGIONS.some(r => AD_VALID_COMBOS[lt] && AD_VALID_COMBOS[lt][r]);
+}
+function renderCoverageCards(){
+  document.getElementById('ad-coverage-cards').innerHTML = AD_COVERAGE.map(c => `
+    <div class="rc" id="rc-${c.id}" onclick="selCoverage('${c.id}')">
+      <div class="rdot" id="rd-${c.id}"></div>
+      <div>
+        <div class="rc-title">${c.name}</div>
+        <div class="rc-desc">Your ad reaches ${c.pct}% of the lockers matching your selected location types and regions.</div>
+      </div>
+    </div>`).join('');
 }
 function renderAdChips(){
-  const coverage = curCoverage || 'half';
   document.getElementById('ad-region-chips').innerHTML = AD_REGIONS.map(r=>{
-    const ok = regionHasAnyValid(r, coverage);
-    return `<div class="tchip${ok?'':' disabled'}" data-group="region"${ok?' onclick="tog(this)"':''} ${ok?'':'title="Not available for this Coverage"'}>${r}</div>`;
+    const ok = regionHasAnyValid(r);
+    return `<div class="tchip${ok?'':' disabled'}" data-group="region"${ok?' onclick="tog(this)"':''} ${ok?'':'title="Not available"'}>${r}</div>`;
   }).join('');
   document.getElementById('ad-loctype-chips').innerHTML = AD_LOCATION_TYPES.map(lt=>{
-    const ok = loctypeHasAnyValid(lt, coverage);
-    return `<div class="tchip${ok?'':' disabled'}" data-group="loctype"${ok?' onclick="tog(this)"':''} ${ok?'':'title="Not available for this Coverage"'}>${lt}</div>`;
+    const ok = loctypeHasAnyValid(lt);
+    return `<div class="tchip${ok?'':' disabled'}" data-group="loctype"${ok?' onclick="tog(this)"':''} ${ok?'':'title="Not available"'}>${lt}</div>`;
   }).join('');
 }
 function selCoverage(cov){
   curCoverage = cov;
-  ['half','full'].forEach(t=>{
-    document.getElementById('rc-'+t).classList.toggle('sel', t===cov);
-    document.getElementById('rd-'+t).classList.toggle('on', t===cov);
+  AD_COVERAGE.forEach(c=>{
+    document.getElementById('rc-'+c.id).classList.toggle('sel', c.id===cov);
+    document.getElementById('rd-'+c.id).classList.toggle('on', c.id===cov);
   });
-  renderAdChips();
+  // Chips only depend on Coverage for the form's guided order (Coverage picked first) — not
+  // for validity, so render them once and leave the seller's selections alone on later switches.
+  if(!document.getElementById('ad-region-chips').children.length) renderAdChips();
   calcCost();
 }
 function rangesOverlap(aStart, aEnd, bStart, bEnd){
@@ -846,13 +850,15 @@ function rangesOverlap(aStart, aEnd, bStart, bEnd){
 }
 // Finds the latest "next available start date" across every selected valid combo whose
 // blocked range overlaps the seller's chosen period — the campaign has one start date
-// for the whole booking, so it can only start once every selected combo is free.
-function findNextAvailableStart(coverage, loctypes, regions, sd, ed){
-  const days = Math.round((ed - sd) / 86400000);
+// for the whole booking, so it can only start once every selected combo is free. The
+// booked length (weeks × 7 billed days) is preserved; only the start date moves.
+function findNextAvailableStart(loctypes, regions, sd, weeks){
+  const billedDays = weeks * 7;
+  const ed = new Date(sd.getTime() + (billedDays - 1) * 86400000);
   let latest = null;
   loctypes.forEach(lt => regions.forEach(r => {
-    if(!(AD_VALID_COMBOS[coverage][lt] && AD_VALID_COMBOS[coverage][lt][r])) return;
-    const blocks = (AD_BLOCKED_RANGES[coverage][lt] && AD_BLOCKED_RANGES[coverage][lt][r]) || [];
+    if(!(AD_VALID_COMBOS[lt] && AD_VALID_COMBOS[lt][r])) return;
+    const blocks = (AD_BLOCKED_RANGES[lt] && AD_BLOCKED_RANGES[lt][r]) || [];
     blocks.forEach(b => {
       const bStart = new Date(b.start), bEnd = new Date(b.end);
       if(rangesOverlap(sd, ed, bStart, bEnd)){
@@ -862,7 +868,7 @@ function findNextAvailableStart(coverage, loctypes, regions, sd, ed){
     });
   }));
   if(!latest) return null;
-  return { start: latest, end: new Date(latest.getTime() + days * 86400000) };
+  return { start: latest, end: new Date(latest.getTime() + (billedDays - 1) * 86400000) };
 }
 function fmtHuman(d){
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -871,9 +877,8 @@ function useSuggestedDates(){
   if(!_suggestedDates) return;
   const fmt = d => d.toISOString().slice(0,10);
   document.getElementById('sd').value = fmt(_suggestedDates.start);
-  document.getElementById('ed').value = fmt(_suggestedDates.end);
-  const msg = 'Campaign period updated to ' + fmtHuman(_suggestedDates.start) + ' – ' + fmtHuman(_suggestedDates.end) + '.';
-  calcDur(); // recomputes duration label, dur-err, and calls calcCost()
+  const msg = 'Start date updated to ' + fmtHuman(_suggestedDates.start) + '.';
+  calcDur(); // recomputes the derived period display, sd-err, and calls calcCost()
   showToast(msg);
 }
 let _toastTimer = null;
@@ -895,18 +900,12 @@ function calcCost(){
     _suggestedDates = null;
     return;
   }
-  const s = new Date(document.getElementById('sd').value);
-  const e = new Date(document.getElementById('ed').value);
-  if(!document.getElementById('sd').value || !document.getElementById('ed').value || isNaN(s) || isNaN(e) || e <= s){
+  const sdVal = document.getElementById('sd').value;
+  const s = sdVal ? new Date(sdVal) : null;
+  const weeks = getWeeks();
+  if(!sdVal || !s || isNaN(s) || !weeks){
     costEl.textContent = '—';
     noteEl.textContent = 'Set campaign period to see estimated cost.';
-    _suggestedDates = null;
-    return;
-  }
-  const days = Math.round((e - s) / 86400000);
-  if(days < MIN_CAMPAIGN_DAYS){
-    costEl.textContent = '—';
-    noteEl.textContent = 'Campaign period must be at least 1 week to see estimated cost.';
     _suggestedDates = null;
     return;
   }
@@ -918,11 +917,10 @@ function calcCost(){
     _suggestedDates = null;
     return;
   }
-  const weeks = Math.ceil(days / 7);
-  const ratio = curCoverage === 'half' ? 0.5 : 1;
+  const ratio = AD_COVERAGE.find(c => c.id === curCoverage).pct / 100;
   let weeklyCost = 0, anyIncluded = false, anyExcluded = false;
   loctypes.forEach(lt => regions.forEach(r => {
-    const valid = AD_VALID_COMBOS[curCoverage][lt] && AD_VALID_COMBOS[curCoverage][lt][r];
+    const valid = AD_VALID_COMBOS[lt] && AD_VALID_COMBOS[lt][r];
     if(!valid){ anyExcluded = true; return; }
     const count = (AD_LOCKER_COUNTS[lt]||{})[r] || 0;
     const rate = (AD_RATES[curCoverage][lt]||{})[r] || 0;
@@ -931,21 +929,21 @@ function calcCost(){
   }));
   if(!anyIncluded){
     costEl.textContent = 'SGD 0';
-    noteEl.textContent = 'None of your selected combinations are available under this Coverage. Please adjust your selection.';
+    noteEl.textContent = 'None of your selected combinations are available. Please adjust your selection.';
     _suggestedDates = null;
     return;
   }
   const totalCost = weeklyCost * weeks;
   costEl.textContent = 'SGD ' + totalCost.toLocaleString();
 
-  _suggestedDates = findNextAvailableStart(curCoverage, loctypes, regions, s, e);
+  _suggestedDates = findNextAvailableStart(loctypes, regions, s, weeks);
   if(_suggestedDates){
     noteEl.innerHTML = 'Not enough availability for your selected dates. '
       + 'Next available start: <strong>' + fmtHuman(_suggestedDates.start) + '</strong> (through ' + fmtHuman(_suggestedDates.end) + ', same ' + weeks + '-week length). '
       + '<span class="action-link" onclick="useSuggestedDates()" style="color:#e63c3c;text-decoration:underline;cursor:pointer;font-weight:500;">Use these dates</span>';
   } else {
     noteEl.textContent = 'Indicative estimate for ' + weeks + ' week' + (weeks!==1?'s':'') + '. Final cost confirmed on SPX review. GST applicable.'
-      + (anyExcluded ? ' Some selected combinations aren\'t available under this Coverage and were excluded.' : '');
+      + (anyExcluded ? ' Some selected combinations aren\'t available and were excluded.' : '');
   }
 }
 
@@ -983,23 +981,24 @@ function toggleGroup(id){
 }
 
 // ── DURATION ──
+// Book in weeks, bill in days: billed_days = weeks * 7, end_date = start_date + billed_days - 1
+// (the last active day). E.g. 1 Jan + 1 week runs 1–7 Jan inclusive (7 billed days, not 8).
+function getWeeks(){
+  const v = parseInt(document.getElementById('dur-weeks').value, 10);
+  return (Number.isInteger(v) && v >= 1) ? v : null;
+}
 function calcDur(){
-  const s = new Date(document.getElementById('sd').value);
-  const e = new Date(document.getElementById('ed').value);
-  const durErrEl = document.getElementById('dur-err');
-  if(s && e && e > s && !isNaN(s) && !isNaN(e)){
-    const d = Math.round((e - s) / 86400000);
-    // Only ever label a span "N week(s)" when it's an exact multiple of 7 days — rounding
-    // a 6-day span up to "1 week" is what made the minimum-duration error look contradictory
-    // (label said "1 week" while the 7-day minimum check correctly still failed it).
-    const durLabel = (d > 0 && d % 7 === 0) ? ((d/7) + ' week' + (d/7!==1?'s':'')) : (d+' day'+(d!==1?'s':''));
-    document.getElementById('dur-lbl').textContent = durLabel;
-    if(durErrEl) durErrEl.style.display = d < MIN_CAMPAIGN_DAYS ? '' : 'none';
+  const sdVal = document.getElementById('sd').value;
+  const s = sdVal ? new Date(sdVal) : null;
+  const weeks = getWeeks();
+  const periodEl = document.getElementById('period-display');
+  if(s && !isNaN(s) && weeks){
+    const billedDays = weeks * 7;
+    const e = new Date(s.getTime() + (billedDays - 1) * 86400000);
+    periodEl.textContent = fmtHuman(s) + ' – ' + fmtHuman(e) + ' · ' + billedDays + ' day' + (billedDays!==1?'s':'');
   } else {
-    document.getElementById('dur-lbl').textContent = '';
-    if(durErrEl) durErrEl.style.display = 'none';
+    periodEl.textContent = '';
   }
-  const sdVal=document.getElementById('sd').value;
   const errEl=document.getElementById('sd-err');
   if(errEl){ if(sdVal){ const minStart=new Date(); minStart.setDate(minStart.getDate()+7); minStart.setHours(0,0,0,0); errEl.style.display=new Date(sdVal)<minStart?'':'none'; errEl.textContent='Start date must be at least 7 days from today to allow time for review and scheduling.'; } else{ errEl.style.display='none'; } }
   calcCost();
@@ -1033,8 +1032,8 @@ function rmUpload(){
 // ── PUBLISH ──
 function doPublish(){
   { const sv=document.getElementById('sd')?.value||''; if(sv){ const minStart=new Date(); minStart.setDate(minStart.getDate()+7); minStart.setHours(0,0,0,0); if(new Date(sv)<minStart){ const errEl=document.getElementById('sd-err'); if(errEl){errEl.style.display='';errEl.textContent='Start date must be at least 7 days from today to allow time for review and scheduling.';} return; } } }
-  { const sv=document.getElementById('sd')?.value||''; const ev=document.getElementById('ed')?.value||''; if(sv && ev){ const days=Math.round((new Date(ev)-new Date(sv))/86400000); if(days < MIN_CAMPAIGN_DAYS){ const errEl=document.getElementById('dur-err'); if(errEl) errEl.style.display=''; return; } } }
-  if(!curCoverage){ alert('Please select a Coverage (Half Network or Full Network).'); return; }
+  if(!document.getElementById('sd')?.value || !getWeeks()){ alert('Please set a campaign start date and duration.'); return; }
+  if(!curCoverage){ alert('Please select a Coverage option.'); return; }
   if(!document.querySelectorAll('[data-group="region"].on').length || !document.querySelectorAll('[data-group="loctype"].on').length){ alert('Please select at least one Region and Location Type.'); return; }
   alert('Campaign submitted for SPX review.\n\nYou will be notified within 2 business days once your creative and campaign details have been approved.');
   goLockerAds();
@@ -1048,6 +1047,7 @@ window.addEventListener('DOMContentLoaded', function(){
   const yyyy = today.getFullYear();
   const el = document.getElementById('ad-name');
   if(el){ el.value = 'Locker Ad ' + dd + '/' + mm + '/' + yyyy; document.getElementById('nc').textContent = el.value.length; }
+  renderCoverageCards();
   // Start on Locker Ads page for demo
   goLockerAds();
 });
@@ -1072,11 +1072,11 @@ const CAMPAIGNS = {
   'spring-nss':  {name:'Brand Campaign — Spring', ref:'SGAD000101', period:'2026-03-01 to 2026-05-31', exposure:'By Spots · 3,000', location:'NE + Central · MRT + HDB', locType:'MRT Stations, HDB Residential', region:'North East, Central', status:'Live',  statusClass:'stag-green', spend:'SGD 441', impressions:'2,820', cpm:'SGD 50.0', creative:'banner_spring.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2026-02-28 10:30', lockers:'18 lockers', playlists:'Playlist 1', playbackOrder:'#2', adType:'Seller campaign', reviewLog:[{date:'28 Feb 2026, 09:00',event:'Pending review',by:'seller'},{date:'28 Feb 2026, 10:30',event:'Approved',by:'spx'},{date:'01 Mar 2026, 00:00',event:'Live',by:'system'}]},
   'q2-nss':      {name:'Q2 Brand Awareness',       ref:'SGAD000118', period:'2026-05-01 to 2026-06-30', exposure:'By Spots · 6,000', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Pending review', statusClass:'stag-amber', spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'q2_brand.jpg',     flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', reviewLog:[{date:'29 Apr 2026, 11:00',event:'Pending review',by:'seller'}]},
   'summer-nss':  {name:'Summer Launch 2026',        ref:'SGAD000124', period:'2026-05-15 to 2026-06-15', exposure:'By Spots · 6,000', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Rejected',statusClass:'stag-red',   spend:'SGD 800 (booked)', impressions:'—',     cpm:'—',         creative:'summer_v1.jpg',     flag:'SPX reviewed your creative and found an issue. Please upload a revised banner ASAP to meet your start date.', remarks:'Competitor brand logo detected in the bottom-right corner of the banner. Please remove any references to competing logistics or delivery brands before resubmitting.', company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', reviewLog:[{date:'05 May 2026, 10:22',event:'Pending review',by:'seller'},{date:'06 May 2026, 15:47',event:'Rejected',by:'spx',note:'Competitor brand logo detected in the bottom-right corner. Please remove any references to competing logistics or delivery brands.',archivedCreative:'summer_v1.jpg'}]},
-  'yearend-nss': {name:'Year-End Promo 2025',       ref:'SGAD000088', period:'2025-12-01 to 2025-12-31',       exposure:'By Duration · 28 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Completed',          statusClass:'stag-gray',  spend:'SGD 800 (invoiced on completion)', impressions:'6,000', cpm:'SGD 66.7', creative:'yearend.jpg',      flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2025-11-29 14:22', lockers:'42 lockers', playlists:'Playlist 1, Playlist 2', playbackOrder:'#3', adType:'Seller campaign', reviewLog:[{date:'28 Nov 2025, 09:01',event:'Pending review',by:'seller'},{date:'29 Nov 2025, 14:22',event:'Approved',by:'spx'},{date:'01 Dec 2025, 00:00',event:'Live',by:'system'},{date:'31 Dec 2025, 23:59',event:'Completed',by:'system'}]},
+  'yearend-nss': {name:'Year-End Promo 2025',       ref:'SGAD000088', period:'2025-12-01 to 2025-12-28',       exposure:'By Duration · 28 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Completed',          statusClass:'stag-gray',  spend:'SGD 800 (invoiced on completion)', impressions:'6,000', cpm:'SGD 66.7', creative:'yearend.jpg',      flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2025-11-29 14:22', lockers:'42 lockers', playlists:'Playlist 1, Playlist 2', playbackOrder:'#3', adType:'Seller campaign', reviewLog:[{date:'28 Nov 2025, 09:01',event:'Pending review',by:'seller'},{date:'29 Nov 2025, 14:22',event:'Approved',by:'spx'},{date:'01 Dec 2025, 00:00',event:'Live',by:'system'},{date:'31 Dec 2025, 23:59',event:'Completed',by:'system'}]},
   'upcoming-nss': {name:'Q3 Brand Campaign', ref:'SGAD000156', period:'2026-06-17 to 2026-08-17', exposure:'By Spots · 4,500', location:'Island-wide · All types', locType:'All types', region:'Island-wide', status:'Scheduled', statusClass:'stag-blue', spend:'SGD 0 of SGD 600 (committed)', impressions:'—', cpm:'—', creative:'q3_brand.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2026-06-12 09:30', lockers:'42 lockers', playlists:'Playlist 1', adType:'Seller campaign', reviewLog:[{date:'10 Jun 2026, 14:00',event:'Pending review',by:'seller'},{date:'12 Jun 2026, 09:30',event:'Approved',by:'spx'},{date:'12 Jun 2026, 09:30',event:'Scheduled',by:'system'}]},
   'q1-nss': {name:'Q1 Trade Show 2026', ref:'SGAD000095', period:'2026-01-15 to 2026-01-28', exposure:'By Duration · 14 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Cancelled', statusClass:'stag-gray', spend:'SGD 600', impressions:'—', cpm:'—', creative:'q1_tradeshow.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'2026-01-10 09:15', lockers:'42 lockers', playlists:'Playlist 1', playbackOrder:'#5', adType:'Seller campaign', reviewLog:[{date:'10 Jan 2026, 09:00',event:'Pending review',by:'seller'},{date:'10 Jan 2026, 09:15',event:'Approved',by:'spx'},{date:'15 Jan 2026, 00:00',event:'Live',by:'system'},{date:'05 Jun 2026, 16:04',event:'Cancelled',note:'Promotional content no longer compliant with updated SPX advertising guidelines effective June 2026.',by:'spx'}]},
   'midyear-nss': {name:'Mid-Year Flash Sale', ref:'SGAD000162', period:'2026-07-01 to 2026-07-31', exposure:'By Spots · 4,500', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Pending payment', statusClass:'stag-orange', spend:'SGD 675 (due now)', impressions:'—', cpm:'—', creative:'midyear_flash.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', amountDue:'SGD 675.00', paidAt:null, paymentDueAt:new Date(Date.now()+19*3600*1000).toISOString(), reviewLog:[{date:'—',event:'Pending review',by:'seller'},{date:'—',event:'Approved',by:'spx'},{date:'—',event:'Pending payment',by:'system',note:'Payment due within 24 hours of approval. The campaign will be cancelled automatically if payment is not received in time.'}]},
-  'weekend-nss': {name:'Weekend Promo — June', ref:'SGAD000149', period:'2026-06-05 to 2026-06-12', exposure:'By Duration · 7 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Cancelled', statusClass:'stag-gray', spend:'SGD 450', impressions:'—', cpm:'—', creative:'weekend_promo.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', amountDue:'SGD 450.00', paidAt:null, paymentDueAt:new Date(Date.now()-30*3600*1000).toISOString(), reviewLog:[{date:'—',event:'Pending review',by:'seller'},{date:'—',event:'Approved',by:'spx'},{date:'—',event:'Pending payment',by:'system'},{date:'—',event:'Cancelled — payment not received',by:'system',note:'No payment was received within 24 hours of approval. The campaign was cancelled automatically.'}]},
+  'weekend-nss': {name:'Weekend Promo — June', ref:'SGAD000149', period:'2026-06-05 to 2026-06-11', exposure:'By Duration · 7 days', location:'Island-wide', locType:'All types', region:'Island-wide', status:'Cancelled', statusClass:'stag-gray', spend:'SGD 450', impressions:'—', cpm:'—', creative:'weekend_promo.jpg', flag:null, company:'NSS Logistics Co.', uploadedBy:'K. Lim', reviewDate:'—', lockers:'—', playlists:'—', playbackOrder:'—', adType:'Seller campaign', amountDue:'SGD 450.00', paidAt:null, paymentDueAt:new Date(Date.now()-30*3600*1000).toISOString(), reviewLog:[{date:'—',event:'Pending review',by:'seller'},{date:'—',event:'Approved',by:'spx'},{date:'—',event:'Pending payment',by:'system'},{date:'—',event:'Cancelled — payment not received',by:'system',note:'No payment was received within 24 hours of approval. The campaign was cancelled automatically.'}]},
 };
 
 function openPanel(mode, id){

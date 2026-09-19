@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Locker Advertisement Rate Card — SPX Finance Portal</title>
+<title>Locker Ads Fee Rate Card — SPX Finance Portal</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -135,7 +135,7 @@
     display: flex; gap: 10px; align-items: center;
     border-bottom: 1px solid #eee;
   }
-  .action-bar-right { margin-left: auto; font-size: 12px; color: #888; }
+  .action-bar-right { margin-left: auto; font-size: 12px; color: #888; display: flex; align-items: center; gap: 10px; }
 
   /* table */
   .table-wrap { padding: 0 20px 20px; flex: 1; }
@@ -194,7 +194,6 @@
     box-shadow: 0 8px 32px rgba(0,0,0,.18);
     overflow: hidden;
   }
-  .modal.modal-wide { width: 760px; }
   .modal-header {
     padding: 14px 20px;
     border-bottom: 1px solid #e8e8e8;
@@ -207,8 +206,10 @@
   /* stepper */
   .stepper {
     display: flex; align-items: center;
-    padding: 16px 20px 0;
+    padding: 24px 20px;
     gap: 0;
+    max-width: 700px; margin: 0 auto;
+    background: #fff; border-bottom: 1px solid #eee;
   }
   .step {
     display: flex; align-items: center; gap: 8px;
@@ -301,39 +302,71 @@
   }
   .pulled-note .dot { width: 6px; height: 6px; border-radius: 50%; background: #52c41a; flex-shrink: 0; }
 
-  /* coverage tabs (inside modal) */
-  .coverage-tabs {
-    display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid #eee;
-  }
-  .coverage-tab {
-    padding: 8px 14px; font-size: 12px; color: #666; cursor: pointer;
-    border-bottom: 2px solid transparent; font-weight: 500;
-  }
-  .coverage-tab:hover { color: #333; }
-  .coverage-tab.active { color: #e31837; border-bottom-color: #e31837; }
-
-  /* pricing grid */
-  .grid-table-wrap { border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
-  .grid-table { width: 100%; border-collapse: collapse; margin: 0; }
-  .grid-table th, .grid-table td { padding: 7px 10px; font-size: 12px; border: 1px solid #f0f0f0; white-space: nowrap; }
-  .grid-table th { background: #fafafa; color: #555; font-weight: 600; text-align: center; }
-  .grid-table td:first-child, .grid-table th:first-child { text-align: left; background: #fafafa; font-weight: 500; color: #333; width: 90px; }
-  .grid-input {
-    width: 100%; border: 1px solid #d9d9d9; border-radius: 3px;
-    padding: 4px 4px 4px 20px; font-size: 12px; text-align: right;
-    outline: none; position: relative;
-  }
-  .grid-cell { position: relative; }
-  .grid-cell::before {
-    content: '$'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-    font-size: 11px; color: #999; pointer-events: none;
-  }
-  .grid-input:focus { border-color: #e31837; }
-  .grid-input.error { border-color: #f5222d; }
-  .grid-caption { font-size: 11px; color: #999; margin-top: 8px; }
-
   .view-section-title { font-size: 12px; font-weight: 600; color: #555; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: .5px; }
   .view-section-title:first-child { margin-top: 0; }
+
+  /* ── FULL-PAGE CREATE / VIEW ── */
+  .page-breadcrumb { font-size: 12px; color: #888; padding: 14px 20px; border-bottom: 1px solid #eee; background: #fff; }
+  .page-breadcrumb span { color: #333; }
+  .page-title-row { padding: 18px 20px 0; display: flex; align-items: center; gap: 12px; }
+  .page-title-row h2 { font-size: 18px; font-weight: 600; color: #222; }
+  .page-body { padding: 20px; }
+  .page-footer {
+    position: sticky; bottom: 0; z-index: 10;
+    padding: 12px 20px; border-top: 1px solid #e8e8e8;
+    display: flex; justify-content: flex-end; gap: 10px;
+    background: #fafafa;
+  }
+
+  .view-title-row { display: flex; align-items: center; gap: 12px; margin: 4px 0 24px; }
+  .view-title-row h2 { font-size: 20px; font-weight: 600; color: #222; }
+  .view-section { margin-bottom: 28px; }
+  .view-section-heading { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #222; margin-bottom: 14px; }
+  .accent-bar { width: 3px; height: 14px; background: #e31837; display: inline-block; border-radius: 2px; flex-shrink: 0; }
+  .view-fields { display: grid; grid-template-columns: 160px 1fr; row-gap: 10px; column-gap: 16px; max-width: 640px; margin-bottom: 4px; }
+  .vf-label { text-align: right; color: #888; font-size: 12px; padding-top: 1px; }
+  .vf-value { color: #222; font-size: 13px; }
+
+  /* ── STATUS PILLS ── */
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; line-height: 1.5; }
+  .pill-active { background: #e6f9e6; color: #52c41a; }
+  .pill-past { background: #f0f0f0; color: #888; }
+  .pill-draft { background: #f0f0f0; color: #888; }
+  .pill-scheduled { background: #e6f1fc; color: #1890ff; }
+
+  /* ── DROPDOWNS (Mass Create / Mass Action) ── */
+  .dropdown { position: relative; display: inline-block; }
+  .dropdown-menu {
+    display: none; position: absolute; top: calc(100% + 4px); left: 0;
+    background: #fff; border: 1px solid #e0e0e0; border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 170px; z-index: 50;
+  }
+  .dropdown-menu.open { display: block; }
+  .dropdown-menu-right { left: auto; right: 0; }
+  .dropdown-item { padding: 8px 14px; font-size: 12px; color: #333; cursor: pointer; white-space: nowrap; }
+  .dropdown-item:hover { background: #f5f5f5; }
+
+  /* ── FEE TABLE ── */
+  .fee-table-wrap { border: 1px solid #e8e8e8; border-radius: 4px; overflow-x: auto; margin-top: 8px; }
+  .fee-table { width: 100%; border-collapse: collapse; }
+  .fee-table th, .fee-table td { padding: 7px 10px; font-size: 12px; border: 1px solid #f0f0f0; white-space: nowrap; }
+  .fee-table th { background: #fafafa; color: #555; font-weight: 600; text-align: center; }
+  .fee-table td { text-align: center; }
+  .fee-input {
+    width: 80px; border: 1px solid #d9d9d9; border-radius: 3px;
+    padding: 4px 6px; font-size: 12px; text-align: right; outline: none;
+  }
+  .fee-input:focus { border-color: #e31837; }
+  .fee-input.error { border-color: #f5222d; }
+  .fee-select {
+    width: 130px; border: 1px solid #d9d9d9; border-radius: 3px;
+    padding: 4px 6px; font-size: 12px; outline: none; background: #fff;
+  }
+  .fee-select:focus { border-color: #e31837; }
+  .between-label { color: #888; font-size: 12px; }
+  .fee-trash { cursor: pointer; color: #f5222d; font-size: 14px; }
+  .add-row-link { display: inline-block; margin-top: 8px; color: #1890ff; font-size: 12px; cursor: pointer; }
+  .add-row-link:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -376,18 +409,24 @@
   </div>
 
   <!-- Tab bar -->
-  <!-- Top tab bar: SP Commission | SP Black List | Locker Advertisement -->
+  <!-- Top tab bar: SP Commission | SP Black List | Locker Ads Fee -->
   <div class="tab-bar" id="top-tab-bar">
     <div class="tab active" id="top-tab-sp" onclick="switchTopTab('sp')">SP Commission</div>
     <div class="tab" id="top-tab-sp-black">SP Black List</div>
-    <div class="tab" id="top-tab-locker-ads" onclick="switchTopTab('locker-ads')">Locker Advertisement</div>
+    <div class="tab" id="top-tab-locker-ads" onclick="switchTopTab('locker-ads')">Locker Ads Fee</div>
   </div>
 
-  <!-- Sub-tab bar (only shown under SP Commission) -->
-  <div class="tab-bar" id="sub-tab-bar">
-    <div class="tab active" id="tab-rate-card" onclick="switchSubTab('rate-card')">Rate Card</div>
-    <div class="tab" id="tab-global" onclick="switchSubTab('global')">Global Fee Rule</div>
-    <div class="tab" id="tab-recalc" onclick="switchSubTab('recalc')">Recalculation Task</div>
+  <!-- Sub-tab bar — SP Commission -->
+  <div class="tab-bar" id="sub-tab-bar-sp">
+    <div class="tab active" id="tab-sp-rate-card" onclick="switchSubTab('sp','rate-card')">Rate Card</div>
+    <div class="tab" id="tab-sp-global" onclick="switchSubTab('sp','global')">Global Fee Rule</div>
+    <div class="tab" id="tab-sp-recalc" onclick="switchSubTab('sp','recalc')">Recalculation Task</div>
+  </div>
+
+  <!-- Sub-tab bar — Locker Ads Fee -->
+  <div class="tab-bar" id="sub-tab-bar-ads" style="display:none;">
+    <div class="tab active" id="tab-ads-rate-card" onclick="switchSubTab('ads','rate-card')">Rate Card</div>
+    <div class="tab" id="tab-ads-global" onclick="switchSubTab('ads','global')">Global Fee Rule</div>
   </div>
 
   <div class="content" id="main-content">
@@ -449,29 +488,56 @@
             <option value="8">8 - Samsung Normal Fleet</option>
           </select>
         </div>
+        <div class="filter-group"><div class="filter-label">Fee Structure</div>
+          <select class="filter-select">
+            <option value="">Please Select</option>
+            <option>Flat Fee</option>
+            <option>Tiered</option>
+          </select>
+        </div>
         <div class="filter-group"><div class="filter-label">Status</div>
           <select class="filter-select">
             <option value="">Please Select</option>
             <option>Active</option>
             <option>Scheduled</option>
             <option>Past</option>
+            <option>Draft</option>
           </select>
         </div>
         <div class="filter-actions"><button class="btn btn-primary">Search</button><button class="btn btn-default">Reset</button></div>
       </div>
       <div class="action-bar">
-        <button class="btn btn-primary btn-sm" onclick="openCreateModal()">Create Rate Card Version</button>
+        <button class="btn btn-primary btn-sm" onclick="openCreatePage()">Create</button>
+        <div class="dropdown">
+          <button class="btn btn-default btn-sm" onclick="toggleDropdown('mass-create-menu')">Mass Create ▾</button>
+          <div class="dropdown-menu" id="mass-create-menu">
+            <div class="dropdown-item">Download Template</div>
+            <div class="dropdown-item">Upload File</div>
+          </div>
+        </div>
+        <button class="btn btn-default btn-sm">⏱ Mass Creation History</button>
         <button class="btn btn-default btn-sm">Export</button>
-        <div class="action-bar-right">Each version is a full rate card snapshot — active campaigns keep following the version live at their booking date</div>
+        <div class="action-bar-right">
+          <span id="selected-count">0 Rate(s) Selected</span>
+          <div class="dropdown">
+            <button class="btn btn-default btn-sm" onclick="toggleDropdown('mass-action-menu')">Mass Action ▾</button>
+            <div class="dropdown-menu dropdown-menu-right" id="mass-action-menu">
+              <div class="dropdown-item">Batch Deactivate</div>
+              <div class="dropdown-item">Batch Export</div>
+            </div>
+          </div>
+        </div>
       </div>
+      <div style="padding:8px 20px 0;color:#999;font-size:11px;">Each version is a full rate card snapshot — active campaigns keep following the version live at their booking date.</div>
       <div class="table-wrap">
         <table>
           <thead><tr>
+            <th><input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this.checked)"/></th>
             <th>Rate ID</th>
             <th>Seller Type</th>
             <th>Merchant Type</th>
             <th>Regions</th>
-            <th>Coverage Types</th>
+            <th>Fee Structure</th>
             <th>Effective Start</th>
             <th>Created</th>
             <th>Status</th>
@@ -482,175 +548,306 @@
       </div>
     </div>
 
-    <!-- other panels placeholder -->
-    <div id="panel-global" style="display:none;padding:40px 20px;color:#aaa;font-size:13px;">Global Fee Rule — not in scope</div>
-    <div id="panel-recalc" style="display:none;padding:40px 20px;color:#aaa;font-size:13px;">Recalculation Task — not in scope</div>
-  </div>
-</div>
+    <!-- ═══ CREATE RATE CARD VERSION (full page) ═══ -->
+    <div id="page-create" style="display:none;">
+      <div class="page-breadcrumb">SPX / Billing Rule / Service Point / Locker Ads Fee / <span>Create Rate Card Version</span></div>
+      <div class="page-title-row"><h2>Create Rate Card Version</h2></div>
 
-<!-- ═══════════════════════════════════════════
-     CREATE RATE CARD VERSION MODAL
-════════════════════════════════════════════ -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal modal-wide">
-    <div class="modal-header">
-      <h3>Create Rate Card Version</h3>
-      <span class="modal-close" onclick="closeCreateModal()">×</span>
-    </div>
-
-    <!-- Stepper -->
-    <div class="stepper" id="stepper">
-      <div class="step active" id="step-indicator-1">
-        <div class="step-circle" id="step-circle-1">1</div>
-        <div class="step-label">Rate Group</div>
+      <div class="stepper" id="stepper">
+        <div class="step active" id="step-indicator-1">
+          <div class="step-circle" id="step-circle-1">1</div>
+          <div class="step-label">Seller Group</div>
+        </div>
+        <div class="step-line" id="step-line-1"></div>
+        <div class="step" id="step-indicator-2">
+          <div class="step-circle" id="step-circle-2">2</div>
+          <div class="step-label">Calculation Rule</div>
+        </div>
+        <div class="step-line" id="step-line-2"></div>
+        <div class="step" id="step-indicator-3">
+          <div class="step-circle" id="step-circle-3">3</div>
+          <div class="step-label">Effective Time</div>
+        </div>
       </div>
-      <div class="step-line" id="step-line-1"></div>
-      <div class="step" id="step-indicator-2">
-        <div class="step-circle" id="step-circle-2">2</div>
-        <div class="step-label">Pricing Grid</div>
-      </div>
-      <div class="step-line" id="step-line-2"></div>
-      <div class="step" id="step-indicator-3">
-        <div class="step-circle" id="step-circle-3">3</div>
-        <div class="step-label">Effective Time</div>
-      </div>
-    </div>
 
-    <div class="modal-body">
+      <div class="page-body">
 
-      <!-- STEP 1 — Rate Group -->
-      <div class="step-panel active" id="panel-step-1">
-        <div class="form-row">
-          <div class="form-group">
-            <div class="form-label"><span class="req">* </span>Seller Type</div>
-            <select class="form-control" id="seller-type-select" onchange="onSellerTypeChange(this.value)">
-              <option value="">Please Select</option>
-              <option value="NSS">NSS</option>
-              <option value="Shopee">Shopee</option>
-            </select>
-            <div class="error-msg" id="err-seller-type">Please select a seller type</div>
+        <!-- STEP 1 — Seller Group -->
+        <div class="step-panel active" id="panel-step-1">
+          <div class="form-row">
+            <div class="form-group">
+              <div class="form-label"><span class="req">* </span>Seller Type</div>
+              <select class="form-control" id="seller-type-select" onchange="onSellerTypeChange(this.value)">
+                <option value="">Please Select</option>
+                <option value="NSS">NSS</option>
+                <option value="Shopee">Shopee</option>
+              </select>
+              <div class="error-msg" id="err-seller-type">Please select a seller type</div>
+            </div>
+          </div>
+
+          <div class="form-row" id="merchant-type-row" style="display:none;">
+            <div class="form-group">
+              <div class="form-label"><span class="req">* </span>Merchant Type</div>
+              <select class="form-control" id="merchant-type-select">
+                <option value="">Please Select</option>
+                <option value="1">1 - Personal</option>
+                <option value="2">2 - Small Enterprise</option>
+                <option value="3">3 - Big Enterprise</option>
+                <option value="4">4 - merchant_type_sg_test</option>
+                <option value="6">6 - Merchant Type Test 2</option>
+                <option value="7">7 - Samsung Dedicated Fleet</option>
+                <option value="8">8 - Samsung Normal Fleet</option>
+              </select>
+              <div class="error-msg" id="err-merchant-type">Please select a merchant type</div>
+              <div class="hint">Rate card will apply to all NSS accounts under this merchant type.</div>
+            </div>
+          </div>
+
+          <div id="shopee-note" style="display:none;">
+            <div class="info-note">
+              This rate will apply to all Shopee sellers. Shopee handles billing with individual sellers; SPX reports charges to Shopee at this rate.
+            </div>
           </div>
         </div>
 
-        <div class="form-row" id="merchant-type-row" style="display:none;">
-          <div class="form-group">
-            <div class="form-label"><span class="req">* </span>Merchant Type</div>
-            <select class="form-control" id="merchant-type-select">
-              <option value="">Please Select</option>
-              <option value="1">1 - Personal</option>
-              <option value="2">2 - Small Enterprise</option>
-              <option value="3">3 - Big Enterprise</option>
-              <option value="4">4 - merchant_type_sg_test</option>
-              <option value="6">6 - Merchant Type Test 2</option>
-              <option value="7">7 - Samsung Dedicated Fleet</option>
-              <option value="8">8 - Samsung Normal Fleet</option>
-            </select>
-            <div class="error-msg" id="err-merchant-type">Please select a merchant type</div>
-            <div class="hint">Rate card will apply to all NSS accounts under this merchant type.</div>
+        <!-- STEP 2 — Calculation Rule -->
+        <div class="step-panel" id="panel-step-2">
+          <div class="form-row">
+            <div class="form-group" style="max-width:240px;">
+              <div class="form-label"><span class="req">* </span>Fee Structure</div>
+              <select class="form-control" id="fee-structure-select" onchange="onFeeStructureChange(this.value)">
+                <option value="">Please Select</option>
+                <option value="Flat Fee">Flat Fee</option>
+                <option value="Tiered">Tiered</option>
+              </select>
+              <div class="error-msg" id="err-fee-structure">Please select a fee structure</div>
+            </div>
           </div>
+
+          <div class="pulled-note" style="margin-top:0; margin-bottom:10px;"><span class="dot"></span>Location Types and Regions are configured from SP Portal &gt; Admin &gt; Inhouse Locker Management &gt; Locker Ads &gt; Booking Configuration. Only enabled combinations are selectable below.</div>
+
+          <div class="view-section-title" style="margin-top:0;"><span class="req">* </span>Rate Bands</div>
+          <div class="fee-table-wrap">
+            <table class="fee-table">
+              <thead><tr><th>Location Type</th><th>Region</th><th>Coverage Start %</th><th>≤ X ≤</th><th>Coverage End %</th><th>Cost per locker</th><th>Action</th></tr></thead>
+              <tbody id="bands-table-body"></tbody>
+            </table>
+          </div>
+          <div class="error-msg" id="err-bands">Please fix the band errors above.</div>
+          <div><span class="add-row-link" onclick="addBandRow()">+ Add Row</span></div>
+          <div class="hint" id="bands-hint"></div>
         </div>
 
-        <div id="shopee-note" style="display:none;">
+        <!-- STEP 3 — Effective Time -->
+        <div class="step-panel" id="panel-step-3">
+          <div class="summary-box" id="step3-summary"></div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <div class="form-label"><span class="req">* </span>Effective Start Time</div>
+              <input type="date" class="form-control" id="effective-date"/>
+              <div class="error-msg" id="err-date">Please select an effective start time</div>
+            </div>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="start-immediately" onchange="onStartImmediately(this.checked)"/>
+            <label for="start-immediately">Start Immediately</label>
+          </div>
           <div class="info-note">
-            This rate will apply to all Shopee sellers. Shopee handles billing with individual sellers; SPX reports charges to Shopee at this rate.
+            This creates a new rate card version, not an edit to the current one. Campaigns already booked keep following the version that was active on their booking date — this version only applies to campaigns booked from the effective date onward. The version it supersedes moves to <strong>Past</strong> (or <strong>Scheduled</strong> stays queued if its own start date hasn't arrived yet).
           </div>
         </div>
+
+      </div><!-- end page-body -->
+
+      <div class="page-footer">
+        <button class="btn btn-default" onclick="cancelCreate()">Cancel</button>
+        <button class="btn btn-default" id="btn-prev" style="display:none;" onclick="prevStep()">Previous</button>
+        <button class="btn btn-default" id="btn-draft" onclick="saveDraft()">Save as Draft</button>
+        <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Save &amp; Next</button>
       </div>
+    </div>
 
-      <!-- STEP 2 — Pricing Grid -->
-      <div class="step-panel" id="panel-step-2">
-        <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:6px;">Enter the weekly rate per locker (SGD) for each enabled combination below</div>
-        <div class="pulled-note" style="margin-top:0; margin-bottom:10px;"><span class="dot"></span>Regions and location types for Half / Full Network are configured from SP Portal &gt; Admin &gt; Inhouse Locker Management &gt; Locker Ads &gt; Booking Configuration.</div>
-        <div class="coverage-tabs" id="coverage-tabs">
-          <div class="coverage-tab active" data-coverage="half" onclick="switchCoverageTab('half')">Half Network</div>
-          <div class="coverage-tab" data-coverage="full" onclick="switchCoverageTab('full')">Full Network</div>
+    <!-- ═══ VIEW RATE CARD VERSION (full page, read-only) ═══ -->
+    <div id="page-view" style="display:none;">
+      <div class="page-breadcrumb">SPX / Billing Rule / Service Point / Locker Ads Fee / <span>Rate Card Version Detail</span></div>
+      <div class="page-body">
+        <div class="action-link" style="margin-bottom:16px;display:inline-block;" onclick="closeViewPage()">‹ Back to Rate Cards</div>
+        <div class="view-title-row">
+          <h2 id="view-title">Rate ID:</h2>
+          <span id="view-status-pill-wrap"></span>
         </div>
-        <div class="grid-table-wrap">
-          <table class="grid-table" id="grid-table"></table>
-        </div>
-        <div class="error-msg" id="err-grid">Please enter a rate for every enabled cell in both Half Network and Full Network</div>
-        <div class="grid-caption">Rate = SGD per locker per week. Cells shown as "—" are disabled in SP Portal Booking Configuration and need no rate. Same axes apply to Full Network — fill both tabs before continuing.</div>
-      </div>
 
-      <!-- STEP 3 — Effective Time -->
-      <div class="step-panel" id="panel-step-3">
-        <div class="summary-box" id="step3-summary"></div>
+        <div class="view-section">
+          <div class="view-section-heading"><span class="accent-bar"></span>Seller Group</div>
+          <div class="view-fields" id="view-fields-1"></div>
+        </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <div class="form-label"><span class="req">* </span>Effective Start Time</div>
-            <input type="date" class="form-control" id="effective-date"/>
-            <div class="error-msg" id="err-date">Please select an effective start time</div>
-          </div>
+        <div class="view-section">
+          <div class="view-section-heading"><span class="accent-bar"></span>Calculation Rule</div>
+          <div class="view-fields" id="view-fields-2"></div>
+          <div id="view-bands-wrap"></div>
         </div>
-        <div class="checkbox-item">
-          <input type="checkbox" id="start-immediately" onchange="onStartImmediately(this.checked)"/>
-          <label for="start-immediately">Start Immediately</label>
-        </div>
-        <div class="info-note">
-          This creates a new rate card version, not an edit to the current one. Campaigns already booked keep following the version that was active on their booking date — this version only applies to campaigns booked from the effective date onward. The version it supersedes moves to <strong>Past</strong> (or <strong>Scheduled</strong> stays queued if its own start date hasn't arrived yet).
+
+        <div class="view-section">
+          <div class="view-section-heading"><span class="accent-bar"></span>Effective Time</div>
+          <div class="view-fields" id="view-fields-3"></div>
         </div>
       </div>
+    </div>
 
-    </div><!-- end modal-body -->
+    <!-- ═══ GLOBAL FEE RULE tab — SP Commission (faithful replica of the live screen) ═══ -->
+    <div id="panel-global" style="display:none;">
+      <div class="page-body">
+        <div class="info-note blue" style="margin-top:0;margin-bottom:16px;">Please note that the rules below will be applied to all companies in current region.</div>
+        <table>
+          <thead><tr><th>Fee Rule</th><th>Create Time</th><th>Modify Time</th><th>Operator</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Withholding Tax Rule</td><td>2024-01-15 10:00:00</td><td>2024-06-18 09:10:00</td><td>gareth.wangjc@shopee.com</td>
+              <td><span class="action-link" onclick="openGlobalRuleModal('wht','view')">View</span><span class="action-sep">|</span><span class="action-link" onclick="openGlobalRuleModal('wht','edit')">Edit</span></td>
+            </tr>
+            <tr>
+              <td>VAT Rule</td><td>2024-01-15 10:00:00</td><td>2024-01-15 10:00:00</td><td>zibo.lin@shopee.com</td>
+              <td><span class="action-link" onclick="openGlobalRuleModal('vat','view')">View</span><span class="action-sep">|</span><span class="action-link" onclick="openGlobalRuleModal('vat','edit')">Edit</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="panel-recalc" style="display:none;padding:40px 20px;color:#aaa;font-size:13px;">Recalculation Task — not in scope</div>
 
-    <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeCreateModal()">Cancel</button>
-      <button class="btn btn-default" id="btn-prev" style="display:none;" onclick="prevStep()">Previous</button>
-      <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Save &amp; Next</button>
+    <!-- ═══ GLOBAL FEE RULE tab — Locker Ads Fee (ads-specific; no Withholding Tax, no Recalculation Task) ═══ -->
+    <div id="panel-global-ads" style="display:none;">
+      <div class="page-body">
+        <div class="info-note blue" style="margin-top:0;margin-bottom:16px;">Please note that the rules below will be applied to all companies in current region.</div>
+        <table>
+          <thead><tr><th>Fee Rule</th><th>Create Time</th><th>Modify Time</th><th>Operator</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>GST Rule</td><td>2024-01-15 10:00:00</td><td>2025-11-02 14:22:00</td><td>zibo.lin@shopee.com</td>
+              <td><span class="action-link" onclick="openGlobalRuleModal('gst','view')">View</span><span class="action-sep">|</span><span class="action-link" onclick="openGlobalRuleModal('gst','edit')">Edit</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════
-     VIEW RATE CARD VERSION MODAL (read-only)
+     GLOBAL FEE RULE — VIEW/EDIT MODAL
 ════════════════════════════════════════════ -->
-<div class="modal-overlay" id="view-modal-overlay">
-  <div class="modal modal-wide">
+<div class="modal-overlay" id="global-edit-modal-overlay">
+  <div class="modal">
     <div class="modal-header">
-      <h3 id="view-modal-title">Rate Card Version</h3>
-      <span class="modal-close" onclick="closeViewModal()">×</span>
+      <h3 id="global-edit-title">Edit Fee Rule</h3>
+      <span class="modal-close" onclick="closeGlobalEditModal()">×</span>
     </div>
-    <div class="modal-body" id="view-modal-body"></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label"><span class="req">* </span>Rate (%)</div>
+        <input type="number" class="form-control" id="global-edit-input" min="0" max="100" step="0.01"/>
+        <div class="error-msg" id="err-global-edit">Please enter a rate</div>
+      </div>
+    </div>
     <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeViewModal()">Close</button>
+      <button class="btn btn-default" onclick="closeGlobalEditModal()">Cancel</button>
+      <button class="btn btn-primary" id="global-save-btn" onclick="saveGlobalEdit()">Save</button>
     </div>
   </div>
 </div>
 
 <script>
-  /* ── TAB SWITCHING ── */
+  /* ── TAB SWITCHING ──
+     Each top tab owns its own sub-tab bar + panel set so nothing bleeds
+     across tabs. SP Commission has Recalculation Task (commission gets
+     recalculated on past orders); Locker Ads Fee doesn't — it's a
+     one-off upfront charge at booking, so there's nothing to recalculate. */
+  const SUBTAB_MAP = {
+    sp: [
+      { key: 'rate-card', tabId: 'tab-sp-rate-card', panelId: 'panel-rate-card' },
+      { key: 'global', tabId: 'tab-sp-global', panelId: 'panel-global' },
+      { key: 'recalc', tabId: 'tab-sp-recalc', panelId: 'panel-recalc' }
+    ],
+    ads: [
+      { key: 'rate-card', tabId: 'tab-ads-rate-card', panelId: 'panel-locker-ads' },
+      { key: 'global', tabId: 'tab-ads-global', panelId: 'panel-global-ads' }
+    ]
+  };
+
   function switchTopTab(tab) {
     ['sp','sp-black','locker-ads'].forEach(t => {
       const el = document.getElementById('top-tab-'+t);
       if (el) el.classList.toggle('active', t === tab);
     });
-    document.getElementById('sub-tab-bar').style.display = tab === 'sp' ? '' : 'none';
-    document.getElementById('panel-rate-card').style.display = tab === 'sp' ? '' : 'none';
-    document.getElementById('panel-global').style.display = 'none';
-    document.getElementById('panel-recalc').style.display = 'none';
-    document.getElementById('panel-locker-ads').style.display = tab === 'locker-ads' ? '' : 'none';
+    document.getElementById('sub-tab-bar-sp').style.display = tab === 'sp' ? '' : 'none';
+    document.getElementById('sub-tab-bar-ads').style.display = tab === 'locker-ads' ? '' : 'none';
+
+    SUBTAB_MAP.sp.forEach(entry => document.getElementById(entry.panelId).style.display = 'none');
+    SUBTAB_MAP.ads.forEach(entry => document.getElementById(entry.panelId).style.display = 'none');
+    document.getElementById('page-create').style.display = 'none';
+    document.getElementById('page-view').style.display = 'none';
+
+    if (tab === 'sp') switchSubTab('sp', 'rate-card');
+    if (tab === 'locker-ads') switchSubTab('ads', 'rate-card');
   }
 
-  function switchSubTab(tab) {
-    ['rate-card','global','recalc'].forEach(t => {
-      document.getElementById('tab-'+t).classList.toggle('active', t===tab);
-      document.getElementById('panel-'+t).style.display = t===tab ? '' : 'none';
+  function switchSubTab(group, key) {
+    SUBTAB_MAP[group].forEach(entry => {
+      document.getElementById(entry.tabId).classList.toggle('active', entry.key === key);
+      document.getElementById(entry.panelId).style.display = entry.key === key ? '' : 'none';
     });
   }
 
   // Init
-  document.getElementById('panel-locker-ads').style.display = 'none';
-  document.getElementById('panel-global').style.display = 'none';
-  document.getElementById('panel-recalc').style.display = 'none';
+  switchTopTab('sp');
+
+  /* ── DROPDOWNS ── */
+  function toggleDropdown(id) {
+    document.querySelectorAll('.dropdown-menu').forEach(el => { if (el.id !== id) el.classList.remove('open'); });
+    document.getElementById(id).classList.toggle('open');
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) {
+      document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('open'));
+    }
+  });
+
+  /* ── ROW SELECTION ── */
+  function toggleSelectAll(checked) {
+    document.querySelectorAll('#rate-version-tbody .row-checkbox').forEach(cb => cb.checked = checked);
+    updateSelectedCount();
+  }
+  function updateSelectedCount() {
+    const all = document.querySelectorAll('#rate-version-tbody .row-checkbox');
+    const n = document.querySelectorAll('#rate-version-tbody .row-checkbox:checked').length;
+    document.getElementById('selected-count').textContent = `${n} Rate(s) Selected`;
+    document.getElementById('select-all-checkbox').checked = all.length > 0 && n === all.length;
+  }
 
   /* ═══════════════════════════════════════════
      RATE CARD DATA MODEL
      Each version is a full immutable snapshot: the region list pulled
-     from SP Portal at save time + every Location Type × Region rate,
-     per Coverage type, scoped to one Seller Type (+ Merchant Type for
-     NSS). Campaigns reference a version by id, never a "live" pointer
-     — so changing/adding a version never reprices an already-booked
+     from SP Portal at save time + a flat list of rate bands, scoped to
+     one Seller Type (+ Merchant Type for NSS). Each band is one
+     (Location Type, Region, Coverage Start %, Coverage End %) → Amount
+     (SGD per locker) row. Fee Structure governs how bands within the
+     same Location Type × Region are read, not a separate discount
+     layer on top of a base rate:
+       - Tiered: bands must be contiguous and span 0–100% with no
+         gaps/overlaps. A booking's matched lockers are billed across
+         every bracket its coverage % spans (progressive/marginal) —
+         "beyond a threshold, the lockers from there get a different
+         rate."
+       - Flat Fee: bands all start at 0% and may overlap/nest, ending
+         at 100% at the widest. A booking is billed entirely at the
+         smallest band whose end % still covers its actual coverage %
+         (single flat rate for the whole quantity, not summed) —
+         "the whole qty within the campaign is charged one rate."
+     Campaigns reference a version by id, never a "live" pointer — so
+     changing/adding a version never reprices an already-booked
      campaign.
 
      This Finance Portal instance belongs to one market only (see
@@ -672,7 +869,6 @@
   // Mirrors SP Portal's ALL_LOC_TYPES master list (Location Types are master
   // data owned there, e.g. Point List — Finance Portal never invents its own).
   const LOCATION_TYPES = ['HDB Residential', 'MRT Stations', 'Shopping Malls', 'Bus Interchanges', 'Community Clubs', 'Condominiums', 'Offices'];
-  const COVERAGE_LABELS = { half: 'Half Network', full: 'Full Network' };
   const MERCHANT_TYPE_LABELS = {
     '1': '1 - Personal', '2': '2 - Small Enterprise', '3': '3 - Big Enterprise',
     '4': '4 - merchant_type_sg_test', '6': '6 - Merchant Type Test 2',
@@ -680,22 +876,38 @@
   };
 
   // Mirrors SP Portal's ADS_MATRIX (Locker ads rate card coverage) — which
-  // Location Type × Region × Coverage combinations are enabled at all.
-  // Finance Portal only requires/shows a rate for a combination that's true
-  // here; a false combination renders as "—" and needs no rate. Seeded with
-  // Condominiums × OCR disabled (mirrors: no Condo lockers exist in OCR yet)
-  // to demonstrate this — in production the whole object is pulled live.
+  // Location Type × Region combinations are enabled at all. Finance Portal
+  // only requires/shows a rate for a combination that's true here; a false
+  // combination renders as "—" and needs no rate. Seeded with Condominiums
+  // × OCR disabled (mirrors: no Condo lockers exist in OCR yet) to
+  // demonstrate this — in production the whole object is pulled live.
   function buildAllValid() {
     const m = {};
     LOCATION_TYPES.forEach(lt => { m[lt] = {}; CURRENT_REGIONS.forEach(r => { m[lt][r] = true; }); });
     return m;
   }
-  const VALID_COMBOS = { half: buildAllValid(), full: buildAllValid() };
-  VALID_COMBOS.half.Condominiums.OCR = false;
-  VALID_COMBOS.full.Condominiums.OCR = false;
+  const VALID_COMBOS = buildAllValid();
+  VALID_COMBOS.Condominiums.OCR = false;
 
   function rateGroupKey(sellerType, merchantType) {
     return sellerType === 'NSS' ? `NSS-${merchantType}` : 'Shopee';
+  }
+
+  // Converts an old-style {locationType:{region:amount}} map into a flat
+  // single-band (0–100%) bands array — a plain, non-bracketed rate per
+  // combination. Combos left out of ratesMap get no band here (used to
+  // carve out a combo for a hand-written multi-band demo instead).
+  function singleBandsFromRates(ratesMap) {
+    const bands = [];
+    LOCATION_TYPES.forEach(lt => {
+      CURRENT_REGIONS.forEach(r => {
+        if (!VALID_COMBOS[lt][r]) return;
+        const amt = ratesMap[lt] && ratesMap[lt][r];
+        if (amt === undefined) return;
+        bands.push({ locationType: lt, region: r, start: 0, end: 100, amount: amt });
+      });
+    });
+    return bands;
   }
 
   let rateCardVersions = [
@@ -704,39 +916,48 @@
       sellerType: 'NSS',
       merchantType: '2',
       regions: CURRENT_REGIONS.slice(),
+      feeStructure: 'Tiered',
       effectiveStart: '2025-06-01',
       created: '2025-05-20 09:00',
       status: 'past',
-      rates: {
-        half: { 'HDB Residential':{CCR:19,RCR:16,OCR:11}, 'MRT Stations':{CCR:27,RCR:22,OCR:16}, 'Shopping Malls':{CCR:30,RCR:25,OCR:17}, 'Bus Interchanges':{CCR:24,RCR:19,OCR:13}, 'Community Clubs':{CCR:21,RCR:17,OCR:12}, 'Condominiums':{CCR:26,RCR:20}, 'Offices':{CCR:23,RCR:18,OCR:12} },
-        full: { 'HDB Residential':{CCR:5,RCR:4,OCR:3}, 'MRT Stations':{CCR:7,RCR:6,OCR:4}, 'Shopping Malls':{CCR:8,RCR:7,OCR:4}, 'Bus Interchanges':{CCR:6,RCR:5,OCR:4}, 'Community Clubs':{CCR:5,RCR:4,OCR:3}, 'Condominiums':{CCR:6,RCR:5}, 'Offices':{CCR:6,RCR:5,OCR:3} }
-      }
+      // Community Clubs × CCR carved out to demo Tiered's contiguous-bracket
+      // shape; every other combo is a plain single 0–100% band.
+      bands: singleBandsFromRates({ 'HDB Residential':{CCR:19,RCR:16,OCR:11}, 'MRT Stations':{CCR:27,RCR:22,OCR:16}, 'Shopping Malls':{CCR:30,RCR:25,OCR:17}, 'Bus Interchanges':{CCR:24,RCR:19,OCR:13}, 'Community Clubs':{RCR:17,OCR:12}, 'Condominiums':{CCR:26,RCR:20}, 'Offices':{CCR:23,RCR:18,OCR:12} }).concat([
+        { locationType: 'Community Clubs', region: 'CCR', start: 0, end: 20, amount: 25 },
+        { locationType: 'Community Clubs', region: 'CCR', start: 21, end: 50, amount: 21 },
+        { locationType: 'Community Clubs', region: 'CCR', start: 51, end: 80, amount: 18 },
+        { locationType: 'Community Clubs', region: 'CCR', start: 81, end: 100, amount: 15 }
+      ])
     },
     {
       id: 'RC-0002',
       sellerType: 'NSS',
       merchantType: '2',
       regions: CURRENT_REGIONS.slice(),
+      feeStructure: 'Flat Fee',
       effectiveStart: '2026-01-01',
       created: '2025-12-10 10:00',
       status: 'active',
-      rates: {
-        half: { 'HDB Residential':{CCR:21,RCR:17,OCR:12}, 'MRT Stations':{CCR:31,RCR:26,OCR:18}, 'Shopping Malls':{CCR:34,RCR:28,OCR:19}, 'Bus Interchanges':{CCR:27,RCR:22,OCR:15}, 'Community Clubs':{CCR:24,RCR:19,OCR:13}, 'Condominiums':{CCR:29,RCR:23}, 'Offices':{CCR:26,RCR:21,OCR:14} },
-        full: { 'HDB Residential':{CCR:6,RCR:5,OCR:4}, 'MRT Stations':{CCR:8,RCR:7,OCR:5}, 'Shopping Malls':{CCR:9,RCR:8,OCR:5}, 'Bus Interchanges':{CCR:7,RCR:6,OCR:4}, 'Community Clubs':{CCR:6,RCR:5,OCR:4}, 'Condominiums':{CCR:7,RCR:6}, 'Offices':{CCR:7,RCR:6,OCR:4} }
-      }
+      // HDB Residential × CCR carved out to demo Flat Fee's nested-band shape
+      // (all starting at 0%, rate drops as the band widens); every other
+      // combo is a plain single 0–100% band.
+      bands: singleBandsFromRates({ 'MRT Stations':{CCR:31,RCR:26,OCR:18}, 'Shopping Malls':{CCR:34,RCR:28,OCR:19}, 'Bus Interchanges':{CCR:27,RCR:22,OCR:15}, 'Community Clubs':{CCR:24,RCR:19,OCR:13}, 'Condominiums':{CCR:29,RCR:23}, 'Offices':{CCR:26,RCR:21,OCR:14}, 'HDB Residential':{RCR:17,OCR:12} }).concat([
+        { locationType: 'HDB Residential', region: 'CCR', start: 0, end: 20, amount: 25 },
+        { locationType: 'HDB Residential', region: 'CCR', start: 0, end: 50, amount: 21 },
+        { locationType: 'HDB Residential', region: 'CCR', start: 0, end: 80, amount: 18 },
+        { locationType: 'HDB Residential', region: 'CCR', start: 0, end: 100, amount: 15 }
+      ])
     },
     {
       id: 'RC-0003',
       sellerType: 'Shopee',
       merchantType: '',
       regions: CURRENT_REGIONS.slice(),
-      effectiveStart: '2026-01-01',
+      feeStructure: 'Flat Fee',
+      effectiveStart: '',
       created: '2025-12-11 09:30',
-      status: 'active',
-      rates: {
-        half: { 'HDB Residential':{CCR:20,RCR:16,OCR:11}, 'MRT Stations':{CCR:29,RCR:24,OCR:17}, 'Shopping Malls':{CCR:32,RCR:26,OCR:18}, 'Bus Interchanges':{CCR:25,RCR:20,OCR:14}, 'Community Clubs':{CCR:22,RCR:18,OCR:12}, 'Condominiums':{CCR:27,RCR:22}, 'Offices':{CCR:24,RCR:20,OCR:13} },
-        full: { 'HDB Residential':{CCR:6,RCR:5,OCR:4}, 'MRT Stations':{CCR:8,RCR:6,OCR:4}, 'Shopping Malls':{CCR:9,RCR:7,OCR:5}, 'Bus Interchanges':{CCR:7,RCR:5,OCR:4}, 'Community Clubs':{CCR:6,RCR:5,OCR:4}, 'Condominiums':{CCR:7,RCR:6}, 'Offices':{CCR:6,RCR:5,OCR:4} }
-      }
+      status: 'draft',
+      bands: singleBandsFromRates({ 'HDB Residential':{CCR:22,RCR:18,OCR:13}, 'MRT Stations':{CCR:32,RCR:26} })
     }
   ];
   let nextVersionSeq = 4;
@@ -744,29 +965,42 @@
   const TODAY = '2026-09-04';
 
   function statusLabel(s) {
-    if (s === 'active') return '<span class="status-active">Active</span>';
-    if (s === 'scheduled') return '<span class="status-scheduled">Scheduled</span>';
-    return '<span class="status-past">Past</span>';
+    if (s === 'active') return '<span class="pill pill-active">Active</span>';
+    if (s === 'scheduled') return '<span class="pill pill-scheduled">Scheduled</span>';
+    if (s === 'draft') return '<span class="pill pill-draft">Draft</span>';
+    return '<span class="pill pill-past">Past</span>';
+  }
+
+  function actionLinksFor(v) {
+    if (v.status === 'draft') {
+      return `<span class="action-link" onclick="openViewPage('${v.id}')">View</span><span class="action-sep">|</span><span class="action-link" onclick="editDraft('${v.id}')">Edit</span><span class="action-sep">|</span><span class="action-link" onclick="deleteDraft('${v.id}')">Delete</span>`;
+    }
+    if (v.status === 'scheduled') {
+      return `<span class="action-link" onclick="openViewPage('${v.id}')">View</span><span class="action-sep">|</span><span class="action-link" onclick="cancelVersion('${v.id}')">Cancel</span>`;
+    }
+    if (v.status === 'active') {
+      return `<span class="action-link" onclick="openViewPage('${v.id}')">View</span><span class="action-sep">|</span><span class="action-link" onclick="deactivateVersion('${v.id}')">Deactivate</span>`;
+    }
+    return `<span class="action-link" onclick="openViewPage('${v.id}')">View</span><span class="action-sep">|</span><span class="action-link" onclick="disableVersion('${v.id}')">Disable</span>`;
   }
 
   function renderRateTable() {
     const tbody = document.getElementById('rate-version-tbody');
     tbody.innerHTML = rateCardVersions.slice().reverse().map(v => `
       <tr>
+        <td><input type="checkbox" class="row-checkbox" onchange="updateSelectedCount()"/></td>
         <td>${v.id}</td>
-        <td>${v.sellerType}</td>
+        <td>${v.sellerType || '—'}</td>
         <td>${v.sellerType === 'NSS' ? MERCHANT_TYPE_LABELS[v.merchantType] : '—'}</td>
         <td>${v.regions.map(r => `<span class="region-chip">${r}</span>`).join('')}</td>
-        <td>${Object.keys(v.rates).map(c => COVERAGE_LABELS[c]).join(', ')}</td>
-        <td>${v.effectiveStart} 00:00:00</td>
+        <td>${v.feeStructure || '—'}</td>
+        <td>${v.effectiveStart ? v.effectiveStart + ' 00:00:00' : '—'}</td>
         <td>${v.created}</td>
         <td>${statusLabel(v.status)}</td>
-        <td>
-          <span class="action-link" onclick="openViewModal('${v.id}')">View</span>
-          ${v.status === 'scheduled' ? '<span class="action-sep">|</span><span class="action-link" onclick="cancelVersion(\''+v.id+'\')">Cancel</span>' : ''}
-        </td>
+        <td>${actionLinksFor(v)}</td>
       </tr>
     `).join('');
+    updateSelectedCount();
   }
   renderRateTable();
 
@@ -774,73 +1008,95 @@
     rateCardVersions = rateCardVersions.filter(v => v.id !== id);
     renderRateTable();
   }
+  function deactivateVersion(id) {
+    const v = rateCardVersions.find(x => x.id === id);
+    if (v) v.status = 'past';
+    renderRateTable();
+  }
+  function disableVersion(id) {
+    rateCardVersions = rateCardVersions.filter(v => v.id !== id);
+    renderRateTable();
+  }
+  function deleteDraft(id) {
+    rateCardVersions = rateCardVersions.filter(v => v.id !== id);
+    renderRateTable();
+  }
 
-  /* ── VIEW MODAL ── */
-  function openViewModal(id) {
+  function backToList() {
+    document.getElementById('page-create').style.display = 'none';
+    document.getElementById('page-view').style.display = 'none';
+    document.getElementById('panel-locker-ads').style.display = '';
+  }
+
+  /* ── VIEW PAGE ── */
+  function openViewPage(id) {
     const v = rateCardVersions.find(x => x.id === id);
     if (!v) return;
-    document.getElementById('view-modal-title').textContent = `Rate Card Version — ${v.id}`;
-    let html = `
-      <div class="summary-box">
-        <h4>Version Details</h4>
-        <div class="summary-row"><span class="summary-key">Seller Type</span><span class="summary-val">${v.sellerType}</span></div>
-        ${v.sellerType === 'NSS' ? `<div class="summary-row"><span class="summary-key">Merchant Type</span><span class="summary-val">${MERCHANT_TYPE_LABELS[v.merchantType]}</span></div>` : ''}
-        <div class="summary-row"><span class="summary-key">Regions</span><span class="summary-val">${v.regions.join(', ')} (${CURRENT_MARKET_LABEL})</span></div>
-        <div class="summary-row"><span class="summary-key">Effective Start</span><span class="summary-val">${v.effectiveStart} 00:00:00</span></div>
-        <div class="summary-row"><span class="summary-key">Status</span><span class="summary-val">${statusLabel(v.status)}</span></div>
-      </div>
+    document.getElementById('view-title').textContent = `Rate ID: ${v.id}`;
+    document.getElementById('view-status-pill-wrap').innerHTML = statusLabel(v.status);
+
+    document.getElementById('view-fields-1').innerHTML = `
+      <div class="vf-label">Seller Type</div><div class="vf-value">${v.sellerType || '—'}</div>
+      ${v.sellerType === 'NSS' ? `<div class="vf-label">Merchant Type</div><div class="vf-value">${MERCHANT_TYPE_LABELS[v.merchantType]}</div>` : ''}
+      <div class="vf-label">Regions</div><div class="vf-value">${v.regions.join(', ')} (${CURRENT_MARKET_LABEL})</div>
     `;
-    ['half', 'full'].forEach(cov => {
-      if (!v.rates[cov]) return;
-      html += `<div class="view-section-title">${COVERAGE_LABELS[cov]} — SGD per locker / week</div>`;
-      html += `<div class="grid-table-wrap"><table class="grid-table"><thead><tr><th></th>${v.regions.map(r=>`<th>${r}</th>`).join('')}</tr></thead><tbody>`;
-      LOCATION_TYPES.forEach(lt => {
-        html += `<tr><td>${lt}</td>${v.regions.map(r => {
-          const val = v.rates[cov][lt] ? v.rates[cov][lt][r] : undefined;
-          return `<td style="text-align:right;">${val !== undefined ? '$' + val : '<span style="color:#ccc;">—</span>'}</td>`;
-        }).join('')}</tr>`;
-      });
-      html += `</tbody></table></div>`;
+
+    document.getElementById('view-fields-2').innerHTML = `
+      <div class="vf-label">Fee Structure</div><div class="vf-value">${v.feeStructure || '—'}</div>
+    `;
+    let gridHtml = `<div class="view-section-title" style="margin-top:16px;">Rate Bands</div>`;
+    gridHtml += `<div class="fee-table-wrap"><table class="fee-table"><thead><tr><th>Location Type</th><th>Region</th><th>Coverage Start %</th><th>≤ X ≤</th><th>Coverage End %</th><th>Cost per locker</th></tr></thead><tbody>`;
+    const sortedBands = (v.bands || []).slice().sort((a, b) => {
+      if (a.locationType !== b.locationType) return a.locationType.localeCompare(b.locationType);
+      if (a.region !== b.region) return a.region.localeCompare(b.region);
+      return a.start - b.start;
     });
-    html += `<div class="info-note blue" style="margin-top:16px;">This version's rates are locked. Campaigns booked while this version was active continue to follow these rates even after a newer version is published.</div>`;
-    document.getElementById('view-modal-body').innerHTML = html;
-    document.getElementById('view-modal-overlay').classList.add('open');
+    sortedBands.forEach(r => {
+      gridHtml += `<tr><td style="text-align:left;">${r.locationType}</td><td>${r.region}</td><td>${r.start}</td><td class="between-label">≤ X ≤</td><td>${r.end}</td><td>$${Number(r.amount).toFixed(2)}</td></tr>`;
+    });
+    gridHtml += `</tbody></table></div>`;
+    gridHtml += `<div class="hint">${v.feeStructure === 'Flat Fee'
+      ? 'Flat Fee: a booking is billed entirely at the smallest band whose Coverage End % still covers its actual coverage % — not summed across bands.'
+      : 'Tiered: a booking\'s matched lockers are billed across every bracket its coverage % spans, summed together.'}</div>`;
+    document.getElementById('view-bands-wrap').innerHTML = gridHtml;
+
+    document.getElementById('view-fields-3').innerHTML = `
+      <div class="vf-label">Effective Start</div><div class="vf-value">${v.effectiveStart ? v.effectiveStart + ' 00:00:00' : '—'}</div>
+      <div class="vf-label">Created</div><div class="vf-value">${v.created}</div>
+    `;
+
+    document.getElementById('panel-locker-ads').style.display = 'none';
+    document.getElementById('page-view').style.display = '';
   }
-  function closeViewModal() {
-    document.getElementById('view-modal-overlay').classList.remove('open');
+  function closeViewPage() {
+    backToList();
   }
-  document.getElementById('view-modal-overlay').addEventListener('click', function(e) {
-    if (e.target === this) closeViewModal();
-  });
 
   /* ═══════════════════════════════════════════
-     CREATE MODAL
+     CREATE / EDIT-DRAFT PAGE
   ════════════════════════════════════════════ */
   let currentStep = 1;
   const totalSteps = 3;
   let currentSellerType = '';
   let currentMerchantType = '';
-  let activeCoverageTab = 'half';
-  let gridData = { half: {}, full: {} };
+  let feeStructure = '';
+  let bandRows = [];
+  let editingDraftId = null;
 
-  function emptyGrid() {
-    const g = {};
-    LOCATION_TYPES.forEach(lt => { g[lt] = {}; });
-    return g;
-  }
-
-  function openCreateModal() {
+  function openCreatePage() {
     currentStep = 1;
     currentSellerType = '';
     currentMerchantType = '';
-    activeCoverageTab = 'half';
-    gridData = { half: emptyGrid(), full: emptyGrid() };
+    feeStructure = '';
+    bandRows = [];
+    editingDraftId = null;
     resetForm();
     renderStep();
-    document.getElementById('modal-overlay').classList.add('open');
+    document.getElementById('panel-locker-ads').style.display = 'none';
+    document.getElementById('page-create').style.display = '';
   }
-  function closeCreateModal() {
-    document.getElementById('modal-overlay').classList.remove('open');
+  function cancelCreate() {
+    backToList();
   }
 
   function resetForm() {
@@ -848,10 +1104,20 @@
     document.getElementById('merchant-type-select').value = '';
     document.getElementById('merchant-type-row').style.display = 'none';
     document.getElementById('shopee-note').style.display = 'none';
+    document.getElementById('fee-structure-select').value = '';
     document.getElementById('effective-date').value = '';
+    document.getElementById('effective-date').readOnly = false;
+    document.getElementById('effective-date').style.background = '';
+    document.getElementById('effective-date').style.color = '';
     document.getElementById('start-immediately').checked = false;
     document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
     document.querySelectorAll('.form-control').forEach(e => e.classList.remove('error'));
+  }
+
+  function onFeeStructureChange(val) {
+    feeStructure = val;
+    updateBandsHint();
+    validateBands();
   }
 
   function onSellerTypeChange(val) {
@@ -884,59 +1150,170 @@
     }
   }
 
-  /* ── PRICING GRID ── */
-  function syncGridFromDOM(coverage) {
-    LOCATION_TYPES.forEach(lt => {
-      CURRENT_REGIONS.forEach(r => {
-        const el = document.getElementById(`cell-${coverage}-${lt}-${r}`);
-        if (el) gridData[coverage][lt][r] = el.value;
-      });
-    });
+  /* ── RATE BANDS TABLE ──
+     One flat, unified table replaces the old base-rate grid + separate
+     discount Fee Table. Each row is (Location Type, Region, Coverage
+     Start %, Coverage End %, Amount). Fee Structure decides how bands
+     within the same Location Type × Region combo are validated/read —
+     see the RATE CARD DATA MODEL comment above. */
+
+  function regionOptionsFor(lt) {
+    if (!lt || !VALID_COMBOS[lt]) return [];
+    return CURRENT_REGIONS.filter(r => VALID_COMBOS[lt][r]);
   }
 
-  function renderGrid(coverage) {
-    const table = document.getElementById('grid-table');
-    let html = `<thead><tr><th></th>${CURRENT_REGIONS.map(r => `<th>${r}</th>`).join('')}</tr></thead><tbody>`;
-    LOCATION_TYPES.forEach(lt => {
-      html += `<tr><td>${lt}</td>`;
-      CURRENT_REGIONS.forEach(r => {
-        if (!VALID_COMBOS[coverage][lt][r]) {
-          html += `<td style="text-align:center;color:#ccc;" title="Not enabled for this combination — configure in SP Portal Booking Configuration">—</td>`;
-        } else {
-          const val = gridData[coverage][lt][r] || '';
-          html += `<td class="grid-cell"><input class="grid-input" type="number" min="0" step="1" id="cell-${coverage}-${lt}-${r}" value="${val}" placeholder="0"/></td>`;
+  function renderBandsTable() {
+    document.getElementById('bands-table-body').innerHTML = bandRows.map((r, i) => `
+      <tr>
+        <td>
+          <select class="fee-select" onchange="updateBandRow(${i},'locationType',this.value)">
+            <option value="">Select</option>
+            ${LOCATION_TYPES.map(lt => `<option value="${lt}" ${r.locationType === lt ? 'selected' : ''}>${lt}</option>`).join('')}
+          </select>
+        </td>
+        <td>
+          <select class="fee-select" onchange="updateBandRow(${i},'region',this.value)" ${!r.locationType ? 'disabled' : ''}>
+            <option value="">Select</option>
+            ${regionOptionsFor(r.locationType).map(reg => `<option value="${reg}" ${r.region === reg ? 'selected' : ''}>${reg}</option>`).join('')}
+          </select>
+        </td>
+        <td><input type="number" class="fee-input" min="0" max="100" step="1" value="${r.start}" onchange="updateBandRow(${i},'start',this.value)"/></td>
+        <td class="between-label">≤ X ≤</td>
+        <td><input type="number" class="fee-input" min="0" max="100" step="1" value="${r.end}" onchange="updateBandRow(${i},'end',this.value)"/></td>
+        <td><input type="number" class="fee-input" min="0" step="0.01" value="${r.amount}" onchange="updateBandRow(${i},'amount',this.value)"/></td>
+        <td><span class="fee-trash" onclick="deleteBandRow(${i})" title="Delete row">🗑</span></td>
+      </tr>
+    `).join('');
+    updateBandsHint();
+  }
+
+  function updateBandRow(i, field, val) {
+    if (field === 'locationType') {
+      bandRows[i].locationType = val;
+      bandRows[i].region = ''; // region options change with location type — force re-pick
+      renderBandsTable();
+      return;
+    }
+    if (field === 'region') bandRows[i].region = val;
+    else if (field === 'amount') bandRows[i].amount = parseFloat(val);
+    else bandRows[i][field] = parseInt(val, 10);
+    validateBands();
+  }
+
+  function addBandRow() {
+    bandRows.push({ locationType: '', region: '', start: '', end: '', amount: '' });
+    renderBandsTable();
+  }
+  function deleteBandRow(i) {
+    bandRows.splice(i, 1);
+    renderBandsTable();
+    validateBands();
+  }
+
+  function updateBandsHint() {
+    const hintEl = document.getElementById('bands-hint');
+    if (feeStructure === 'Flat Fee') {
+      hintEl.textContent = 'Flat Fee: bands start at 0% and may overlap. A booking is billed entirely at the smallest band whose Coverage End % still covers its actual coverage % — e.g. 35% coverage falls into a 0–50% band, not a narrower 0–20% band.';
+    } else if (feeStructure === 'Tiered') {
+      hintEl.textContent = 'Tiered: bands must be contiguous with no gaps, spanning 0–100%. A booking\'s matched lockers are billed across every bracket its coverage % spans — e.g. 35% coverage bills the first bracket\'s Amount for its first 20%, then the next bracket\'s Amount for the remaining 15%.';
+    } else {
+      hintEl.textContent = '';
+    }
+  }
+
+  function groupBandsByCombo(rows) {
+    const groups = {};
+    rows.forEach(r => {
+      if (!r.locationType || !r.region) return;
+      const key = r.locationType + '|' + r.region;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(r);
+    });
+    return groups;
+  }
+
+  function validateBands() {
+    const errEl = document.getElementById('err-bands');
+    if (bandRows.length === 0) {
+      errEl.textContent = 'Add at least one rate band.';
+      errEl.classList.add('show');
+      return false;
+    }
+    for (const r of bandRows) {
+      if (!r.locationType || !r.region) {
+        errEl.textContent = 'Every row needs a Location Type and Region.';
+        errEl.classList.add('show');
+        return false;
+      }
+      const start = parseFloat(r.start), end = parseFloat(r.end), amount = parseFloat(r.amount);
+      if (isNaN(start) || isNaN(end) || start < 0 || end > 100 || start > end) {
+        errEl.textContent = 'Each band needs a valid Coverage Start % ≤ Coverage End % within 0–100%.';
+        errEl.classList.add('show');
+        return false;
+      }
+      if (isNaN(amount) || amount <= 0) {
+        errEl.textContent = 'Amount must be a positive number.';
+        errEl.classList.add('show');
+        return false;
+      }
+    }
+
+    const groups = groupBandsByCombo(bandRows);
+    for (const key in groups) {
+      const [lt, region] = key.split('|');
+      const sorted = groups[key]
+        .map(r => ({ start: parseFloat(r.start), end: parseFloat(r.end) }))
+        .sort((a, b) => a.start - b.start);
+      if (feeStructure === 'Tiered') {
+        if (sorted[0].start !== 0) {
+          errEl.textContent = `${lt} × ${region}: bands must start at 0%.`;
+          errEl.classList.add('show'); return false;
         }
-      });
-      html += `</tr>`;
-    });
-    html += `</tbody>`;
-    table.innerHTML = html;
+        if (sorted[sorted.length - 1].end !== 100) {
+          errEl.textContent = `${lt} × ${region}: bands must span through 100%.`;
+          errEl.classList.add('show'); return false;
+        }
+        for (let i = 1; i < sorted.length; i++) {
+          if (sorted[i].start !== sorted[i - 1].end + 1) {
+            errEl.textContent = `${lt} × ${region}: bands must be contiguous, with no gaps or overlaps.`;
+            errEl.classList.add('show'); return false;
+          }
+        }
+      } else if (feeStructure === 'Flat Fee') {
+        if (sorted.some(r => r.start !== 0)) {
+          errEl.textContent = `${lt} × ${region}: every band must start at 0% for a Flat Fee structure.`;
+          errEl.classList.add('show'); return false;
+        }
+        const ends = sorted.map(r => r.end);
+        if (new Set(ends).size !== ends.length) {
+          errEl.textContent = `${lt} × ${region}: bands can't share the same Coverage End %.`;
+          errEl.classList.add('show'); return false;
+        }
+        if (Math.max(...ends) !== 100) {
+          errEl.textContent = `${lt} × ${region}: at least one band must reach 100% so every coverage % has a match.`;
+          errEl.classList.add('show'); return false;
+        }
+      }
+    }
+
+    const missing = [];
+    LOCATION_TYPES.forEach(lt => CURRENT_REGIONS.forEach(r => {
+      if (VALID_COMBOS[lt][r] && !groups[lt + '|' + r]) missing.push(`${lt} × ${r}`);
+    }));
+    if (missing.length) {
+      errEl.textContent = `Missing a rate for: ${missing.join(', ')}.`;
+      errEl.classList.add('show');
+      return false;
+    }
+
+    errEl.classList.remove('show');
+    return true;
   }
 
-  function switchCoverageTab(tab) {
-    syncGridFromDOM(activeCoverageTab);
-    activeCoverageTab = tab;
-    document.querySelectorAll('.coverage-tab').forEach(el => {
-      if (!el.classList.contains('disabled')) el.classList.toggle('active', el.dataset.coverage === tab);
-    });
-    renderGrid(tab);
-  }
-
-  function gridComplete() {
-    return ['half', 'full'].every(cov =>
-      LOCATION_TYPES.every(lt =>
-        CURRENT_REGIONS.every(r => {
-          if (!VALID_COMBOS[cov][lt][r]) return true; // disabled in Booking Configuration — no rate required
-          return gridData[cov][lt][r] !== undefined && gridData[cov][lt][r] !== '' && parseFloat(gridData[cov][lt][r]) > 0;
-        })
-      )
-    );
-  }
-
-  function countValidCells() {
-    let n = 0;
-    ['half', 'full'].forEach(cov => LOCATION_TYPES.forEach(lt => CURRENT_REGIONS.forEach(r => { if (VALID_COMBOS[cov][lt][r]) n++; })));
-    return n;
+  function countCombosCovered() {
+    const set = new Set();
+    bandRows.forEach(r => { if (r.locationType && r.region) set.add(r.locationType + '|' + r.region); });
+    return set.size;
   }
 
   function buildSummary() {
@@ -945,8 +1322,8 @@
       rows += `<div class="summary-row"><span class="summary-key">Merchant Type</span><span class="summary-val">${currentMerchantType ? MERCHANT_TYPE_LABELS[currentMerchantType] : '—'}</span></div>`;
     }
     rows += `<div class="summary-row"><span class="summary-key">Regions</span><span class="summary-val">${CURRENT_REGIONS.join(', ')} (${CURRENT_MARKET_LABEL})</span></div>`;
-    rows += `<div class="summary-row"><span class="summary-key">Coverage Types</span><span class="summary-val">Half Network, Full Network</span></div>`;
-    rows += `<div class="summary-row"><span class="summary-key">Rates Configured</span><span class="summary-val">${countValidCells()} cells (only combinations enabled in Booking Configuration)</span></div>`;
+    rows += `<div class="summary-row"><span class="summary-key">Fee Structure</span><span class="summary-val">${feeStructure || '—'}</span></div>`;
+    rows += `<div class="summary-row"><span class="summary-key">Rate Bands</span><span class="summary-val">${bandRows.length} band(s) across ${countCombosCovered()} combination(s)</span></div>`;
     return `<h4>Summary</h4>${rows}`;
   }
 
@@ -977,13 +1354,17 @@
       currentMerchantType = document.getElementById('merchant-type-select').value;
     }
     if (step === 2) {
-      syncGridFromDOM(activeCoverageTab);
-      if (!gridComplete()) {
-        document.getElementById('err-grid').classList.add('show');
+      const fs = document.getElementById('fee-structure-select').value;
+      if (!fs) {
+        document.getElementById('fee-structure-select').classList.add('error');
+        document.getElementById('err-fee-structure').classList.add('show');
         ok = false;
       } else {
-        document.getElementById('err-grid').classList.remove('show');
+        document.getElementById('fee-structure-select').classList.remove('error');
+        document.getElementById('err-fee-structure').classList.remove('show');
       }
+      feeStructure = fs;
+      if (!validateBands()) ok = false;
     }
     if (step === 3) {
       const d = document.getElementById('effective-date').value;
@@ -1012,21 +1393,24 @@
     if (currentStep > 1) { currentStep--; renderStep(); }
   }
 
-  function submitVersion() {
+  function buildVersionFromForm(status) {
     const effectiveStart = document.getElementById('effective-date').value;
-    const newVersion = {
-      id: `RC-${String(nextVersionSeq++).padStart(4,'0')}`,
+    return {
+      id: editingDraftId || `RC-${String(nextVersionSeq++).padStart(4,'0')}`,
       sellerType: currentSellerType,
       merchantType: currentSellerType === 'NSS' ? currentMerchantType : '',
       regions: CURRENT_REGIONS.slice(),
+      feeStructure: feeStructure,
       effectiveStart,
       created: TODAY + ' ' + new Date().toTimeString().slice(0,5),
-      status: effectiveStart <= TODAY ? 'active' : 'scheduled',
-      rates: {
-        half: JSON.parse(JSON.stringify(gridData.half)),
-        full: JSON.parse(JSON.stringify(gridData.full))
-      }
+      status,
+      bands: JSON.parse(JSON.stringify(bandRows))
     };
+  }
+
+  function submitVersion() {
+    const effectiveStart = document.getElementById('effective-date').value;
+    const newVersion = buildVersionFromForm(effectiveStart <= TODAY ? 'active' : 'scheduled');
     // supersede: any currently-active version for the SAME rate group
     // (Seller Type + Merchant Type) moves to Past once this new version
     // is itself active — other rate groups' active versions are untouched.
@@ -1034,13 +1418,60 @@
     if (newVersion.status === 'active') {
       const key = rateGroupKey(newVersion.sellerType, newVersion.merchantType);
       rateCardVersions.forEach(v => {
-        if (rateGroupKey(v.sellerType, v.merchantType) === key && v.status === 'active') v.status = 'past';
+        if (v.id !== newVersion.id && rateGroupKey(v.sellerType, v.merchantType) === key && v.status === 'active') v.status = 'past';
       });
     }
+    if (editingDraftId) rateCardVersions = rateCardVersions.filter(v => v.id !== editingDraftId);
     rateCardVersions.push(newVersion);
     renderRateTable();
-    alert(`Rate card version ${newVersion.id} created (${newVersion.status === 'active' ? 'Active immediately' : 'Scheduled for ' + effectiveStart}).`);
-    closeCreateModal();
+    alert(`Rate card version ${newVersion.id} ${editingDraftId ? 'updated' : 'created'} (${newVersion.status === 'active' ? 'Active immediately' : 'Scheduled for ' + effectiveStart}).`);
+    backToList();
+  }
+
+  function saveDraft() {
+    feeStructure = document.getElementById('fee-structure-select').value;
+    currentSellerType = document.getElementById('seller-type-select').value;
+    currentMerchantType = document.getElementById('merchant-type-select').value;
+    const draft = buildVersionFromForm('draft');
+    if (editingDraftId) rateCardVersions = rateCardVersions.filter(v => v.id !== editingDraftId);
+    rateCardVersions.push(draft);
+    renderRateTable();
+    alert(`Rate card version ${draft.id} saved as draft.`);
+    backToList();
+  }
+
+  function editDraft(id) {
+    const v = rateCardVersions.find(x => x.id === id);
+    if (!v) return;
+    editingDraftId = id;
+    currentStep = 1;
+    currentSellerType = v.sellerType || '';
+    currentMerchantType = v.merchantType || '';
+    feeStructure = v.feeStructure || '';
+    bandRows = JSON.parse(JSON.stringify(v.bands || []));
+    resetForm();
+    document.getElementById('seller-type-select').value = currentSellerType;
+    onSellerTypeChange(currentSellerType);
+    document.getElementById('merchant-type-select').value = currentMerchantType;
+    document.getElementById('fee-structure-select').value = feeStructure;
+    onFeeStructureChange(feeStructure);
+    document.getElementById('effective-date').value = v.effectiveStart || '';
+    renderStep();
+    document.getElementById('panel-locker-ads').style.display = 'none';
+    document.getElementById('page-create').style.display = '';
+  }
+
+  function nextStep() {
+    if (!validateStep(currentStep)) return;
+    if (currentStep < totalSteps) {
+      currentStep++;
+      renderStep();
+    } else {
+      submitVersion();
+    }
+  }
+  function prevStep() {
+    if (currentStep > 1) { currentStep--; renderStep(); }
   }
 
   function renderStep() {
@@ -1069,7 +1500,10 @@
       line.classList.toggle('done', i < currentStep);
     }
 
-    if (currentStep === 2) renderGrid(activeCoverageTab);
+    if (currentStep === 2) {
+      document.getElementById('fee-structure-select').value = feeStructure;
+      renderBandsTable();
+    }
     if (currentStep === 3) document.getElementById('step3-summary').innerHTML = buildSummary();
 
     // buttons
@@ -1078,9 +1512,43 @@
     nextBtn.textContent = currentStep === totalSteps ? 'Submit' : 'Save & Next';
   }
 
-  // close on overlay click
-  document.getElementById('modal-overlay').addEventListener('click', function(e) {
-    if (e.target === this) closeCreateModal();
+  /* ═══════════════════════════════════════════
+     GLOBAL FEE RULE
+  ════════════════════════════════════════════ */
+  const GLOBAL_FEE_RULES = {
+    gst: { label: 'GST Rule', value: 9 },
+    wht: { label: 'Withholding Tax Rule', value: 2 },
+    vat: { label: 'VAT Rule', value: 7 }
+  };
+  let editingGlobalRule = null;
+
+  function openGlobalRuleModal(key, mode) {
+    editingGlobalRule = key;
+    const readonly = mode === 'view';
+    document.getElementById('global-edit-title').textContent = (readonly ? 'View ' : 'Edit ') + GLOBAL_FEE_RULES[key].label;
+    const input = document.getElementById('global-edit-input');
+    input.value = GLOBAL_FEE_RULES[key].value;
+    input.readOnly = readonly;
+    input.classList.remove('error');
+    document.getElementById('err-global-edit').classList.remove('show');
+    document.getElementById('global-save-btn').style.display = readonly ? 'none' : '';
+    document.getElementById('global-edit-modal-overlay').classList.add('open');
+  }
+  function closeGlobalEditModal() {
+    document.getElementById('global-edit-modal-overlay').classList.remove('open');
+  }
+  function saveGlobalEdit() {
+    const val = document.getElementById('global-edit-input').value;
+    if (val === '') {
+      document.getElementById('global-edit-input').classList.add('error');
+      document.getElementById('err-global-edit').classList.add('show');
+      return;
+    }
+    GLOBAL_FEE_RULES[editingGlobalRule].value = parseFloat(val);
+    closeGlobalEditModal();
+  }
+  document.getElementById('global-edit-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeGlobalEditModal();
   });
 </script>
 </body>

@@ -17,6 +17,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tb-lang{font-size:12px;color:#555;cursor:pointer;border:1px solid #e0e0e0;padding:3px 8px;border-radius:3px;}
 .tb-user{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#555;}
 .tb-av{width:26px;height:26px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#555;}
+.tb-user-select{border:none;background:transparent;font-size:12px;color:#555;cursor:pointer;outline:none;font-family:inherit;}
 .role-sel{border:1px solid #e0e0e0;border-radius:3px;padding:3px 8px;font-size:12px;color:#555;cursor:pointer;background:#fff;}
 .shell{display:flex;min-height:calc(100vh - 52px);}
 .sidebar{width:200px;background:#fff;border-right:1px solid #e8e8e8;flex-shrink:0;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;}
@@ -154,7 +155,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="tb-notif">🔔<div class="tb-nbadge">3</div></div>
     <div class="tb-notif" style="font-size:14px;">📋</div>
     <div class="tb-lang">English ▾</div>
-    <div class="tb-user"><div class="tb-av">G</div><span>gareth.wangjc ▾</span></div>
+    <div class="tb-user" id="tb-user">
+      <div class="tb-av" id="tb-av">J</div>
+      <select class="tb-user-select" id="tb-user-select" onchange="setActingUser(this.value)"></select>
+      <span style="color:#bbb;font-size:11px;">(demo)</span>
+    </div>
   </div>
 </div>
 <div class="shell">
@@ -297,6 +302,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="modal" style="width:520px;">
     <div class="modal-hdr"><div class="modal-title">Reject campaign</div><button class="modal-close" onclick="closeModal('reject-ad')">✕</button></div>
     <div class="modal-body">
+      <div id="reject-ad-override-warn"></div>
       <div style="font-size:13px;font-weight:500;margin-bottom:7px;">Reason <span style="color:#ee4d2d;">*</span></div>
       <textarea id="reject-ad-reason" class="finput" rows="4" placeholder="Describe what needs to change." style="resize:vertical;" oninput="updateRejectAdBtn()"></textarea>
       <div id="reject-ad-hint" style="font-size:11px;color:#aaa;margin-top:4px;">Minimum 15 characters required.</div>
@@ -308,15 +314,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- APPROVE / ASSIGN PLAYLIST MODAL -->
-<div class="modal-ov" id="modal-approve-pl">
-  <div class="modal" style="width:640px;">
-    <div class="modal-hdr"><div class="modal-title">Assign playlists</div><button class="modal-close" onclick="closeModal('approve-pl')">✕</button></div>
-    <div class="modal-body" id="approve-pl-body"></div>
-    <div class="modal-ft">
-      <button class="btn-w" onclick="closeModal('approve-pl')">Cancel</button>
-      <button class="btn-r" id="approve-pl-confirm-btn" onclick="confirmApprovePlaylist()">Approve &amp; assign</button>
-    </div>
+<!-- SIGN-OFF MODAL — single modal for EVERY sign-off click (non-final, final, and the
+     mid-flight-reconciliation commit). Replaces the earlier two-modal design so devs only
+     build one popup; see openSignoffModal()/recordSignoff() for the branching. -->
+<div class="modal-ov" id="modal-signoff">
+  <div class="modal" style="width:520px;">
+    <div class="modal-hdr"><div class="modal-title" id="signoff-title">Confirm sign-off</div><button class="modal-close" onclick="closeModal('signoff')">✕</button></div>
+    <div class="modal-body" id="signoff-body"></div>
+    <div class="modal-ft" id="signoff-footer"></div>
   </div>
 </div>
 
@@ -362,18 +367,22 @@ if(!window.CAMPS) window.CAMPS=[
    start:22,end:30,startDate:'2026-07-01',endDate:'2026-07-31',order:5,status:'Scheduled',creative:'panasonic_tb.jpg',
    reviewLog:[
     {date:'18 Apr 2026, 14:30', event:'Pending review', by:'seller'},
+    {date:'18 Apr 2026, 14:30', event:'Reviewers notified via SeaTalk', by:'system',
+     note:'Sent to all approval groups (Ops, Biz Lead, Manager) when the campaign was submitted.'},
    ],
    spotsBased:true,spotsBooked:9000,bookedLocTypes:['MRT Stations','Shopping Malls'],bookedRegions:['CCR','RCR','OCR'],
-   approvedDate:null,assignedPlaylists:[]},
+   approvedDate:null,assignedPlaylists:[],approvals:[]},
   // Pending review — not yet approved or assigned
   {name:'FairPrice Q2',     type:'ext',buyer:'Maya Tan',         company:'FairPrice Group',ref:'SGAD000441',
    start:1,end:30,startDate:'2026-09-01',endDate:'2026-10-31',order:6,status:'Scheduled',creative:'fairprice_q2.jpg',
    reviewLog:[
     {date:'19 Apr 2026, 09:15', event:'Pending review', by:'seller'},
+    {date:'19 Apr 2026, 09:15', event:'Reviewers notified via SeaTalk', by:'system',
+     note:'Sent to all approval groups (Ops, Biz Lead, Manager) when the campaign was submitted.'},
     {date:'20 Apr 2026, 11:30', event:'Approved', by:'spx'},
    ],
    spotsBased:false,bookedLocTypes:['HDB Residential','Shopping Malls'],bookedRegions:['CCR','RCR','OCR'],
-   approvedDate:'2026-04-20 11:30:00',paidAt:'2026-04-20 14:05:00',assignedPlaylists:[]},
+   approvedDate:'2026-04-20 11:30:00',paidAt:'2026-04-20 14:05:00',assignedPlaylists:[],approvals:[]},
   // Awaiting seller payment — approved, but not yet paid; cannot be scheduled until paidAt is set
   {name:'Mid-Year Flash Sale',type:'ext',buyer:'K. Lim',company:'NSS Logistics Co.',ref:'SGAD000162',
    start:1,end:31,startDate:'2026-07-01',endDate:'2026-07-31',order:7,status:'Scheduled',creative:'midyear_flash.jpg',
@@ -440,21 +449,29 @@ const ALL_LOC_TYPES=['HDB Residential','MRT Stations','Shopping Malls','Bus Inte
 // Finance Portal's rate grid pulls ADS_REGIONS / ALL_LOC_TYPES / the matrix
 // below live from here — it never hardcodes them.
 if(!window.ADS_REGIONS) window.ADS_REGIONS=['CCR','RCR','OCR'];
-if(!window.ADS_COVERAGE) window.ADS_COVERAGE=['half','full'];
-const ADS_COVERAGE_LABELS={half:'Half Network', full:'Full Network'};
-// ADS_MATRIX[coverage][locationType][region] = true/false — whether that
-// combination is offered at all. The %-based matching logic itself (Half =
-// >=50% of matched lockers, Full = 100%, tiebreak lowest Point ID) is fixed
-// in the booking engine, not stored here — this matrix only controls WHERE
-// each already-built tier is switched on.
+// Coverage packages are ops-configurable (Finance pushback: hardcoding tiers
+// meant a code change to add one). Each package is {id, name, pct} — pct is
+// the % of the SELLER'S MATCHED LOCKERS (Location Type × Region they
+// targeted), not of the whole locker network. Packages are fully independent
+// of window.ADS_MATRIX below: enablement (may ads run on this inventory at
+// all?) and coverage (how much of it does the seller take?) are different
+// questions, so adding/removing a package never touches the matrix.
+if(!window.ADS_COVERAGE) window.ADS_COVERAGE=[
+  {id:'half',name:'Half Coverage',pct:50},
+  {id:'full',name:'Full Coverage',pct:100}
+];
+if(!('_adsPkgError' in window)) window._adsPkgError='';
+// ADS_MATRIX[locationType][region] = true/false — whether that combination
+// is offered to sellers at all, independent of coverage package. The
+// allocation rule itself (allocate that % of the seller's matched lockers,
+// preferring lockers with the fewest existing external ads, tiebreak lowest
+// Point ID) is fixed in the booking engine, not stored here — this matrix
+// only controls WHERE ads can run at all.
 function buildDefaultAdsMatrix(){
   const m={};
-  window.ADS_COVERAGE.forEach(cov=>{
-    m[cov]={};
-    ALL_LOC_TYPES.forEach(lt=>{
-      m[cov][lt]={};
-      window.ADS_REGIONS.forEach(r=>{ m[cov][lt][r]=true; });
-    });
+  ALL_LOC_TYPES.forEach(lt=>{
+    m[lt]={};
+    window.ADS_REGIONS.forEach(r=>{ m[lt][r]=true; });
   });
   return m;
 }
@@ -464,34 +481,98 @@ function addAdsRegion(){
   const name=(prompt('New region code (e.g. WCR)')||'').trim(); if(!name) return;
   if(window.ADS_REGIONS.includes(name)){alert('Region already exists');return;}
   window.ADS_REGIONS.push(name);
-  window.ADS_COVERAGE.forEach(cov=>ALL_LOC_TYPES.forEach(lt=>{ window.ADS_MATRIX[cov][lt][name]=false; }));
+  ALL_LOC_TYPES.forEach(lt=>{ window.ADS_MATRIX[lt][name]=false; });
   renderTab();
 }
 function removeAdsRegion(name){
   if(!confirm('Remove region "'+name+'" from Locker Ads? Existing rate card versions in Finance Portal that already reference it are unaffected.')) return;
   window.ADS_REGIONS=window.ADS_REGIONS.filter(r=>r!==name);
-  window.ADS_COVERAGE.forEach(cov=>ALL_LOC_TYPES.forEach(lt=>{ delete window.ADS_MATRIX[cov][lt][name]; }));
+  ALL_LOC_TYPES.forEach(lt=>{ delete window.ADS_MATRIX[lt][name]; });
   renderTab();
 }
-function toggleAdsCell(cov,lt,r){
-  window.ADS_MATRIX[cov][lt][r]=!window.ADS_MATRIX[cov][lt][r];
+function toggleAdsCell(lt,r){
+  window.ADS_MATRIX[lt][r]=!window.ADS_MATRIX[lt][r];
   renderTab();
 }
-function switchAdsCovTab(cov){ window._adsCovTab=cov; renderTab(); }
 
-// A Location Type with no checked cell in any region, in either coverage
-// tier, is not bookable by sellers at all — those lockers run internal SPX
-// ads only. This replaces the old standalone "Seller-selectable location
-// types" toggle, which duplicated this same fact at a coarser grain and
-// could drift out of sync with the matrix.
+function genAdsPkgId(){
+  let n=window.ADS_COVERAGE.length+1, id='pkg'+n;
+  while(window.ADS_COVERAGE.some(p=>p.id===id)){ n++; id='pkg'+n; }
+  return id;
+}
+function addAdsPackage(){
+  const id=genAdsPkgId();
+  window.ADS_COVERAGE.push({id,name:'',pct:''});
+  window._adsPkgError='';
+  renderTab();
+}
+function removeAdsPackage(id){
+  if(window.ADS_COVERAGE.length<=1){ alert('At least one coverage package is required — add a replacement before removing this one.'); return; }
+  const pkg=window.ADS_COVERAGE.find(p=>p.id===id);
+  if(!confirm('Remove package "'+(pkg&&pkg.name||'(unnamed)')+'"? Existing rate card entries for it in Finance Portal are unaffected.')) return;
+  window.ADS_COVERAGE=window.ADS_COVERAGE.filter(p=>p.id!==id);
+  window._adsPkgError='';
+  renderTab();
+}
+function validateAdsPackageEdit(id,field,rawValue){
+  if(field==='name'){
+    const name=rawValue.trim();
+    if(!name) return 'Package name is required.';
+    if(window.ADS_COVERAGE.some(p=>p.id!==id && p.name.trim().toLowerCase()===name.toLowerCase())) return 'A package with this name already exists.';
+  }
+  if(field==='pct'){
+    const pct=Number(rawValue);
+    if(rawValue===''||!Number.isInteger(pct)||pct<1||pct>100) return 'Coverage % must be a whole number between 1 and 100.';
+    if(window.ADS_COVERAGE.some(p=>p.id!==id && Number(p.pct)===pct)) return 'Two packages cannot share the same coverage %.';
+  }
+  return '';
+}
+function editAdsPackageName(id,value){
+  const err=validateAdsPackageEdit(id,'name',value);
+  window._adsPkgError=err;
+  if(!err) window.ADS_COVERAGE.find(p=>p.id===id).name=value.trim();
+  renderTab();
+}
+function editAdsPackagePct(id,value){
+  const err=validateAdsPackageEdit(id,'pct',value);
+  window._adsPkgError=err;
+  if(!err) window.ADS_COVERAGE.find(p=>p.id===id).pct=Number(value);
+  renderTab();
+}
+
+// A Location Type with no checked cell in any region is not bookable by
+// sellers at all — those lockers run internal SPX ads only. This replaces
+// the old standalone "Seller-selectable location types" toggle, which
+// duplicated this same fact at a coarser grain and could drift out of sync
+// with the matrix.
 function isLocTypeInternalOnly(lt){
-  return window.ADS_COVERAGE.every(cov=>window.ADS_REGIONS.every(r=>!window.ADS_MATRIX[cov][lt][r]));
+  return window.ADS_REGIONS.every(r=>!window.ADS_MATRIX[lt][r]);
+}
+
+function renderAdsPackagesTable(){
+  const rows=window.ADS_COVERAGE.map(pkg=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f5f5f5;">
+    <input type="text" class="ein" placeholder="Package name" value="${pkg.name}" style="flex:1;" onchange="editAdsPackageName('${pkg.id}',this.value)"/>
+    <div style="display:flex;align-items:center;gap:4px;width:90px;flex-shrink:0;">
+      <input type="number" class="ein" min="1" max="100" step="1" placeholder="%" value="${pkg.pct}" style="width:56px;" onchange="editAdsPackagePct('${pkg.id}',this.value)"/>
+      <span style="font-size:12px;color:#888;">%</span>
+    </div>
+    <span onclick="removeAdsPackage('${pkg.id}')" title="Remove package" style="cursor:pointer;color:#ccc;font-size:13px;width:18px;text-align:center;flex-shrink:0;">🗑</span>
+  </div>`).join('');
+  const errHTML=window._adsPkgError?`<div class="fhint" style="color:#cf1322;margin-top:5px;">${window._adsPkgError}</div>`:'';
+  return `<div style="border:1px solid #e8e8e8;border-radius:3px;padding:2px 10px;margin-bottom:6px;">
+      <div style="display:flex;gap:8px;padding:6px 0;font-size:11px;font-weight:600;color:#888;">
+        <div style="flex:1;">Package Name</div>
+        <div style="width:90px;flex-shrink:0;">Coverage %</div>
+        <div style="width:18px;flex-shrink:0;"></div>
+      </div>
+      ${rows}
+    </div>
+    <div style="margin-bottom:6px;"><span onclick="addAdsPackage()" style="cursor:pointer;color:#ee4d2d;font-size:12px;font-weight:500;">+ Add package</span></div>
+    ${errHTML}
+    <div class="fhint" style="margin-bottom:14px;">Coverage % is the share of the seller's matched lockers (the ones matching their chosen Location Type × Region) — not of the full locker network. E.g. Half Coverage on 6 matched lockers allocates 3.</div>`;
 }
 
 function renderAdsMatrix(){
-  const cov=window._adsCovTab||'half';
-  const tabsHTML=window.ADS_COVERAGE.map(c=>`<div data-ads-cov-tab="${c}" onclick="switchAdsCovTab('${c}')" style="padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid ${cov===c?'#ee4d2d':'transparent'};color:${cov===c?'#ee4d2d':'#666'};">${ADS_COVERAGE_LABELS[c]}</div>`).join('');
-
   // "+" add-region affordance sits at the end of the column headers, not as
   // a separate button below the table — reads as "add a column here".
   const addColW=36;
@@ -505,13 +586,113 @@ function renderAdsMatrix(){
 
   const rows=ALL_LOC_TYPES.map(lt=>`<div style="display:flex;border-bottom:1px solid #f5f5f5;align-items:center;">
     <div style="width:110px;flex-shrink:0;padding:7px 10px;font-size:12px;font-weight:500;">${lt}${isLocTypeInternalOnly(lt)?'<div style="font-size:10px;font-weight:400;color:#aaa;margin-top:1px;">Internal ads only</div>':''}</div>
-    ${window.ADS_REGIONS.map(r=>`<div style="flex:1;text-align:center;padding:7px 6px;"><input type="checkbox" id="ads-cell-${cov}-${lt}-${r}" style="accent-color:#ee4d2d;width:14px;height:14px;cursor:pointer;" ${window.ADS_MATRIX[cov][lt][r]?'checked':''} onchange="toggleAdsCell('${cov}','${lt}','${r}')"/></div>`).join('')}
+    ${window.ADS_REGIONS.map(r=>`<div style="flex:1;text-align:center;padding:7px 6px;"><input type="checkbox" id="ads-cell-${lt}-${r}" style="accent-color:#ee4d2d;width:14px;height:14px;cursor:pointer;" ${window.ADS_MATRIX[lt][r]?'checked':''} onchange="toggleAdsCell('${lt}','${r}')"/></div>`).join('')}
     <div style="width:${addColW}px;flex-shrink:0;border-left:1px dashed #e0e0e0;"></div>
   </div>`).join('');
 
-  return `<div style="display:flex;gap:2px;border-bottom:1px solid #eee;margin-bottom:10px;">${tabsHTML}</div>
-    <div style="border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">${headerRow}${rows}</div>
+  return `<div style="border:1px solid #e8e8e8;border-radius:3px;overflow:hidden;">${headerRow}${rows}</div>
     <div class="fhint" style="margin-top:6px;">Location Types are pulled from this market's existing master list (same list used in Point List) — add or remove one there, not here. Regions are ads-specific — use the + above to add one.</div>`;
+}
+
+// ── APPROVAL GROUPS CONFIG (Booking Configuration › Ad review approvals) ──
+// See RC.approval_groups for the data-shape comment. This UI is the removal
+// switch for the whole feature: delete groups down to 1 and single-approver
+// review is restored with no code change (see §9 of the build spec).
+if(!('_approvalGroupError' in window)) window._approvalGroupError='';
+function genApprovalGroupId(){
+  let n=RC.approval_groups.length+1, id='ag'+n;
+  while(RC.approval_groups.some(g=>g.id===id)){ n++; id='ag'+n; }
+  return id;
+}
+function addApprovalGroup(){
+  if(RC.approval_groups.length>=3){ alert('A maximum of 3 approval groups is supported.'); return; }
+  const id=genApprovalGroupId();
+  RC.approval_groups.push({id,label:'',approvers:[]});
+  window._approvalGroupError='';
+  renderTab();
+}
+function removeApprovalGroup(id){
+  if(RC.approval_groups.length<=1){ alert('At least one approval group is required — ad campaigns would otherwise be approved with no human sign-off.'); return; }
+  const g=RC.approval_groups.find(x=>x.id===id); if(!g) return;
+  if(!confirm('Remove approval group "'+(g.label||'(unnamed)')+'"? Campaigns currently awaiting this group\'s sign-off will no longer need it.')) return;
+  RC.approval_groups=RC.approval_groups.filter(x=>x.id!==id);
+  window._approvalGroupError='';
+  renderTab();
+}
+function validateApprovalGroupLabel(id,rawValue){
+  const label=rawValue.trim();
+  if(!label) return 'Group name is required.';
+  if(RC.approval_groups.some(g=>g.id!==id && g.label.trim().toLowerCase()===label.toLowerCase())) return 'A group with this name already exists.';
+  return '';
+}
+function editApprovalGroupLabel(id,value){
+  const err=validateApprovalGroupLabel(id,value);
+  window._approvalGroupError=err;
+  if(!err) RC.approval_groups.find(g=>g.id===id).label=value.trim();
+  renderTab();
+}
+function addApprover(id,email){
+  if(!email) return; // no-op on the placeholder value
+  const g=RC.approval_groups.find(x=>x.id===id); if(!g) return;
+  if(g.approvers.includes(email)) return;
+  g.approvers.push(email);
+  window._approvalGroupError='';
+  renderTab();
+}
+function removeApprover(id,email){
+  const g=RC.approval_groups.find(x=>x.id===id); if(!g) return;
+  if(g.approvers.length<=1){
+    const u=spUser(email);
+    if(!confirm(u.name+' is the only approver in "'+(g.label||'(unnamed)')+'". A group must have at least one approver — remove the whole group instead?')) return;
+    RC.approval_groups=RC.approval_groups.filter(x=>x.id!==id);
+    window._approvalGroupError='';
+    renderTab();
+    return;
+  }
+  g.approvers=g.approvers.filter(e=>e!==email);
+  window._approvalGroupError='';
+  renderTab();
+}
+function renderApprovalGroupsTable(){
+  const groups=RC.approval_groups;
+  const rows=groups.map(g=>{
+    const chips=g.approvers.map(email=>{
+      const u=spUser(email);
+      return `<span style="display:inline-flex;align-items:center;gap:5px;background:#f5f5f5;border:1px solid #e8e8e8;border-radius:12px;padding:2px 8px;font-size:11px;color:#555;margin:2px 4px 2px 0;">${u.name} · ${u.email}<span onclick="removeApprover('${g.id}','${email}')" title="Remove approver" style="cursor:pointer;color:#aaa;font-size:11px;">✕</span></span>`;
+    }).join('');
+    const available=window.SP_USERS.filter(u=>!g.approvers.includes(u.email));
+    const addSelect=`<select class="ein" style="margin-top:6px;" onchange="addApprover('${g.id}',this.value)">
+      <option value="">+ Add approver</option>
+      ${available.map(u=>`<option value="${u.email}">${u.name} · ${u.email}</option>`).join('')}
+    </select>`;
+    return `<div style="border-bottom:1px solid #f5f5f5;padding:10px 0;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <input type="text" class="ein" placeholder="Group name" value="${g.label}" style="flex:1;" onchange="editApprovalGroupLabel('${g.id}',this.value)"/>
+        <span onclick="removeApprovalGroup('${g.id}')" title="Remove group" style="cursor:pointer;color:#ccc;font-size:13px;width:18px;text-align:center;flex-shrink:0;">🗑</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;">${chips||'<span style="font-size:11px;color:#aaa;">No approvers yet</span>'}</div>
+      ${addSelect}
+    </div>`;
+  }).join('');
+
+  const errHTML=window._approvalGroupError?`<div class="fhint" style="color:#cf1322;margin-top:5px;">${window._approvalGroupError}</div>`:'';
+
+  // Duplicate-member warning (§3.4 of build spec) — warn, do not block.
+  const emailCounts={};
+  groups.forEach(g=>g.approvers.forEach(e=>{ emailCounts[e]=(emailCounts[e]||0)+1; }));
+  const dupWarnings=Object.keys(emailCounts).filter(e=>emailCounts[e]>1).map(e=>{
+    const u=spUser(e);
+    return `<div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:3px;padding:8px 11px;font-size:12px;color:#8a6d00;margin-top:6px;">⚠️ ${u.name} appears in ${emailCounts[e]} approval groups — one person could satisfy both sign-offs on their own.</div>`;
+  }).join('');
+
+  const addGroupHtml = groups.length>=3
+    ? `<span style="color:#ccc;font-size:12px;font-weight:500;cursor:not-allowed;">+ Add approval group</span>`
+    : `<span onclick="addApprovalGroup()" style="cursor:pointer;color:#ee4d2d;font-size:12px;font-weight:500;">+ Add approval group</span>`;
+
+  return `<div style="border:1px solid #e8e8e8;border-radius:3px;padding:2px 10px;margin-bottom:6px;">${rows}</div>
+    <div style="margin-bottom:6px;">${addGroupHtml}</div>
+    ${errHTML}
+    ${dupWarnings}`;
 }
 
 // Playlists — explicit confirmed assignment model
@@ -554,6 +735,23 @@ function countActiveSellerAdsOnLocker(locker, excludeRef){
   ).length;
 }
 function isPaymentOverdue(c){ return isAwaitingPayment(c) && c.paymentDueAt && new Date(c.paymentDueAt) < new Date(); }
+
+// ── APPROVAL GROUPS — multi-layer human sign-off gate (temporary; see RC.approval_groups) ──
+// Threshold, not sequence: a campaign stays "Pending review" until EVERY currently-configured
+// group has at least one sign-off. Any one member of a group satisfies it. Order is display-only.
+function signoffGroups(){ return RC.approval_groups || []; }
+function groupSigned(c, groupId){ return (c.approvals||[]).some(a=>a.groupId===groupId); }
+function signoffCount(c){ return signoffGroups().filter(g=>groupSigned(c,g.id)).length; }
+function signoffMet(c){ return signoffGroups().every(g=>groupSigned(c,g.id)); }
+function pendingGroupLabels(c){ return signoffGroups().filter(g=>!groupSigned(c,g.id)).map(g=>g.label); }
+// Which group does the acting account sign for? Lowest-index group that
+// (a) lists them and (b) is not yet satisfied. Null = not authorised / nothing left to sign.
+function groupForActor(c, email){
+  return signoffGroups().find(g=>g.approvers.includes(email) && !groupSigned(c,g.id)) || null;
+}
+function isConfiguredApprover(email){
+  return signoffGroups().some(g=>g.approvers.includes(email));
+}
 function fmtTs(d){ return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
 function fmtDueIn(c){
   if(!c.paymentDueAt) return '—';
@@ -619,6 +817,39 @@ const ACCTS={
   ax:{company:'Agency XYZ',contact:'—',email:'—',status:'Suspended',spend:'SGD 36,200',camps:0},
 };
 
+// STUB — stands in for SP Portal's real user directory
+// (User Management > User List, already in the sidebar nav at the top of this file).
+// In production the approval-group roster picker queries that directory; roster
+// entries are therefore valid accounts by construction — there is no free-text
+// email entry and no client-side email validation to write.
+if(!window.SP_USERS) window.SP_USERS=[
+  {email:'gareth.wangjc@shopee.com',  name:'Gareth Wang'},
+  {email:'jane.tan@shopee.com',       name:'Jane Tan'},
+  {email:'wei.ming.lim@shopee.com',   name:'Wei Ming Lim'},
+  {email:'marcus.lee@shopee.com',     name:'Marcus Lee'},
+  {email:'priya.nair@shopee.com',     name:'Priya Nair'},
+  {email:'daniel.koh@shopee.com',     name:'Daniel Koh'},
+  {email:'siti.rahman@shopee.com',    name:'Siti Rahman'},
+];
+function spUser(email){ return window.SP_USERS.find(u=>u.email===email) || {email, name:email}; }
+
+// DEMO ONLY — a static mockup cannot represent identity integrity, and this
+// does not attempt to. Anything client-side is trivially spoofable.
+// PRODUCTION REQUIREMENT (state in the PRD): a sign-off binds to the
+// SSO-authenticated session email, validated SERVER-SIDE. The server rejects
+// any sign-off whose session email is not in that approval group's roster.
+// The client never asserts identity.
+if(!window._actingUser) window._actingUser='jane.tan@shopee.com'; // an Ops-group member, so the review page opens signable
+function actingUser(){ return spUser(window._actingUser); }
+function setActingUser(email){ window._actingUser=email; renderUserChip(); renderTab(); }
+function renderUserChip(){
+  const u=actingUser();
+  const avEl=document.getElementById('tb-av');
+  if(avEl) avEl.textContent=(u.name||u.email).charAt(0).toUpperCase();
+  const selEl=document.getElementById('tb-user-select');
+  if(selEl) selEl.innerHTML=window.SP_USERS.map(x=>`<option value="${x.email}" ${x.email===window._actingUser?'selected':''}>${x.name} ▾</option>`).join('');
+}
+
 const RC={
   price_per_spot: 0.00003,   // SGD per spot (e.g. 0.00003 = SGD 3 per 100,000 spots)
   cycle_interval: 10,        // seconds per ad slot
@@ -628,6 +859,17 @@ const RC={
   discounts:[
     {weeks:4, pct:5},
     {weeks:8, pct:10},
+  ],
+  // Ops-configurable human sign-off gate for pending-review campaigns.
+  // 1–3 groups. A campaign is approved only when EVERY currently-configured group
+  // has at least one sign-off (AND across groups). Any one member of a group
+  // satisfies it (OR within a group). Order is display-only — sign-offs may be
+  // collected in any sequence. Deleting groups here is how this feature is
+  // dialled back to a single approval layer; no code change is required.
+  approval_groups: [
+    {id:'ag1', label:'Ops',      approvers:['jane.tan@shopee.com','wei.ming.lim@shopee.com']},
+    {id:'ag2', label:'Biz Lead', approvers:['marcus.lee@shopee.com']},
+    {id:'ag3', label:'Manager',  approvers:['priya.nair@shopee.com']},
   ],
 }
 
@@ -671,7 +913,7 @@ let _panelForcedBack = false;
 function switchTab(t){curTab=t;['overview','schedule','review','finance'].forEach(id=>document.getElementById('ht-'+id).classList.toggle('on',id===t));renderTab();}
 function renderTab(){sweepUnpaidCampaigns();document.getElementById('tab-content').innerHTML=({overview:renderOverview,schedule:renderSchedule,review:renderReview,finance:renderFinance}[curTab]||renderOverview)();}
 function tog(el){const ch=el.nextElementSibling;ch.classList.toggle('closed');el.querySelector('span:last-child').textContent=ch.classList.contains('closed')?'▾':'▴';}
-document.addEventListener('DOMContentLoaded',renderTab);
+document.addEventListener('DOMContentLoaded',function(){renderUserChip();renderTab();});
 
 // ══════════════ OVERVIEW ══════════════
 function renderOverview(){
@@ -743,9 +985,9 @@ function renderOverview(){
       body += `<div style="background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:9px 13px;display:flex;align-items:center;gap:11px;margin-bottom:7px;border-left:3px solid #ee4d2d;">
         <div style="flex:1;min-width:0;">
           <div style="font-size:13px;font-weight:500;margin-bottom:2px;">${c.company}'s ad campaign needs approval</div>
-          <div style="font-size:11px;color:#888;">${goLive} · ${c.name}</div>
+          <div style="font-size:11px;color:#888;">${goLive} · ${c.name} · sign-off ${signoffCount(c)}/${signoffGroups().length}</div>
         </div>
-        <button class="btn-sm" style="flex-shrink:0;" onclick="openAdPanel('${c.ref}')">Review</button>
+        <button class="btn-sm" style="flex-shrink:0;" onclick="openAdReviewPage('${c.ref}')">Review</button>
       </div>`;
     } else if(type==='payment'){
       body += `<div style="background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:9px 13px;display:flex;align-items:center;gap:11px;margin-bottom:7px;border-left:3px solid #fa8c16;">
@@ -1331,7 +1573,7 @@ function renderReview(){
             <td style="font-size:12px;color:#555;">${exposure}</td>
             <td style="font-size:12px;color:#888;white-space:nowrap;">${period}</td>
             <td><div style="display:flex;flex-wrap:wrap;gap:3px;">${plNames.length?plNames.map(n=>`<span style="background:#f5f5f5;border:1px solid #e8e8e8;border-radius:2px;padding:1px 6px;font-size:11px;color:#555;">${n}</span>`).join(''):'<span style="font-size:12px;color:#aaa;">—</span>'}</div></td>
-            <td style="font-size:12px;color:#555;">${st.label}</td>
+            <td style="font-size:12px;color:#555;">${st.label}${st.label==='Pending review'?' · '+signoffCount(c)+'/'+signoffGroups().length:''}</td>
             <td>${!isCancelled&&isPending?`<button class="btn-sm-r" style="font-size:11px;padding:2px 8px;" onclick="openAdReviewPage('${c.ref}')">Review</button>`:`<span style="color:#1890ff;cursor:pointer;font-size:13px;" onclick="openAdPanel('${c.ref}')">View</span>`}</td>
           </tr>`;
         }).join('')}
@@ -1558,17 +1800,68 @@ function renderAdReviewPage(ref){
     + renderReviewLog(c.reviewLog, false, c.buyer, true)
     + '</div>'
     + '</div>'
+    + signoffStatusLine(c)
     + '<div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e8e8e8;padding:11px 20px;display:flex;gap:8px;justify-content:flex-end;">'
     + '<button class="btn-sm" onclick="closeAdReviewPage()">Close</button>'
     + '<button class="btn-sm-d" onclick="openRejectAdModal(\''+c.ref+'\')">Reject</button>'
-    + '<button class="btn-sm-r" onclick="openApprovePlaylistModal(\''+c.ref+'\')">Approve</button>'
+    + reviewFooterButtonHtml(c)
     + '</div>'
     + '</div>';
+}
+
+// Status line — the only persistent on-page addition for approval groups (§4.1 of build spec).
+// Not a card, no checklist rows, no timestamps, no undo link — per-sign-off history already
+// appears in the Ad tracking history panel in the right rail.
+function signoffStatusLine(c){
+  const groups=signoffGroups();
+  const total=groups.length;
+  const done=signoffCount(c);
+  const pending=pendingGroupLabels(c);
+  const allSignedNotCommitted = !c.approvedDate && pending.length===0;
+  const color=allSignedNotCommitted?'#d46b08':'#888';
+  const bg=allSignedNotCommitted?'#fffbe6':'transparent';
+  const text = pending.length
+    ? 'Sign-off: '+done+' of '+total+' group'+(total!==1?'s':'')+' · awaiting '+pending.join(', ')
+    : 'Sign-off: '+done+' of '+total+' group'+(total!==1?'s':'')+' · all groups have signed off';
+  return '<div style="padding:8px 20px;font-size:12px;color:'+color+';background:'+bg+';border-top:1px solid #f0f0f0;">'+text+'</div>';
+}
+
+// Footer Approve button — state-dependent on the acting user's relationship to the
+// approval groups (§4.2 of build spec). AI screening never gates this — it is advisory only.
+function reviewFooterButtonHtml(c){
+  const actor=actingUser();
+  const g=groupForActor(c, actor.email);
+  const reconciling = !g && signoffMet(c) && !c.approvedDate && isConfiguredApprover(actor.email);
+  if(reconciling){
+    // Mid-flight reconciliation (§6.3): groups were deleted after this campaign already
+    // collected some sign-offs, so signoffMet() is now true but nobody has committed it.
+    // ANY configured approver — including one who already signed — may commit.
+    return '<button class="btn-sm-r" onclick="openSignoffModal(\''+c.ref+'\')">Approve &amp; assign playlists</button>';
+  }
+  if(g){
+    const remaining=pendingGroupLabels(c).filter(l=>l!==g.label);
+    const isFinal=remaining.length===0;
+    const label=isFinal?'Approve &amp; assign playlists':'Sign off as '+g.label;
+    return '<button class="btn-sm-r" onclick="openSignoffModal(\''+c.ref+'\')">'+label+'</button>';
+  }
+  const myGroupAlreadySigned=signoffGroups().find(gr=>gr.approvers.includes(actor.email) && groupSigned(c,gr.id));
+  if(myGroupAlreadySigned){
+    // Genuinely disabled — retraction is not supported (removed per Gareth's explicit
+    // instruction). Once your group has signed, there is nothing left to do here, no undo.
+    return '<button class="btn-sm-r" disabled style="opacity:0.4;cursor:not-allowed;" title="Nothing further needed from you — your group has already signed off.">Already signed off as '+myGroupAlreadySigned.label+'</button>';
+  }
+  return '<button class="btn-sm-r" disabled style="opacity:0.4;cursor:not-allowed;" title="Add this account to an approval group in Booking Configuration.">Not an approver for this campaign</button>';
 }
 
 let _rejectAdRef=null;
 function openRejectAdModal(ref){
   _rejectAdRef=ref;
+  const c=window.CAMPS.find(x=>x.ref===ref);
+  const warnEl=document.getElementById('reject-ad-override-warn');
+  if(warnEl){
+    const n=c?signoffCount(c):0;
+    warnEl.innerHTML = n>0 ? '<div style="font-size:12px;color:#d46b08;margin-bottom:10px;">This will override '+n+' existing sign-off'+(n!==1?'s':'')+'.</div>' : '';
+  }
   document.getElementById('reject-ad-reason').value='';
   updateRejectAdBtn();
   openModal('reject-ad');
@@ -1590,100 +1883,180 @@ function confirmRejectAd(){
   const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
   c.rejected=true;
   c.approvedDate=null;
+  c.approvals=[]; // reject short-circuits regardless of how many groups had already signed off
   c.reviewLog=c.reviewLog||[];
   c.reviewLog.push({date:new Date().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace(',',''), event:'Rejected', by:'spx', note:reason, archivedCreative:c.creative});
   closeModal('reject-ad');
   closeAdReviewPage();
 }
 
-let _approvePlRef=null;
-function openApprovePlaylistModal(ref){
-  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
-  _approvePlRef=ref;
-
-  // Ops always assigns a playlist right after approving — payment is requested
-  // only once that's done, never the other way round.
-  if(!c.approvedDate){
-    const now=new Date();
-    c.approvedDate=now.toISOString().replace('T',' ').substring(0,19);
-    c.reviewLog=c.reviewLog||[];
-    c.reviewLog.push({date:fmtTs(now), event:'Approved', by:'spx'});
-  }
-
+// ── APPROVAL GROUPS — single merged sign-off modal ──
+// One modal handles every sign-off click: non-final, final, and the mid-flight-reconciliation
+// commit (§6.3). This replaces the earlier two-modal design (a plain confirm for non-final
+// sign-offs + a separate read-only "Approve & assign" summary for the final one) so there is
+// only one popup to build. Retraction has been removed entirely (Gareth: once signed, there is
+// nothing left to undo) — this modal is therefore only ever reached from an ENABLED footer
+// button (§4.2's "Sign off as X" / "Approve & assign" states); the "Already signed off" and
+// "Not an approver" states are genuinely disabled and never open it.
+//
+// Pre-commit copy is deliberately generic on every click — it does not preview which
+// playlists would be assigned, any cap caveat, or the exact payment amount. Those specifics
+// still compute and apply exactly as before (suggestPlaylists(), the fully-saturated
+// exclusion, the partial-saturation cap check, the payment amount/window) — see
+// finalizeApproval() below — they are simply no longer disclosed before the click, only
+// recorded to reviewLog / Ad tracking history after it.
+// Lightweight PREVIEW of which playlists would currently be auto-assigned — names only.
+// Reuses the same matching rule as finalizeApproval() (suggestPlaylists(), skip 0-match,
+// skip fully-saturated) but deliberately doesn't compute or return cap caveats/payment —
+// keep this separate from finalizeApproval(), don't merge them or duplicate its full
+// computation. Shown on every click of the merged modal so ops can see roughly where this
+// is headed even on a non-final sign-off. Best-effort: matching can shift between viewing
+// and the actual commit (e.g. another campaign saturates the same playlist in between) —
+// finalizeApproval() recomputes fresh at commit time regardless, same as before.
+function previewEligiblePlaylistNames(c){
   const suggested=suggestPlaylists(c.bookedLocTypes||[],c.bookedRegions||[]);
   const suggestedIds=new Set(suggested.map(p=>p.id));
-  const eligiblePls=window.PLAYLISTS;
-
-  let html='';
-  if(c.type!=='int' && !c.paidAt){
-    html += '<div style="background:#e6f4ff;border:1px solid #91caff;border-radius:3px;padding:9px 12px;font-size:12px;color:#096dd9;margin-bottom:12px;">This is a seller campaign — once you confirm playlists below, the seller will be notified to make payment before the ad can go live.</div>';
-  }
-  html += '<div style="font-size:12px;color:#888;margin-bottom:10px;">Playlists have been auto-assigned based on the seller\'s booked location types and regions. Each locker only plays this ad if it matches the booking — no over-delivery. De-select any before confirming if needed.</div>';
-
-  let anyRendered=false;
-  let capacityExcluded=0;
-  if(eligiblePls.length===0){
-    html += '<div style="font-size:12px;color:#aaa;">No eligible playlists for this ad type.</div>';
-  } else {
-    eligiblePls.forEach(p=>{
-      const isAssigned=(c.assignedPlaylists||[]).includes(p.id);
-      const isSuggested=suggestedIds.has(p.id);
-      const isChecked=isAssigned||isSuggested;
-      const totalLockers=window.LOCKERS.filter(l=>l.confirmedPlaylistId===p.id).length;
-      const matchingLockerObjs=window.LOCKERS.filter(l=>
-        l.confirmedPlaylistId===p.id &&
-        (c.bookedLocTypes||[]).includes(l.locType) &&
-        (c.bookedRegions||[]).includes(l.region)
-      );
-      const matchingLockers=matchingLockerObjs.length;
-      if(matchingLockers===0) return;
-      const overCapLockers=isAssigned?[]:matchingLockerObjs.filter(l=>countActiveSellerAdsOnLocker(l,c.ref)>=RC.max_seller_ads_per_locker);
-      if(overCapLockers.length>0 && overCapLockers.length===matchingLockers){ capacityExcluded++; return; }
-      anyRendered=true;
-      const matchColor=overCapLockers.length>0?'#d46b08':'#389e0d';
-      const matchNote=matchingLockers+' of '+totalLockers+' locker'+(totalLockers!==1?'s':'')+' match your booking'+(matchingLockers===0?' — no overlap':' · plays on matched lockers only')
-        +(overCapLockers.length>0?' · seller-ad cap reached at '+overCapLockers.length+' of '+matchingLockers+' matching locker'+(matchingLockers!==1?'s':''):'');
-      const locTypesHtml=(p.locTypes||[]).map(t=>'<div style="margin-bottom:2px;">'+t+'</div>').join('');
-      const regionsHtml=(p.regions||[]).map(r=>'<div style="margin-bottom:2px;">'+r+'</div>').join('');
-      html += '<div style="border:1px solid #e8e8e8;border-radius:3px;margin-bottom:6px;background:#fff;overflow:hidden;">'
-            + '<label style="display:flex;align-items:flex-start;gap:9px;padding:10px 12px;cursor:pointer;margin:0;">'
-            + '<input type="checkbox" class="pl-assign-cb" data-plid="'+p.id+'" '+(isChecked?'checked':'')+' style="accent-color:#ee4d2d;margin-top:2px;flex-shrink:0;"/>'
-            + '<div style="flex:1;min-width:0;">'
-            + '<div style="font-size:13px;font-weight:500;">'+p.name+'</div>'
-            + '<div style="font-size:11px;margin-top:3px;display:flex;align-items:center;gap:6px;">'
-            + '<span style="color:'+matchColor+';">'+matchNote+'</span>'
-            + '<button onclick="event.preventDefault();event.stopPropagation();togglePlDetail(\''+p.id+'\',this)" style="background:none;border:none;color:#1890ff;cursor:pointer;font-size:11px;padding:0;flex-shrink:0;">▾ Details</button>'
-            + '</div>'
-            + '</div></label>'
-            + '<div id="pl-detail-'+p.id+'" style="display:none;padding:8px 12px 10px 34px;border-top:1px solid #f0f0f0;">'
-            + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:11px;color:#555;">'
-            + '<div><div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Location types</div>'+locTypesHtml+'</div>'
-            + '<div><div style="font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Regions</div>'+regionsHtml+'</div>'
-            + '</div></div>'
-            + '</div>';
-    });
-    if(!anyRendered && capacityExcluded===0) html += '<div style="font-size:12px;color:#aaa;">No playlists match this booking yet.</div>';
-    if(capacityExcluded>0){
-      html += '<div style="font-size:11px;color:#d46b08;margin-top:4px;">'+capacityExcluded+' playlist'+(capacityExcluded!==1?'s':'')+' hidden — every matching locker is already at the seller-ad cap ('+RC.max_seller_ads_per_locker+' per locker, set in Booking Configuration).</div>';
-    }
-  }
-
-  document.getElementById('approve-pl-body').innerHTML=html;
-  const confirmBtn=document.getElementById('approve-pl-confirm-btn');
-  confirmBtn.disabled=false;
-  confirmBtn.style.opacity='1';
-  confirmBtn.style.cursor='pointer';
-  confirmBtn.textContent='Assign';
-  openModal('approve-pl');
-  renderTab();
+  const names=[];
+  window.PLAYLISTS.forEach(p=>{
+    if(!suggestedIds.has(p.id)) return;
+    const matchingLockerObjs=window.LOCKERS.filter(l=>
+      l.confirmedPlaylistId===p.id &&
+      (c.bookedLocTypes||[]).includes(l.locType) &&
+      (c.bookedRegions||[]).includes(l.region)
+    );
+    if(matchingLockerObjs.length===0) return; // skip 0-match, same rule as finalizeApproval
+    const overCapLockers=matchingLockerObjs.filter(l=>countActiveSellerAdsOnLocker(l,c.ref)>=RC.max_seller_ads_per_locker);
+    if(overCapLockers.length>0 && overCapLockers.length===matchingLockerObjs.length) return; // fully saturated — skip, same rule
+    names.push(p.name);
+  });
+  return names;
 }
-function confirmApprovePlaylist(){
-  const ref=_approvePlRef;
+
+function openSignoffModal(ref){
   const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
-  const checked=[...document.querySelectorAll('#approve-pl-body .pl-assign-cb:checked')].map(el=>el.dataset.plid);
-  c.assignedPlaylists=checked;
+  const actor=actingUser();
+  const g=groupForActor(c, actor.email); // lowest-index unsatisfied group they belong to, if any
+  const reconciling = !g && signoffMet(c) && !c.approvedDate && isConfiguredApprover(actor.email);
+  if(!g && !reconciling) return; // not reachable via UI — the footer button already gates this
+
+  const pendingAfter = g ? pendingGroupLabels(c).filter(l=>l!==g.label) : []; // reconciling: already none left
+  const isFinal = pendingAfter.length===0;
+
+  document.getElementById('signoff-title').textContent = isFinal ? 'Approve & assign' : 'Confirm sign-off';
+
+  const pendingBox = '<div style="background:#e6f4ff;border:1px solid #91caff;border-radius:3px;padding:9px 12px;font-size:13px;color:#096dd9;margin-bottom:12px;">'
+    + '<b>Pending sign-offs from:</b> ' + (pendingAfter.length ? pendingAfter.join(', ') : 'None — ready to approve')
+    + '</div>';
+
+  const previewNames=previewEligiblePlaylistNames(c);
+  const previewLine = previewNames.length
+    ? 'Will be auto-assigned to: '+previewNames.join(', ')
+    : 'No playlists currently match this booking yet.';
+
+  const bodyHtml = '<div style="font-size:13px;color:#333;margin-bottom:10px;">Signing off as <b>'+actor.name+'</b> ('+actor.email+')'+(g?' — '+g.label:'')+'</div>'
+    + pendingBox
+    + '<div style="font-size:12px;color:#666;">Once all sign-offs are complete, this ad will be added to the matching playlist(s) and the seller will be asked to make payment.</div>'
+    + '<div style="font-size:12px;color:#666;margin-top:4px;">'+previewLine+'</div>';
+
+  const footerHtml = '<button class="btn-w" onclick="closeModal(\'signoff\')">Cancel</button>'
+    + '<button class="btn-r" onclick="recordSignoff(\''+ref+'\')">'+(isFinal?'Approve &amp; assign':'Confirm sign-off')+'</button>';
+
+  document.getElementById('signoff-body').innerHTML=bodyHtml;
+  document.getElementById('signoff-footer').innerHTML=footerHtml;
+  openModal('signoff');
+}
+
+// recordSignoff — called by the merged modal's Confirm/Approve button (§6.1 of build spec).
+// Guarded twice against double sign-off: the disabled/re-labelled footer button on the
+// review page, and the `if(!g) return` fallback below — re-render timing makes a
+// double-click reachable, so both guards matter.
+function recordSignoff(ref){
+  const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
+  const actor=actingUser();
+  const g=groupForActor(c, actor.email);
+  if(!g){
+    const reconciling = signoffMet(c) && !c.approvedDate && isConfiguredApprover(actor.email);
+    if(!reconciling) return; // handler-level double-sign-off guard
+  } else {
+    c.approvals=c.approvals||[];
+    c.approvals.push({groupId:g.id, groupLabel:g.label, email:actor.email, name:actor.name, at:new Date().toISOString()});
+    c.reviewLog=c.reviewLog||[];
+    c.reviewLog.push({date:fmtTs(new Date()), event:'Signed off — '+g.label, by:'spx', byName:actor.name, byEmail:actor.email});
+  }
+  if(signoffMet(c)){
+    if(!c.approvedDate){
+      const now=new Date();
+      c.approvedDate=now.toISOString().replace('T',' ').substring(0,19);
+      c.reviewLog=c.reviewLog||[];
+      c.reviewLog.push({date:fmtTs(now), event:'Approved', by:'spx', byName:actor.name, byEmail:actor.email});
+    }
+    finalizeApproval(c); // playlist assignment + payment request — mechanically unchanged, just no longer previewed
+    closeModal('signoff');
+    renderTab(); // campaign has left "Pending review" — back to the list, same as the old confirmApprovePlaylist()
+  } else {
+    closeModal('signoff');
+    openAdReviewPage(ref); // stay on the page — NOT renderTab(), which would throw us back to the list
+  }
+}
+
+// finalizeApproval — runs once, at the moment the threshold is actually met and committed.
+// This is the mechanical logic that used to live in openApprovePlaylistModal()/
+// confirmApprovePlaylist() as a two-step preview-then-confirm; merging the modals collapses
+// it into a single commit step. suggestPlaylists(), the 0-match skip, the fully-saturated
+// exclusion, the partial-saturation cap check, and the payment amount/window are all kept
+// verbatim from that prior implementation — only the pre-commit disclosure is gone.
+//
+// De-select was removed from this flow on purpose (kept from the earlier reshape, still true):
+//  1. A playlist spans many location types/regions, so de-selecting one to honour a single
+//     landlord's exclusivity would drop every unrelated locker on it too. Landlord/seasonal
+//     exclusions are locker/site attributes and belong on the locker or in ADS_MATRIX.
+//  2. Price locks at assignment against ceil(matched × coverage%). De-selecting would
+//     silently under-deliver a campaign the seller is about to be billed for in full.
+//  3. The mechanical eligibility rule below already hides 0-match and fully-saturated
+//     playlists — every entry it would surface is one the matching rule says *should* be
+//     assigned. There is nothing left to choose.
+// The side panel's own Assign playlist path (assignPlaylist(), reached from openAdPanel's
+// isApproved branch) is untouched and keeps its own checkboxes — that's the escape hatch for
+// a campaign approved with zero matching playlists (see the note below).
+function finalizeApproval(c){
+  const suggested=suggestPlaylists(c.bookedLocTypes||[],c.bookedRegions||[]);
+  const suggestedIds=new Set(suggested.map(p=>p.id));
+
+  const eligibleIds=[], eligibleNames=[], saturationNotes=[];
+  let capacityExcluded=0;
+  window.PLAYLISTS.forEach(p=>{
+    if(!suggestedIds.has(p.id)) return; // eligible set = suggestPlaylists(), kept verbatim
+    const matchingLockerObjs=window.LOCKERS.filter(l=>
+      l.confirmedPlaylistId===p.id &&
+      (c.bookedLocTypes||[]).includes(l.locType) &&
+      (c.bookedRegions||[]).includes(l.region)
+    );
+    const matchingLockers=matchingLockerObjs.length;
+    if(matchingLockers===0) return; // skip 0-match, kept verbatim
+    const overCapLockers=matchingLockerObjs.filter(l=>countActiveSellerAdsOnLocker(l,c.ref)>=RC.max_seller_ads_per_locker);
+    if(overCapLockers.length>0 && overCapLockers.length===matchingLockers){ capacityExcluded++; return; } // fully saturated, kept verbatim
+    eligibleIds.push(p.id);
+    eligibleNames.push(p.name);
+    if(overCapLockers.length>0){
+      saturationNotes.push(p.name+' — seller-ad cap reached at '+overCapLockers.length+' of '+matchingLockers+' matching locker'+(matchingLockers!==1?'s':''));
+    }
+  });
+
+  c.assignedPlaylists=eligibleIds;
   const now=new Date();
   c.reviewLog=c.reviewLog||[];
+
+  // Post-commit audit trail — the merged modal no longer previews which playlists would be
+  // assigned or any cap caveat, so that's recorded here instead of being lost. Safety net for
+  // the zero-match case: the campaign is still approved (never silently stranded), but the log
+  // makes it unambiguous that nothing was assigned so ops can follow up.
+  let assignNote = eligibleIds.length
+    ? 'Assigned to '+eligibleNames.join(', ')+'.'
+    : 'No playlists currently match this booking — none assigned. Use the side panel\'s Assign playlist option once a match exists.';
+  if(saturationNotes.length) assignNote += ' ' + saturationNotes.join(' ');
+  if(capacityExcluded>0) assignNote += ' '+capacityExcluded+' playlist'+(capacityExcluded!==1?'s':'')+' excluded — fully at the seller-ad cap ('+RC.max_seller_ads_per_locker+' per locker).';
+  c.reviewLog.push({date:fmtTs(now), event:'Playlists assigned', by:'system', note:assignNote});
+
   if(c.type!=='int' && !c.paidAt){
     c.paymentDueAt=new Date(now.getTime()+RC.payment_window_hours*3600*1000).toISOString();
     c.amountDue=c.amountDue||'SGD —';
@@ -1692,13 +2065,12 @@ function confirmApprovePlaylist(){
   }
   const start=c.startDate?new Date(c.startDate):null;
   c.status=(start&&start<=now)?'Live':'Scheduled';
-  closeModal('approve-pl');
-  renderTab();
 }
 
 function approveCreative(ref){
   const c=window.CAMPS.find(x=>x.ref===ref); if(!c) return;
   if(!c.approvedDate){
+    if(!signoffMet(c)) return; // belt and braces — approval groups is the only supported approval path now
     const now=new Date();
     c.approvedDate=now.toISOString().replace('T',' ').substring(0,19);
     c.reviewLog=c.reviewLog||[];
@@ -1785,7 +2157,14 @@ function renderBookingConfig(){
       <span style="font-size:15px;flex-shrink:0;">ℹ️</span>
       <div style="font-size:12px;color:#8a6d00;line-height:1.6;">
         <b>Rates for each enabled combination below are set in Finance Portal, not here.</b><br/>
-        Locker ads are priced per locker per week, tiered by Location Type × Region × Coverage and scoped by Seller Type / Merchant Type. Finance Portal pulls the enabled combinations from this page live — only a checked cell requires a rate there. Go to Finance Portal → Billing Rule → Service Point → Locker Advertisement to set pricing.
+        Locker ads are priced per locker via a rate card scoped by Seller Type / Merchant Type, with a Tiered (contiguous coverage brackets, billed progressively — beyond a threshold, lockers from there on are charged a different rate) or Flat Fee (single rate looked up from the seller's coverage %, applied to the whole quantity) structure per Location Type × Region combination. Coverage packages are not priced separately — they only decide how many lockers a campaign takes. Finance Portal pulls the enabled combinations from this page live — only a checked cell requires a rate there. Go to Finance Portal → Billing Rule → Service Point → Locker Ads Fee to set pricing.
+      </div>
+    </div>
+
+    <div class="frow" style="align-items:flex-start;">
+      <div class="flbl" style="padding-top:4px;">Coverage packages</div>
+      <div class="fbody">
+        ${renderAdsPackagesTable()}
       </div>
     </div>
 
@@ -1793,7 +2172,7 @@ function renderBookingConfig(){
       <div class="flbl" style="padding-top:4px;">Enabled combinations</div>
       <div class="fbody">
         ${renderAdsMatrix()}
-        <div class="fhint">Determines which Location Type × Region × Coverage combinations sellers can book. The Half/Full matching logic itself (≥50%/100% of matched lockers, tiebreak lowest Point ID) is fixed in the booking engine — this only controls where each already-built tier is switched on. A Location Type with no cells checked in any region or coverage tier is not bookable by sellers at all — those lockers run internal SPX ads only (tagged "Internal ads only" on the row above).</div>
+        <div class="fhint">Determines which Location Type × Region combinations sellers can book at all. The allocation rule itself — allocate that % of the seller's matched lockers, preferring lockers with the fewest existing external ads, tiebreak lowest Point ID — is fixed in the booking engine; the packages and their percentages are configured above. A Location Type with no cells checked in any region is not bookable by sellers at all — those lockers run internal SPX ads only (tagged "Internal ads only" on the row above).</div>
       </div>
     </div>
 
@@ -1833,6 +2212,20 @@ function renderBookingConfig(){
           <span style="font-size:13px;color:#666;">external ads per locker screen</span>
         </div>
         <div class="fhint">Caps how many seller (external) campaigns can be in rotation on any single locker screen at the same time. Enforced per locker, not per playlist — a playlist can cover several location types and regions, so a campaign's actual competition for screen time depends on which specific lockers it's targeted at. Internal SPX ads don't count toward this cap. Assigning a campaign to a playlist is blocked if it would push any of that playlist's matching lockers over the cap.</div>
+      </div>
+    </div>
+
+    <!-- SECTION: AD REVIEW APPROVALS -->
+    <div style="display:flex;align-items:center;gap:10px;margin:28px 0 18px;">
+      <div style="width:4px;height:18px;background:#ee4d2d;border-radius:1px;flex-shrink:0;"></div>
+      <span style="font-size:14px;font-weight:700;color:#222;">Ad review approvals</span>
+    </div>
+
+    <div class="frow" style="align-items:flex-start;">
+      <div class="flbl" style="padding-top:4px;">Approval groups</div>
+      <div class="fbody">
+        ${renderApprovalGroupsTable()}
+        <div class="fhint">A campaign is approved only once every group below has signed off. Any one member of a group can sign off for it, and groups can sign off in any order — there is no required sequence. Reducing this to a single group restores single-approver review. Any approver can reject at any point, which sends the campaign back to the seller immediately without waiting for the other groups.</div>
       </div>
     </div>
 
@@ -2265,7 +2658,7 @@ function renderReviewLog(log, sellerView, buyerName, bare) {
     const isLast = i === log.length - 1;
     const byLabel = sellerView
       ? (entry.by === 'spx' ? 'SPX' : entry.by === 'system' ? 'System' : 'You')
-      : (entry.by === 'spx' ? 'gareth.wangjc' : entry.by === 'system' ? 'System' : (buyerName||'Seller'));
+      : (entry.by === 'spx' ? (entry.byName || entry.byEmail || 'gareth.wangjc') : entry.by === 'system' ? 'System' : (buyerName||'Seller'));
     const parts = entry.date.split(', ');
     const datePart = parts[0] || entry.date;
     const timePart = parts[1] || '';
