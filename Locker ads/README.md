@@ -1,6 +1,6 @@
 # SPX Locker Ads — Project Overview
 
-_Last updated 2026-09-19. This file is meant to be kept current — update it whenever a session changes the file map, the status flow, or a locked decision, so picking this project back up doesn't require re-reading every session log._
+_Last updated 2026-10-22. This file is meant to be kept current — update it whenever a session changes the file map, the status flow, or a locked decision, so picking this project back up doesn't require re-reading every session log._
 
 ## What this is
 
@@ -9,6 +9,12 @@ Self-serve digital OOH ad platform for SPX locker screens. Sellers (NSS + Shopee
 **Why this project exists:** SG upper management started requesting manual ad uploads via backend since Apr 2026; needed a proper ops interface. Also strategic parity with 3PL locker ad providers (e.g. Pick! Locker).
 
 **Full BRD:** Google Doc `1cdgkkzKLqXkLUDTacb9uAdL2ksUSxBKtwZv78nnJgII`. **Phase 2 PRD:** Confluence pageId `3295849790` (Gareth writes this by hand; mockups + session logs are the working notes behind it).
+
+## Current status (2026-10-22)
+
+- **Phase:** Phase 2 PRD is v41 on Confluence. §5.0 alert metrics has been through Evelyn's (Finance PM) review and the Risk Control SOP second review, and now includes the worst case sizing. §6.0 rollout stages are in.
+- **Rollout order:** UAT from the 1st week of Nov, then live testing, 2 week trial, NSS launch, Shopee sellers (Mid-Dec), external (End-Dec). Stage dates are TBC with SG.
+- **Open:** SG stage dates and go/no-go values, approved merchant types per stage, B1 match key with Fin and SPP, reconciliation owner, the $0-path line in the PRD, F4 and A9 to paste into §5.0. Detail in [daily-logs/2026-10-22.md](daily-logs/2026-10-22.md).
 
 ## The 4 portals — current files
 
@@ -21,7 +27,7 @@ Self-serve digital OOH ad platform for SPX locker screens. Sellers (NSS + Shopee
 
 These are **separate static files, not a shared live app** — config that's conceptually shared (region lists, coverage packages, rate cards) is duplicated as a hardcoded snapshot in each file, always with a code comment noting it'd be a live API pull in production. Don't assume editing one updates another.
 
-Also in this folder: `locker-advertisements-phase-1-DRAFT.html` (early draft, superseded), `SP Commission Fee Tiered Mass Template.xlsx` (real reference template the Finance mass-create GSheet is modeled on), `User guide images/` (screenshots for the ops user guide).
+Also in this folder: `locker-advertisements-phase-1-DRAFT.html` (early draft, superseded), `SP Commission Fee Tiered Mass Template.xlsx` (real reference template the Finance mass-create GSheet is modeled on), `User guide images/` (screenshots for the ops user guide), `risk_review_alerts_rollout.html` (working page for PRD §5.0 alert metrics and the Risk Control SOP second review: alerts, worst case, rollout; not a mockup) and `alert_metrics_5.0_confluence_markup.txt` (the same §5.0 table in Confluence wiki markup, for pasting).
 
 ## Campaign lifecycle (current, as of 2026-09-19)
 
@@ -59,6 +65,15 @@ Completed
 | Refunds | Handled offline (credit note), not in-system — this is what keeps "1 campaign = 1 transaction" true for Finance. |
 
 Superseded/retired, in case old context surfaces: by-spots billing, Individual Locker package, external enterprise clients (Singtel/Gov — deferred), the old compass-region taxonomy (replaced by CCR/RCR/OCR), "Network"-named coverage tiers (renamed "Coverage").
+
+## Daily log
+
+One file per working day in [daily-logs/](daily-logs/). Newest first. Sessions before 2026-10-19 are in the `session_log_*.md` files below.
+
+| Date | Summary |
+|---|---|
+| [2026-10-22](daily-logs/2026-10-22.md) | Drafted two missing §5.0 alerts: F4 (NSS $0 vs Finance) and A9 (weekly $100 blanket check) |
+| [2026-10-19](daily-logs/2026-10-19.md) | Worked Evelyn's 13 §5.0 comments (PRD v41), sized the worst case, updated prd-writer styling |
 
 ## Where to look for more
 
